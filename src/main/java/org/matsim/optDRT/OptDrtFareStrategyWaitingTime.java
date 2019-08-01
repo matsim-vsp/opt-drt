@@ -1,0 +1,237 @@
+/* *********************************************************************** *
+ * project: org.matsim.*
+ *                                                                         *
+ * *********************************************************************** *
+ *                                                                         *
+ * copyright       : (C) 2019 by the members listed in the COPYING,        *
+ *                   LICENSE and WARRANTY file.                            *
+ * email           : info at matsim dot org                                *
+ *                                                                         *
+ * *********************************************************************** *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *   See also COPYING, LICENSE and WARRANTY file                           *
+ *                                                                         *
+ * *********************************************************************** */
+
+/**
+ *
+ */
+package org.matsim.optDRT;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.events.PersonArrivalEvent;
+import org.matsim.api.core.v01.events.PersonDepartureEvent;
+import org.matsim.api.core.v01.events.PersonEntersVehicleEvent;
+import org.matsim.api.core.v01.events.PersonMoneyEvent;
+import org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler;
+import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
+import org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler;
+import org.matsim.api.core.v01.population.Person;
+import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEvent;
+import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
+import org.matsim.core.api.experimental.events.EventsManager;
+
+import com.google.inject.Inject;
+
+/**
+ * @author ikaddoura, zmeng
+ * 
+ * An implementation for different DRT fares for different times of day.
+ * The fares will be updated during the simulation depending on service parameters, e.g. the average waiting time.
+ * 
+ * Note that these fares are scored in excess to anything set in the modeparams in the config file or any other drt fare handler.
+ */
+class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, PersonEntersVehicleEventHandler, PersonArrivalEventHandler, OptDrtFareStrategy, DrtRequestSubmittedEventHandler {
+	private static final Logger log = Logger.getLogger(OptDrtFareStrategyWaitingTime.class);
+
+	private Map<Integer, Double> timeBin2distanceFarePerMeter = new HashMap<>();
+	
+    private Map<Id<Person>, DrtRequestSubmittedEvent> lastRequestSubmission = new HashMap<>();
+    private Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
+    private Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
+    
+    private int currentIteration;
+    	
+	@Inject
+	private OptDrtConfigGroup optDrtConfigGroup ;
+	
+    @Inject
+    private EventsManager events;
+    
+    @Inject
+    private Scenario scenario;
+
+    @Override
+    public void reset(int iteration) {
+    	
+    	lastRequestSubmission.clear();
+    	drtUserDepartureTime.clear();
+    	timeBin2waitingTimes.clear();
+    	
+    	this.currentIteration = iteration;
+    	
+    	// do not reset the fares from one iteration to the next one
+
+    }
+
+    @Override
+    public void handleEvent(PersonArrivalEvent event) {
+    	
+        if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+        	
+            DrtRequestSubmittedEvent e = this.lastRequestSubmission.get(event.getPersonId());
+
+            int timeBin = getTimeBin(drtUserDepartureTime.get(event.getPersonId()));
+			double timeBinDistanceFare = 0;
+			if (this.timeBin2distanceFarePerMeter.get(timeBin) != null) {
+				timeBinDistanceFare = this.timeBin2distanceFarePerMeter.get(timeBin);
+			}
+			double fare = e.getUnsharedRideDistance() * timeBinDistanceFare;
+			
+            events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare));
+        
+			this.drtUserDepartureTime.remove(event.getPersonId());
+        }
+
+    }
+
+	private int getTimeBin(double time) {
+		int timeBin = (int) (time / optDrtConfigGroup.getFareTimeBinSize());
+		return timeBin;
+	}
+
+	@Override
+	public void updateFares() {
+
+		// Compute the average waiting time and increase or decrease the price accordingly
+		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin ++) {
+			
+			double averageWaitingTime = 0.;
+			if (timeBin2waitingTimes.get(timeBin) != null) {
+				double waitingTimeSum = 0.;
+				double waitingTimeCounter = 0.;
+				
+				for (Double waitingTime : this.timeBin2waitingTimes.get(timeBin)) {
+					waitingTimeSum += waitingTime;
+					waitingTimeCounter++;
+				}
+				
+				averageWaitingTime = waitingTimeSum / waitingTimeCounter;
+			}
+						
+			double oldDistanceFare = 0.;		
+			if (timeBin2distanceFarePerMeter.get(timeBin) != null) {
+				oldDistanceFare = timeBin2distanceFarePerMeter.get(timeBin);
+			}
+			
+			double updatedDistanceFare = 0.;
+			if (averageWaitingTime > optDrtConfigGroup.getWaitingTimeThresholdForFareAdjustment()) {
+				updatedDistanceFare = oldDistanceFare + optDrtConfigGroup.getFareAdjustment();
+			} else {
+				updatedDistanceFare = oldDistanceFare - optDrtConfigGroup.getFareAdjustment();
+			}
+			
+			// do not allow for negative fares
+			if (updatedDistanceFare < 0.) updatedDistanceFare = 0.;
+			
+			// TODO: Look at the dynamics: Maybe do not decrease the fare at all or apply some blend factor, MSA, ...
+			
+			log.info("Fare in time bin " + timeBin + " changed from " + oldDistanceFare + " to " + updatedDistanceFare);
+			
+			timeBin2distanceFarePerMeter.put(timeBin, updatedDistanceFare);
+		}
+	}
+
+	@Override
+	public void handleEvent(DrtRequestSubmittedEvent event) {
+		 if (optDrtConfigGroup.getOptDrtMode().equals(event.getMode())) {
+			 this.lastRequestSubmission.put(event.getPersonId(), event);
+	     }
+	}
+
+	@Override
+	public void handleEvent(PersonDepartureEvent event) {
+		if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+			this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
+		}
+	}
+
+	@Override
+	public void handleEvent(PersonEntersVehicleEvent event) {
+		
+		if (this.drtUserDepartureTime.get(event.getPersonId()) != null) {
+			
+			double waitingTime = event.getTime() - this.drtUserDepartureTime.get(event.getPersonId());
+			int timeBin = getTimeBin(event.getTime());
+			
+			if (this.timeBin2waitingTimes.get(timeBin) == null) {
+				List<Double> waitingTimes = new ArrayList<>();
+				waitingTimes.add(waitingTime);
+				this.timeBin2waitingTimes.put(timeBin, waitingTimes);
+			} else {
+				this.timeBin2waitingTimes.get(timeBin).add(waitingTime);
+			}
+			
+		}
+	}
+
+	@Override
+	public void writeInfo() {
+		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
+		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
+		
+		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig().controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
+		File file = new File(fileName);			
+
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+			bw.write("time bin;time bin start time [sec];time bin end time [sec];average waiting time [sec];maximum waiting time[sec];fare [monetary units / meter]");
+			bw.newLine();
+
+			for (Integer timeBin : this.timeBin2waitingTimes.keySet()) {
+				int counter = 0;
+				double sum = 0.;
+				double maxWaitingTime = 0.;
+				for (Double waitingTime : timeBin2waitingTimes.get(timeBin)) {
+					sum = sum + waitingTime;
+					counter++;
+					
+					if (waitingTime > maxWaitingTime) {
+						maxWaitingTime = waitingTime;
+					}
+				}
+				
+				double timeBinStart = timeBin * optDrtConfigGroup.getFareTimeBinSize();
+				double timeBinEnd = timeBin * optDrtConfigGroup.getFareTimeBinSize() + optDrtConfigGroup.getFareTimeBinSize();
+			
+				double fare = 0.;
+				if (this.timeBin2distanceFarePerMeter.get(timeBin) != null) fare = this.timeBin2distanceFarePerMeter.get(timeBin);
+				
+				bw.write(String.valueOf(timeBin) + ";" + timeBinStart + ";" + timeBinEnd + ";" + sum / counter + ";" + maxWaitingTime + ";" + String.valueOf(fare) );
+				bw.newLine();
+			}
+			log.info("Output written to " + fileName);
+			bw.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+}

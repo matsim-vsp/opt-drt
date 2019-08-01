@@ -1,9 +1,9 @@
 /* *********************************************************************** *
- * project: org.matsim.*												   *
+ * project: org.matsim.*
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2008 by the members listed in the COPYING,        *
+ * copyright       : (C) 2019 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -16,8 +16,15 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
+
+package org.matsim.optDRT;
+
 /**
- * @author nagel
- *
- */
-package org.matsim.gui;
+* @author ikaddoura
+*/
+
+public interface OptDrtServiceAreaStrategy {
+	public void updateServiceArea();
+	public void writeInfo();
+}
+

@@ -26,6 +26,10 @@
 			<url>http://download.osgeo.org/webdav/geotools</url>
 		</repository>
 		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+		<repository>
 			<!-- Repository for MATSim releases (MATSim is not on Maven central) -->
 			<id>matsim</id>
 			<url>https://dl.bintray.com/matsim/matsim</url>
@@ -61,14 +65,27 @@
 			<version>${matsim.version}</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+        	<groupId>org.matsim.contrib</groupId>
+ 		    <artifactId>drt</artifactId>
+        	<version>${matsim.version}</version>
+       		<scope>compile</scope>
+     	</dependency>
+     	
+     	<dependency>
+        	<groupId>org.matsim.contrib</groupId>
+        	<artifactId>av</artifactId>
+        	<version>${matsim.version}</version>
+        	<scope>compile</scope>
+     	 </dependency>
 
-		<!--to get ExamplesUtils. commented out since it is another dependency, but in general this is recommended. -->
-		<!--<dependency>-->
-		<!--	<groupId>org.matsim</groupId>-->
-		<!--	<artifactId>matsim-examples</artifactId>-->
-		<!--	<version>${matsim.version}</version>-->
-		<!--</dependency>-->
-
+		<dependency>
+	    	<groupId>com.github.matsim-vsp</groupId>
+	    	<artifactId>matsim-berlin</artifactId>
+			<version>5.3</version>
+		</dependency>
+			
 	</dependencies>
 
 	<build>
