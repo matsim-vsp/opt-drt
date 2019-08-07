@@ -92,8 +92,8 @@ public final class RunDrtOpenBerlinScenario {
 			configFileName = args[0];
 			this.drtServiceAreaShapeFile = args[1];		
 		} else {	
-			configFileName = "path-to-config-file";
-			this.drtServiceAreaShapeFile = "path-to-shp-file";			
+			configFileName = "path-to-config-file"; // start from matsim-berlin 5.3 version and extend by drt-required stuff
+			this.drtServiceAreaShapeFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/berlin-v5.3-10pct/input/berlin-shp/berlin.shp";			
 		}
 		
 		this.berlin = new RunBerlinScenario(configFileName, null);			
