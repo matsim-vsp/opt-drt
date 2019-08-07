@@ -17,7 +17,7 @@
  *                                                                         *
  * *********************************************************************** */
 
-package org.matsim.run;
+package org.matsim.run.berlin;
 
 import java.io.File;
 import java.io.IOException;

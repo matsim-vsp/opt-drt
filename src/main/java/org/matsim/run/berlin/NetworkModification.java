@@ -17,7 +17,7 @@
  *                                                                         *
  * *********************************************************************** */
 
-package org.matsim.run;
+package org.matsim.run.berlin;
 
 import java.util.HashSet;
 import java.util.Set;

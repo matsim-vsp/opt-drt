@@ -17,7 +17,7 @@
  *                                                                         *
  * *********************************************************************** */
 
-package org.matsim.run;
+package org.matsim.run.berlin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +53,7 @@ import org.matsim.core.router.StageActivityTypesImpl;
 import org.matsim.core.router.TripRouter;
 import org.matsim.optDRT.OptDrtConfigGroup;
 import org.matsim.optDRT.OptDrtModule;
+import org.matsim.run.RunBerlinScenario;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
