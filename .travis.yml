@@ -1,1 +1,13 @@
 language: java
+
+# The trusty build environment allows for more memory, see https://docs.travis-ci.com/user/reference/overview/
+dist: trusty
+
+env:
+  global:
+    - MAVEN_OPTS="-Xmx6g"
+  matrix:
+    - TEST=RunExampleOptDrtOpenBerlinScenarioTest
+
+script:
+  - mvn -Dtest=${TEST} test --batch-mode -Dmatsim.preferLocalDtds=true -Dmaven.javadoc.skip -e
