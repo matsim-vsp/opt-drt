@@ -54,7 +54,7 @@ public class RunExampleOptDrtOpenBerlinScenario {
     		log.info("drtAreaShpFile: " + drtServiceAreaShpFile);
 
     	} else {
-    		arguments = new String[] {"scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml"};
+    		arguments = new String[] {"scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct-drt.config.xml"};
             drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
         	drtServiceAreaShpFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/shp-berlkoenig-area/berlkoenig-area.shp";
         }    	
