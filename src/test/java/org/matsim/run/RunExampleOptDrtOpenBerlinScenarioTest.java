@@ -40,7 +40,7 @@ public class RunExampleOptDrtOpenBerlinScenarioTest {
 	public final void test0() {
 		try {
 			
-			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
+			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct-drt.config.xml";
 			final String[] args = {configFilename,
 					"--config:controler.runId", "test0",
 					"--config:controler.outputDirectory", utils.getOutputDirectory()};
