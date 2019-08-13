@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<!DOCTYPE vehicles SYSTEM "http://matsim.org/files/dtd/dvrp_vehicles_v1.dtd">
+
+<vehicles>
+	<vehicle id="taxi_1_1" start_link="1" t_0="21600" t_1="104400"/>
+	<vehicle id="taxi_1_2" start_link="1" t_0="21600" t_1="104400"/>
+</vehicles>

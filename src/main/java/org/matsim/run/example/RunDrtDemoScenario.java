@@ -2,8 +2,10 @@ package org.matsim.run.example;
 
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareModule;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
+import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFareConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFareModule;
 import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFaresConfigGroup;
 import org.matsim.contrib.drt.routing.DrtRoute;
@@ -40,7 +42,7 @@ public class RunDrtDemoScenario {
         if ( args.length != 0 ){
             configFileName = args[0];
         } else {
-            configFileName = "path-to-config-file"; // start from matsim-berlin 5.3 version and extend by drt-required stuff
+            configFileName = "scenarios/demo/demo_config.xml"; // start from matsim-berlin 5.3 version and extend by drt-required stuff
         }
 
         this.demo = new RunBerlinScenario(configFileName, null);
@@ -53,17 +55,19 @@ public class RunDrtDemoScenario {
     private void run() {
         // dvrp, drt, taxi, optDrt config groups
         ConfigGroup[] configGroups = {new DvrpConfigGroup(), new DrtConfigGroup(), new TaxiConfigGroup(),
-                new DrtFaresConfigGroup(), new TaxiFaresConfigGroup(), new OptDrtConfigGroup() };
+                new DrtFareConfigGroup(), new TaxiFareConfigGroup(), new OptDrtConfigGroup() };
         Config config = demo.prepareConfig(configGroups);
 
         DrtConfigs.adjustDrtConfig(DrtConfigGroup.get(config), config.planCalcScore());
-        //todo: check if we have stage Activities for both drt and taxi
+        //todo: what is the reason that in drts output file there are none drt_walk mode, although we can see that in modestats.txt
+
+        config.controler().setLastIteration(0);
 
         Scenario scenario = demo.prepareScenario();
         RouteFactories routeFactories = scenario.getPopulation().getFactory().getRouteFactories();
         routeFactories.setRouteFactory(DrtRoute.class, new DrtRouteFactory());
 
-        // todo: try to find a way to get rid of these, because we dont need the out of service area things
+        // dont need service area settings
         //BerlinShpUtils shpUtils = new BerlinShpUtils(drtServiceAreaShapeFile);
         //new NetworkModification(shpUtils).addDRTmode(scenario, drtNetworkMode, drtServiceAreaAttribute);
         //new PersonAttributesModification(shpUtils, stageActivities).run(scenario);
@@ -74,10 +78,9 @@ public class RunDrtDemoScenario {
         controler.addOverridingModule(new TaxiModule());
         controler.addOverridingModule(new DrtModule());
         controler.addOverridingModule(new DvrpModule());
-        controler.configureQSimComponents(
-                DvrpQSimComponents.activateModes(DrtConfigGroup.get(controler.getConfig()).getMode()));
-        controler.configureQSimComponents(
-                DvrpQSimComponents.activateModes(TaxiConfigGroup.get(controler.getConfig()).getMode()));
+
+        String[] dvrpModes = {"taxi","drt"};
+        controler.configureQSimComponents(DvrpQSimComponents.activateModes(dvrpModes));
 
         // Add drt & taxi-specific fare module
         controler.addOverridingModule(new DrtFareModule());
