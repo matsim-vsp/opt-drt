@@ -4,10 +4,8 @@ import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareModule;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFareConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFareModule;
-import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFaresConfigGroup;
 import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
 import org.matsim.contrib.drt.run.DrtConfigGroup;
@@ -32,11 +30,11 @@ import org.matsim.run.RunBerlinScenario;
  *
  * @author zmeng
  */
-public class RunDrtDemoScenario {
-    private static final Logger log = Logger.getLogger(RunDrtDemoScenario.class);
+public class RunOptDrtDemoScenario {
+    private static final Logger log = Logger.getLogger(RunOptDrtDemoScenario.class);
     private RunBerlinScenario demo;
 
-    private RunDrtDemoScenario(String[] args) {
+    private RunOptDrtDemoScenario(String[] args) {
         String configFileName;
 
         if ( args.length != 0 ){
@@ -49,7 +47,7 @@ public class RunDrtDemoScenario {
     }
 
     public static void main(String[] args) {
-        new RunDrtDemoScenario(args).run() ;
+        new RunOptDrtDemoScenario(args).run() ;
     }
 
     private void run() {
