@@ -51,8 +51,8 @@ public class RunDrtOpenBerlinScenarioTest {
 		
 	        Controler controler = new RunDrtOpenBerlinScenario().run(args, drtVehiclesFile, drtServiceAreaShpFile) ;
 	        
-			Assert.assertEquals("Wrong score.", -0.12345, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(0), MatsimTestUtils.EPSILON);
-
+			Assert.assertEquals("Wrong average executed score in iteration 3.", 109.62193272002865, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(3), MatsimTestUtils.EPSILON);
+			
 			log.info( "Done with test0"  );
 			log.info("") ;
 			
