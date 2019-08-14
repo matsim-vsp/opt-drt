@@ -40,9 +40,10 @@ public class RunExampleOptDrtOpenBerlinScenarioTest {
 	public final void test0() {
 		try {
 			
-			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct-drt.config.xml";
+			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
 			final String[] args = {configFilename,
 					"--config:controler.runId", "test0",
+					"--config:controler.lastIteration", "3",
 					"--config:controler.outputDirectory", utils.getOutputDirectory()};
 			
 			String drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
