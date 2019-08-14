@@ -65,7 +65,7 @@ public class RunDrtOpenBerlinScenarioTest {
 	        
 	        controler.run() ;
 	        
-			Assert.assertEquals("Wrong average executed score in iteration 1.", 108.0286771014156, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(3), MatsimTestUtils.EPSILON);
+			Assert.assertEquals("Wrong average executed score in iteration 1.", 108.0286771014156, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(1), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("Wrong number of drt legs in final iteation.", 536, modeAnalyzer.getEnteredDrtVehicles());
 
 			log.info( "Done with test0"  );
