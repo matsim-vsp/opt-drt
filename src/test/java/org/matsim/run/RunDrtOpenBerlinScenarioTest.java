@@ -43,7 +43,7 @@ public class RunDrtOpenBerlinScenarioTest {
 			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
 			final String[] args = {configFilename,
 					"--config:controler.runId", "test0",
-					"--config:controler.lastIteration", "3",
+					"--config:controler.lastIteration", "1",
 					"--config:controler.outputDirectory", utils.getOutputDirectory()};
 			
 			String drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
@@ -51,7 +51,7 @@ public class RunDrtOpenBerlinScenarioTest {
 		
 	        Controler controler = new RunDrtOpenBerlinScenario().run(args, drtVehiclesFile, drtServiceAreaShpFile) ;
 	        
-			Assert.assertEquals("Wrong average executed score in iteration 3.", 109.62193272002865, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(3), MatsimTestUtils.EPSILON);
+			Assert.assertEquals("Wrong average executed score in iteration 3.", 108.0286771014156, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(3), MatsimTestUtils.EPSILON);
 			
 			log.info( "Done with test0"  );
 			log.info("") ;
