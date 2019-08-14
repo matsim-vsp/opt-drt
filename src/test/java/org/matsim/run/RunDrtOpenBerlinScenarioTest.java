@@ -51,7 +51,7 @@ public class RunDrtOpenBerlinScenarioTest {
 			String drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
 			String drtServiceAreaShpFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/shp-berlkoenig-area/berlkoenig-area.shp";
 		
-	        Controler controler = new RunDrtOpenBerlinScenario().run(args, drtVehiclesFile, drtServiceAreaShpFile) ;
+	        Controler controler = new RunDrtOpenBerlinScenario().prepareControler(args, drtVehiclesFile, drtServiceAreaShpFile);
 	        
 	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
 	        
@@ -62,6 +62,8 @@ public class RunDrtOpenBerlinScenarioTest {
 					this.addEventHandlerBinding().toInstance(modeAnalyzer);
 				}
 			});
+	        
+	        controler.run() ;
 	        
 			Assert.assertEquals("Wrong average executed score in iteration 1.", 108.0286771014156, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(3), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("Wrong number of drt legs in final iteation.", 536, modeAnalyzer.getEnteredDrtVehicles());

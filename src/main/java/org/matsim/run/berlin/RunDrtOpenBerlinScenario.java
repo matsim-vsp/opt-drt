@@ -61,10 +61,10 @@ public class RunDrtOpenBerlinScenario {
         	drtServiceAreaShpFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/shp-berlkoenig-area/berlkoenig-area.shp";
         }    	
     
-        new RunDrtOpenBerlinScenario().run(arguments, drtVehiclesFile, drtServiceAreaShpFile) ;
+        new RunDrtOpenBerlinScenario().prepareControler(arguments, drtVehiclesFile, drtServiceAreaShpFile).run() ;
     }
 
-    public Controler run(String[] args, String drtVehiclesFile, String drtServiceAreaShpFile) {
+    public Controler prepareControler(String[] args, String drtVehiclesFile, String drtServiceAreaShpFile) {
     	
     	Config config = RunBerlinScenario.prepareConfig(args);
     	config.addModule(new DvrpConfigGroup());
@@ -149,8 +149,6 @@ public class RunDrtOpenBerlinScenario {
         // optDrt module
 //        OptDrtConfigGroup optDrtConfigGroup = ConfigUtils.addOrGetModule(config, OptDrtConfigGroup.class);
 //        controler.addOverridingModule(new OptDrtModule(optDrtConfigGroup));
-
-        controler.run();
 
         log.info("Done.");
         
