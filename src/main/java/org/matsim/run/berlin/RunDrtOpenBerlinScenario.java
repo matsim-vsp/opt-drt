@@ -108,6 +108,7 @@ public class RunDrtOpenBerlinScenario {
     	drtCfg.setChangeStartLinkToLastLinkInSchedule(true);
     	drtCfg.setIdleVehiclesReturnToDepots(false);
     	drtCfg.setRequestRejection(false);
+    	drtCfg.setPrintDetailedWarnings(false);
     	    	
     	// set drt fare
     	for (DrtFareConfigGroup drtFareCfg : DrtFaresConfigGroup.get(config).getDrtFareConfigGroups()) {
