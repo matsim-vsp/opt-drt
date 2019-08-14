@@ -36,8 +36,8 @@ import org.matsim.run.RunBerlinScenario;
  *
  * @author ikaddoura
  */
-public class RunExampleOptDrtOpenBerlinScenario {
-    private static final Logger log = Logger.getLogger(RunExampleOptDrtOpenBerlinScenario.class);
+public class RunDrtOpenBerlinScenario {
+    private static final Logger log = Logger.getLogger(RunDrtOpenBerlinScenario.class);
     
     public static void main(String[] args) {
     	String[] arguments;
@@ -61,7 +61,7 @@ public class RunExampleOptDrtOpenBerlinScenario {
         	drtServiceAreaShpFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/shp-berlkoenig-area/berlkoenig-area.shp";
         }    	
     
-        new RunExampleOptDrtOpenBerlinScenario().run(arguments, drtVehiclesFile, drtServiceAreaShpFile) ;
+        new RunDrtOpenBerlinScenario().run(arguments, drtVehiclesFile, drtServiceAreaShpFile) ;
     }
 
     public Controler run(String[] args, String drtVehiclesFile, String drtServiceAreaShpFile) {

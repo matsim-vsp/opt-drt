@@ -24,15 +24,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
 import org.matsim.core.controler.Controler;
-import org.matsim.run.berlin.RunExampleOptDrtOpenBerlinScenario;
+import org.matsim.run.berlin.RunDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
 
 /**
  * @author ikaddoura
  *
  */
-public class RunExampleOptDrtOpenBerlinScenarioTest {
-	private static final Logger log = Logger.getLogger( RunExampleOptDrtOpenBerlinScenarioTest.class ) ;
+public class RunDrtOpenBerlinScenarioTest {
+	private static final Logger log = Logger.getLogger( RunDrtOpenBerlinScenarioTest.class ) ;
 	
 	@Rule public MatsimTestUtils utils = new MatsimTestUtils() ;
 	
@@ -49,7 +49,7 @@ public class RunExampleOptDrtOpenBerlinScenarioTest {
 			String drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
 			String drtServiceAreaShpFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/shp-berlkoenig-area/berlkoenig-area.shp";
 		
-	        Controler controler = new RunExampleOptDrtOpenBerlinScenario().run(args, drtVehiclesFile, drtServiceAreaShpFile) ;
+	        Controler controler = new RunDrtOpenBerlinScenario().run(args, drtVehiclesFile, drtServiceAreaShpFile) ;
 	        
 			Assert.assertEquals("Wrong score.", -0.12345, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(0), MatsimTestUtils.EPSILON);
 
