@@ -13,7 +13,6 @@ import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareModule;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
 import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
-import org.matsim.contrib.drt.routing.DrtStageActivityType;
 import org.matsim.contrib.drt.run.DrtConfigGroup;
 import org.matsim.contrib.drt.run.DrtConfigs;
 import org.matsim.contrib.drt.run.DrtModule;
@@ -23,13 +22,9 @@ import org.matsim.contrib.dvrp.run.DvrpConfigGroup;
 import org.matsim.contrib.dvrp.run.DvrpModule;
 import org.matsim.contrib.dvrp.run.DvrpQSimComponents;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
 import org.matsim.core.config.groups.QSimConfigGroup.StarttimeInterpretation;
 import org.matsim.core.controler.Controler;
-import org.matsim.core.population.routes.RouteFactories;
-import org.matsim.optDRT.OptDrtConfigGroup;
-import org.matsim.optDRT.OptDrtModule;
 import org.matsim.run.RunBerlinScenario;
 
 /**
