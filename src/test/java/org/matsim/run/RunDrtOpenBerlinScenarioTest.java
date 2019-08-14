@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
+import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.run.berlin.RunDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
@@ -42,6 +43,7 @@ public class RunDrtOpenBerlinScenarioTest {
 			
 			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
 			final String[] args = {configFilename,
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
 					"--config:controler.runId", "test0",
 					"--config:controler.lastIteration", "1",
 					"--config:controler.outputDirectory", utils.getOutputDirectory()};
@@ -51,8 +53,19 @@ public class RunDrtOpenBerlinScenarioTest {
 		
 	        Controler controler = new RunDrtOpenBerlinScenario().run(args, drtVehiclesFile, drtServiceAreaShpFile) ;
 	        
-			Assert.assertEquals("Wrong average executed score in iteration 3.", 108.0286771014156, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(3), MatsimTestUtils.EPSILON);
-			
+	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
+	        
+	        controler.addOverridingModule(new AbstractModule() {
+				
+				@Override
+				public void install() {
+					this.addEventHandlerBinding().toInstance(modeAnalyzer);
+				}
+			});
+	        
+			Assert.assertEquals("Wrong average executed score in iteration 1.", 108.0286771014156, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(3), MatsimTestUtils.EPSILON);
+			Assert.assertEquals("Wrong number of drt legs in final iteation.", 536, modeAnalyzer.getEnteredDrtVehicles());
+
 			log.info( "Done with test0"  );
 			log.info("") ;
 			
@@ -61,4 +74,5 @@ public class RunDrtOpenBerlinScenarioTest {
 			throw new RuntimeException(ee) ;
 		}
 	}
+	
 }
