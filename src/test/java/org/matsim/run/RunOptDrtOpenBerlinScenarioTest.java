@@ -41,12 +41,12 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	public final void test0() {
 		try {
 			
-			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct-optDrt.config.xml";
+			String configFilename = "test/input/berlin-v5.4-1pct-optDrt.config.xml";
 			final String[] args = {configFilename,
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
 					"--config:controler.runId", "test1",
 					"--config:controler.lastIteration", "1",
-					"--config:plans.inputPlansFile", "../../../test/input/one-test-agent.xml",
+					"--config:plans.inputPlansFile", "one-test-agent.xml",
 					"--config:transit.useTransit", "false",
 					"--config:controler.outputDirectory", utils.getOutputDirectory()};
 			
