@@ -23,19 +23,17 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.core.config.Config;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
-import org.matsim.run.berlin.RunDrtOpenBerlinScenario;
+import org.matsim.run.berlin.RunOptDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
 
 /**
  * @author ikaddoura
  *
  */
-public class RunDrtOpenBerlinScenarioTest {
-	private static final Logger log = Logger.getLogger( RunDrtOpenBerlinScenarioTest.class ) ;
+public class RunOptDrtOpenBerlinScenarioTest {
+	private static final Logger log = Logger.getLogger( RunOptDrtOpenBerlinScenarioTest.class ) ;
 	
 	@Rule public MatsimTestUtils utils = new MatsimTestUtils() ;
 	
@@ -53,12 +51,12 @@ public class RunDrtOpenBerlinScenarioTest {
 			String drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
 			String drtServiceAreaShpFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/shp-berlkoenig-area/berlkoenig-area.shp";
 		
-			Config config = RunDrtOpenBerlinScenario.prepareConfig(args, drtVehiclesFile);
-			Scenario scenario = RunDrtOpenBerlinScenario.prepareScenario(config, drtServiceAreaShpFile);
-	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario);
-	        	        
+	        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args, drtVehiclesFile, drtServiceAreaShpFile);
+	        
 	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
+	        
 	        controler.addOverridingModule(new AbstractModule() {
+				
 				@Override
 				public void install() {
 					this.addEventHandlerBinding().toInstance(modeAnalyzer);

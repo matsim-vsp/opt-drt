@@ -36,6 +36,7 @@ import org.matsim.run.RunBerlinScenario;
  */
 public class RunDrtOpenBerlinScenario {
     private static final Logger log = Logger.getLogger(RunDrtOpenBerlinScenario.class);
+	private final static String drtServiceAreaAttribute = "drtServiceArea";
     
     public static void main(String[] args) {
     	String[] arguments;
@@ -59,11 +60,12 @@ public class RunDrtOpenBerlinScenario {
         	drtServiceAreaShpFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/shp-berlkoenig-area/berlkoenig-area.shp";
         }    	
     
-        new RunDrtOpenBerlinScenario().prepareControler(arguments, drtVehiclesFile, drtServiceAreaShpFile).run() ;
+        Config config = prepareConfig(arguments, drtVehiclesFile);
+        Scenario scenario = prepareScenario(config, drtServiceAreaShpFile);
+        prepareControler(scenario).run();
     }
 
-    public Controler prepareControler(String[] args, String drtVehiclesFile, String drtServiceAreaShpFile) {
-    	
+    public static Config prepareConfig(String[] args, String drtVehiclesFile) {
     	Config config = RunBerlinScenario.prepareConfig(args);
     	config.addModule(new DvrpConfigGroup());
     	config.addModule(new DrtConfigGroup());
@@ -117,26 +119,35 @@ public class RunDrtOpenBerlinScenario {
         	drtFareCfg.setTimeFare_h(0.);
     	}
     	
+    	return config;
+    }
+    
+    public static Scenario prepareScenario(Config config, String drtServiceAreaShpFile) {
+    	
     	Scenario scenario = RunBerlinScenario.prepareScenario(config);
     	
     	// required by drt module
     	scenario.getPopulation().getFactory().getRouteFactories().setRouteFactory(DrtRoute.class, new DrtRouteFactory());
            
-		String drtServiceAreaAttribute = "drtServiceArea";
         addDRTServiceAreaParameterToCarLinks(scenario, drtServiceAreaAttribute, drtServiceAreaShpFile);
     	
+        return scenario;
+    }
+    
+    public static Controler prepareControler(Scenario scenario) {
+
     	Controler controler = RunBerlinScenario.prepareControler(scenario);
     	
     	// add drt module (and related modules)
     	controler.addOverridingModule(new DvrpModule());
 		controler.addOverridingModule(new DrtModule());
-		controler.configureQSimComponents(DvrpQSimComponents.activateModes(drtCfg.getMode()));
+		controler.configureQSimComponents(DvrpQSimComponents.activateModes(DrtConfigGroup.get(scenario.getConfig()).getMode()));
 		
 		// add drt fare module
         controler.addOverridingModule(new DrtFareModule());
         
         // only serve drt requests within the service area
-        controler.addOverridingQSimModule(new AbstractDvrpModeQSimModule(DrtConfigGroup.get(config).getMode()) {
+        controler.addOverridingQSimModule(new AbstractDvrpModeQSimModule(DrtConfigGroup.get(scenario.getConfig()).getMode()) {
  			@Override
  			protected void configureQSim() {
 				bindModal(PassengerRequestValidator.class).toInstance(
@@ -161,7 +172,7 @@ public class RunDrtOpenBerlinScenario {
         return controler;
     }
     	
-	private void addDRTServiceAreaParameterToCarLinks(Scenario scenario, String serviceAreaAttribute, String drtServiceAreaShpFile) {
+	private static void addDRTServiceAreaParameterToCarLinks(Scenario scenario, String serviceAreaAttribute, String drtServiceAreaShpFile) {
 		
 		log.info("Loading drt service area shape file...");
 		BerlinShpUtils shpUtils = new BerlinShpUtils(drtServiceAreaShpFile);    	
