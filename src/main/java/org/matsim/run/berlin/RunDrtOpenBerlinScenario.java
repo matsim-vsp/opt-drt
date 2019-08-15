@@ -70,7 +70,6 @@ public class RunDrtOpenBerlinScenario {
     	config.addModule(new DvrpConfigGroup());
     	config.addModule(new DrtConfigGroup());
     	config.addModule(new DrtFaresConfigGroup());
-//    	config.addModule(new OptDrtConfigGroup());
     	
     	// add drt mode	
     	List<String> modes = new ArrayList<String>(Arrays.asList(config.subtourModeChoice().getModes()));
@@ -163,10 +162,6 @@ public class RunDrtOpenBerlinScenario {
  			}
  		});
 
-        // optDrt module
-//        OptDrtConfigGroup optDrtConfigGroup = ConfigUtils.addOrGetModule(config, OptDrtConfigGroup.class);
-//        controler.addOverridingModule(new OptDrtModule(optDrtConfigGroup));
-
         log.info("Done.");
         
         return controler;
@@ -174,9 +169,12 @@ public class RunDrtOpenBerlinScenario {
     	
 	private static void addDRTServiceAreaParameterToCarLinks(Scenario scenario, String serviceAreaAttribute, String drtServiceAreaShpFile) {
 		
-		log.info("Loading drt service area shape file...");
-		BerlinShpUtils shpUtils = new BerlinShpUtils(drtServiceAreaShpFile);    	
-    	log.info("Loading drt service area shape file... Done.");
+		BerlinShpUtils shpUtils = null;
+		if (drtServiceAreaShpFile != null) {
+			log.info("Loading drt service area shape file...");
+			shpUtils = new BerlinShpUtils(drtServiceAreaShpFile);    	
+			log.info("Loading drt service area shape file... Done.");
+		}
 		
 		log.info("Adding drt service area parameter to links...");
 
@@ -187,12 +185,16 @@ public class RunDrtOpenBerlinScenario {
 			counter++;
 			if (link.getAllowedModes().contains(TransportMode.car)) {
 	
-				if (shpUtils.isCoordInDrtServiceArea(link.getFromNode().getCoord())
+				if (drtServiceAreaShpFile != null) {
+					if (shpUtils.isCoordInDrtServiceArea(link.getFromNode().getCoord())
 						|| shpUtils.isCoordInDrtServiceArea(link.getToNode().getCoord())) {
 					link.getAttributes().putAttribute(serviceAreaAttribute, true);
+					} else {
+						link.getAttributes().putAttribute(serviceAreaAttribute, false);
+					}
 				} else {
-					link.getAttributes().putAttribute(serviceAreaAttribute, false);
-				}
+					link.getAttributes().putAttribute(serviceAreaAttribute, true);
+				}			
 			}
 		}
 		
