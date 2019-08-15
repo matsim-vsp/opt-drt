@@ -44,7 +44,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			String configFilename = "test/input/berlin-v5.4-1pct-optDrt.config.xml";
 			final String[] args = {configFilename,
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
-					"--config:controler.runId", "test1",
+					"--config:controler.runId", "test0",
 					"--config:controler.lastIteration", "1",
 					"--config:plans.inputPlansFile", "one-test-agent.xml",
 					"--config:transit.useTransit", "false",
@@ -69,7 +69,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	        
 			Assert.assertEquals("Wrong number of drt legs in final iteation.", 2, modeAnalyzer.getEnteredDrtVehicles());
 
-			log.info( "Done with test0"  );
+			log.info( "Done."  );
 			log.info("") ;
 			
 		} catch ( Exception ee ) {
@@ -85,7 +85,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
 			final String[] args = {configFilename,
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
-					"--config:controler.runId", "test0",
+					"--config:controler.runId", "test1",
 					"--config:controler.lastIteration", "1",
 					"--config:controler.outputDirectory", utils.getOutputDirectory()};
 			
@@ -109,7 +109,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			Assert.assertEquals("Wrong average executed score in iteration 0.", 114.7485847286583, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(0), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("Wrong number of drt legs in final iteation.", 61, modeAnalyzer.getEnteredDrtVehicles());
 
-			log.info( "Done with test0"  );
+			log.info( "Done."  );
 			log.info("") ;
 			
 		} catch ( Exception ee ) {
