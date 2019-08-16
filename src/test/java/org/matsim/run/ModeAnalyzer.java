@@ -19,7 +19,9 @@
 
 package org.matsim.run;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.matsim.api.core.v01.Id;
@@ -38,11 +40,15 @@ public class ModeAnalyzer implements PersonDepartureEventHandler, PersonEntersVe
 
 	private final Set<Id<Person>> drtPassengers = new HashSet<>();
 	private int enteredDrtVehicles = 0;
+	private Map<Integer, Integer> it2enteredDrtPassengers = new HashMap<>();
+	private int currentIteration = 0;
 	
 	@Override
 	public void reset(int iteration) {
 		this.drtPassengers.clear();
 		this.enteredDrtVehicles = 0;
+		this.currentIteration = iteration;
+		this.it2enteredDrtPassengers.put(currentIteration, 0);
 	}
 
 	@Override
@@ -58,12 +64,20 @@ public class ModeAnalyzer implements PersonDepartureEventHandler, PersonEntersVe
 
 	@Override
 	public void handleEvent(PersonEntersVehicleEvent event) {
-		if (drtPassengers.contains(event.getPersonId())) enteredDrtVehicles++;
+		if (drtPassengers.contains(event.getPersonId())) {
+			enteredDrtVehicles++;
+			int oldNumber = this.it2enteredDrtPassengers.get(currentIteration);
+			this.it2enteredDrtPassengers.put(currentIteration, oldNumber + 1);
+		}
 	}
 
 	public int getEnteredDrtVehicles() {
 		return enteredDrtVehicles;
 	}
 
+	public Map<Integer, Integer> getIt2enteredDrtPassengers() {
+		return it2enteredDrtPassengers;
+	}
+	
 }
 

@@ -70,12 +70,12 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 					+ " Aborting... ");
 		}
 		
-		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled && optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == null) {
+		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled && optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == "") {
 			throw new RuntimeException("opt drt input shape file for service area adjustment is 'null'. Aborting...");
 		}
 		
 		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled && optDrtConfigGroup.getInputShapeFileInitialServiceArea() == null) {
-			throw new RuntimeException("opt drt input shape file for initial service area is 'null'. Aborting...");
+			log.info("opt drt input shape file for initial service area is empty. Starting without any restriction regarding the drt service area...");
 		}
 	}
 

@@ -40,7 +40,7 @@ public class RunDrtOpenBerlinScenarioTest {
 	@Rule public MatsimTestUtils utils = new MatsimTestUtils() ;
 	
 	@Test
-	public final void test0() {
+	public final void test1Agent() {
 		try {
 			
 			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
@@ -57,7 +57,7 @@ public class RunDrtOpenBerlinScenarioTest {
 		
 			Config config = RunDrtOpenBerlinScenario.prepareConfig(args, drtVehiclesFile);
 			Scenario scenario = RunDrtOpenBerlinScenario.prepareScenario(config, drtServiceAreaShpFile);
-	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario);
+	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario, drtServiceAreaShpFile);
 	        
 	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
 	        
@@ -83,7 +83,93 @@ public class RunDrtOpenBerlinScenarioTest {
 	}
 	
 	@Test
-	public final void test1() {
+	public final void test1AgentRejected() {
+		try {
+			
+			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
+			final String[] args = {configFilename,
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
+					"--config:controler.runId", "test0",
+					"--config:controler.lastIteration", "1",
+					"--config:plans.inputPlansFile", "../../../test/input/one-test-agent.xml",
+					"--config:transit.useTransit", "false",
+					"--config:controler.outputDirectory", utils.getOutputDirectory()};
+			
+			String drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
+			String drtServiceAreaShpFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/shp-berlkoenig-area/berlkoenig-area.shp";
+		
+			Config config = RunDrtOpenBerlinScenario.prepareConfig(args, drtVehiclesFile);
+			Scenario scenario = RunDrtOpenBerlinScenario.prepareScenario(config, drtServiceAreaShpFile);
+	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario, drtServiceAreaShpFile);
+	        
+	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
+	        
+	        controler.addOverridingModule(new AbstractModule() {
+				
+				@Override
+				public void install() {
+					this.addEventHandlerBinding().toInstance(modeAnalyzer);
+				}
+			});
+	        
+	        controler.run() ;
+	        
+			Assert.assertEquals("Wrong number of drt legs in final iteation.", 0, modeAnalyzer.getEnteredDrtVehicles());
+
+			log.info( "Done."  );
+			log.info("") ;
+			
+		} catch ( Exception ee ) {
+			ee.printStackTrace();
+			throw new RuntimeException(ee) ;
+		}
+	}
+	
+	@Test
+	public final void test1agentSameLink() {
+		try {
+			
+			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
+			final String[] args = {configFilename,
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
+					"--config:controler.runId", "test0",
+					"--config:controler.lastIteration", "1",
+					"--config:plans.inputPlansFile", "../../../test/input/one-test-agent-sameLink.xml",
+					"--config:transit.useTransit", "false",
+					"--config:controler.outputDirectory", utils.getOutputDirectory()};
+			
+			String drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
+			String drtServiceAreaShpFile = null;
+		
+			Config config = RunDrtOpenBerlinScenario.prepareConfig(args, drtVehiclesFile);
+			Scenario scenario = RunDrtOpenBerlinScenario.prepareScenario(config, drtServiceAreaShpFile);
+	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario, drtServiceAreaShpFile);
+	        
+	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
+	        
+	        controler.addOverridingModule(new AbstractModule() {
+				
+				@Override
+				public void install() {
+					this.addEventHandlerBinding().toInstance(modeAnalyzer);
+				}
+			});
+	        
+	        controler.run() ;
+	        
+			Assert.assertEquals("Wrong number of drt legs in final iteation.", 0, modeAnalyzer.getEnteredDrtVehicles());
+
+			log.info( "Done."  );
+			log.info("") ;
+			
+		} catch ( Exception ee ) {
+			ee.printStackTrace();
+			throw new RuntimeException(ee) ;
+		}
+	}
+	
+	@Test
+	public final void testAnotherAgent() {
 		try {
 			
 			String configFilename = "scenarios/berlin-v5.4-1pct/input/berlin-v5.4-1pct.config.xml";
@@ -100,7 +186,7 @@ public class RunDrtOpenBerlinScenarioTest {
 		
 			Config config = RunDrtOpenBerlinScenario.prepareConfig(args, drtVehiclesFile);
 			Scenario scenario = RunDrtOpenBerlinScenario.prepareScenario(config, drtServiceAreaShpFile);
-	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario);
+	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario, drtServiceAreaShpFile);
 	        
 	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
 	        
@@ -141,7 +227,7 @@ public class RunDrtOpenBerlinScenarioTest {
 		
 			Config config = RunDrtOpenBerlinScenario.prepareConfig(args, drtVehiclesFile);
 			Scenario scenario = RunDrtOpenBerlinScenario.prepareScenario(config, drtServiceAreaShpFile);
-	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario);
+	        Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario, drtServiceAreaShpFile);
 	        	        
 	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
 	        controler.addOverridingModule(new AbstractModule() {

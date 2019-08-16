@@ -19,7 +19,9 @@
 
 package org.matsim.optDRT;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -71,6 +73,8 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 	
 	private final OptDrtConfigGroup optDrtCfg;
 	
+    private int currentIteration;
+	
 	@Inject
 	private Scenario scenario;
 
@@ -79,14 +83,31 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 		
 		geometries = loadShapeFile(optDrtCfg.getInputShapeFileForServiceAreaAdjustment());
 		
-		// load intital service area
-		final Map<Integer, Geometry> geometriesInitialServiceArea = loadShapeFile(optDrtCfg.getInputShapeFileInitialServiceArea());
-		for (Integer key : geometries.keySet()) {
-			if (isGeometryInArea(geometries.get(key), geometriesInitialServiceArea)) currentServiceAreaGeometryIds2Demand.put(key, 0);
+		Map<Integer, Geometry> geometriesInitialServiceArea = null;
+		if (optDrtCfg.getInputShapeFileInitialServiceArea() != null && optDrtCfg.getInputShapeFileInitialServiceArea() != "") {
+			// load initial service area
+			geometriesInitialServiceArea = loadShapeFile(optDrtCfg.getInputShapeFileInitialServiceArea());
 		}
-		
+		for (Integer key : geometries.keySet()) {
+			if (geometriesInitialServiceArea == null) {
+				// start without any restrictions re the service area
+				currentServiceAreaGeometryIds2Demand.put(key, 0);
+			} else {
+				if (isGeometryInArea(geometries.get(key), geometriesInitialServiceArea)) currentServiceAreaGeometryIds2Demand.put(key, 0);
+			}
+		}	
 	}
 	
+	@Override
+	public void reset(int iteration) {		
+    	currentIteration = iteration;
+    	
+    	// do not clear the entries in the map, only set the demand levels to zero.
+    	for (Integer area : currentServiceAreaGeometryIds2Demand.keySet()) {
+    		this.currentServiceAreaGeometryIds2Demand.put(area, 0);
+    	}
+	}
+
 	private boolean isGeometryInArea(Geometry geometry, Map<Integer, Geometry> areaGeometries) {
 		boolean coordInArea = false;
 		for (Geometry areaGeometry : areaGeometries.values()) {
@@ -175,42 +196,53 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 	public void updateServiceArea() {
 		
 		// reduce service area
-		Set<Integer> geometriesToRemove = new HashSet<>();
+		List<Integer> geometriesWithDemandBelowThreshold = new ArrayList<>();
 		for (Integer key : this.currentServiceAreaGeometryIds2Demand.keySet()) {
 			if (this.currentServiceAreaGeometryIds2Demand.get(key) < this.optDrtCfg.getDemandThresholdForServiceAreaAdjustment()) {
-				geometriesToRemove.add(key);
+				geometriesWithDemandBelowThreshold.add(key);
 			}
 		}
-		for (Integer key : geometriesToRemove) {
-			log.info("Removing geometry " + key);
-			this.currentServiceAreaGeometryIds2Demand.remove(key);
+		
+		Set<Integer> geometriesToRemove = new HashSet<>();
+		for (int counter = 0; counter < this.optDrtCfg.getServiceAreaAdjustment(); counter++) {
+			if (geometriesWithDemandBelowThreshold.size() > 0) {
+				int randomNr = (int) (MatsimRandom.getLocalInstance().nextDouble() * geometriesWithDemandBelowThreshold.size());
+				Integer keyToRemove = geometriesWithDemandBelowThreshold.get(randomNr);
+				geometriesToRemove.add(keyToRemove);
+				geometriesWithDemandBelowThreshold.remove(keyToRemove);
+			} else {
+				log.info("Drt service area has reached minimum expansion. To further reduce the service area set the demand threshold to a larger number!");
+			}
+		}
+
+		for (Integer geometryKey : geometriesToRemove) {
+			log.info("Removing geometry " + geometryKey);
+			this.currentServiceAreaGeometryIds2Demand.remove(geometryKey);
 		}
 		
 		// expand service area
-		List<Integer> nonServiceAreaKeys = new ArrayList<>();
+		List<Integer> nonServiceAreaAndNotJustRemovedServiceAreaKeys = new ArrayList<>();
 		for (Integer key : this.geometries.keySet()) {
-			if (this.currentServiceAreaGeometryIds2Demand.get(key) == null) {
-				nonServiceAreaKeys.add(key);
+			if (this.currentServiceAreaGeometryIds2Demand.get(key) == null &&
+					!geometriesToRemove.contains(key)) {
+				// do not add service area geometries which have been eliminated in the previous step.
+				nonServiceAreaAndNotJustRemovedServiceAreaKeys.add(key);
 			}
 		}
 		List<Integer> newServiceAreaKeys = new ArrayList<>();
-		if (nonServiceAreaKeys.size() > 0) {
-			for (int counter = 0; counter < this.optDrtCfg.getServiceAreaAdjustment(); counter++) {
-				int randomNr = (int) (MatsimRandom.getLocalInstance().nextDouble() * nonServiceAreaKeys.size());
-				Integer newKey = nonServiceAreaKeys.get(randomNr);
-				newServiceAreaKeys.add(newKey);
-				nonServiceAreaKeys.remove(newKey);
+		for (int counter = 0; counter < this.optDrtCfg.getServiceAreaAdjustment(); counter++) {
+			if (nonServiceAreaAndNotJustRemovedServiceAreaKeys.size() > 0) {
+				int randomNr = (int) (MatsimRandom.getLocalInstance().nextDouble() * nonServiceAreaAndNotJustRemovedServiceAreaKeys.size());
+				Integer keyToAdd = nonServiceAreaAndNotJustRemovedServiceAreaKeys.get(randomNr);
+				newServiceAreaKeys.add(keyToAdd);
+				nonServiceAreaAndNotJustRemovedServiceAreaKeys.remove(keyToAdd);
 			}
-			
+		}
+		
 		for (Integer key : newServiceAreaKeys) {
 			this.currentServiceAreaGeometryIds2Demand.put(key, 0);
 			log.info("Adding geometry " + key);
 		}
-			
-		} else {
-			log.info("Drt service area has reached maximum expansion. Cannot expand service area any further...");
-		}
-		
 	}
 
 	@Override
@@ -239,7 +271,28 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 
 	@Override
 	public void writeInfo() {
-		// TODO
+		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
+		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
+		
+		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig().controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
+		File file = new File(fileName);			
+
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+			bw.write("area Id;number of drt departures (sample size)");
+			bw.newLine();
+
+			for (Integer areaId : this.currentServiceAreaGeometryIds2Demand.keySet()) {
+				bw.write(String.valueOf(areaId) + ";" + this.currentServiceAreaGeometryIds2Demand.get(areaId));
+				bw.newLine();
+			}
+			log.info("Output written to " + fileName);
+			bw.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
