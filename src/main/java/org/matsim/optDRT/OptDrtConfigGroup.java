@@ -31,30 +31,30 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 
 	private static final String OPT_DRT_MODE = "optDrtMode";
 
-	private static final String UPDATE_INTERVAL = "updateInterval";
-	private static final String UPDATE_END_FRACTION_ITERATION = "updateEndFractionIteration";
-	private static final String WRITE_INFO_INTERVAL = "writeInfoInterval";
+	private static final String UPDATE_INTERVAL = "optDrtUpdateInterval";
+	private static final String UPDATE_END_FRACTION_ITERATION = "optDrtUpdateEndFractionIteration";
+	private static final String WRITE_INFO_INTERVAL = "optDrtWriteInfoInterval";
 
 	private static final String FARE_ADJUSTMENT = "fareAdjustment";
 	private static final String FARE_ADJUSTMENT_APPROACH = "fareAdjustmentApproach";
-	private static final String WAITING_TIME_THRESHOLD_FOR_FARE_ADJUSTMENT = "waitingTimeThresholdForFareAdjustment";
+	private static final String WAITING_TIME_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentWaitingTimeThreshold";
 	private static final String FARE_TIME_BIN_SIZE = "fareTimeBinSize";
 
 	private static final String FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustment";
 	private static final String FLEETSIZE_ADJUSTMENT_APPROACH = "fleetSizeAdjustmentApproach";
-	private static final String PROFIT_THRESHOLD_FOR_FLEETSIZE_ADJUSTMENT = "profitThresholdForFleetSizeAdjustment";
-	private static final String COST_PER_VEHICLE_PER_DAY_FOR_FLEET_ADJUSTMENT = "costPerVehPerDayForFleetSizeAdjustment";
-	private static final String COST_PER_VEHICLE_PER_METER_FOR_FLEET_ADJUSTMENT = "costPerVehPerMeterForFleetSizeAdjustment";
-	private static final String WAITING_TIME_THRESHOLD_FOR_FLEET_ADJUSTMENT = "waitingTimeThresholdForFleetSizeAdjustment";
+	private static final String PROFIT_THRESHOLD_FOR_FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustmentProfitThreshold";
+	private static final String COST_PER_VEHICLE_PER_DAY_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentCostPerVehPerDay";
+	private static final String COST_PER_VEHICLE_PER_METER_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentCostPerVehPerMeter";
+	private static final String WAITING_TIME_THRESHOLD_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentWaitingTimeThreshold";
 	private static final String FlEETSIZE_TIME_BIN_SIZE = "fleetSizeTimeBinSize";
 
 	private static final String SERVICE_AREA_ADJUSTMENT = "serviceAreaAdjustment";
 	private static final String SERVICE_AREA_ADJUSTMENT_APPROACH = "serviceAreaAdjustmentApproach";
-	private static final String INPUT_SHAPEFILE_FOR_SERVICE_AREA_ADJUSTMENT = "inputShapeFileForServiceAreaAdjustment";
-	private static final String INPUT_SHAPEFILE_FOR_SERVICE_AREA_ADJUSTMENT_CRS = "inputShapeFileForServiceAreaAdjustmentCRS";
-	private static final String INPUT_SHAPEFILE_INITIAL_SERVICE_AREA = "inputShapeFileInitialServiceArea";
-	private static final String INPUT_SHAPEFILE_INITIAL_SERVICE_AREA_CRS = "inputShapeFileInitialServiceAreaCRS";
-	private static final String DEMAND_THRESHOLD_FOR_SERVICE_AREA_ADJUSTMENT = "demandThresholdForServiceAreaAdjustment";
+	private static final String INPUT_SHAPEFILE_FOR_SERVICE_AREA_ADJUSTMENT = "serviceAreaAdjustmentInputShapeFile";
+	private static final String INPUT_SHAPEFILE_FOR_SERVICE_AREA_ADJUSTMENT_CRS = "serviceAreaAdjustmentInputShapeFileCRS";
+	private static final String INPUT_SHAPEFILE_INITIAL_SERVICE_AREA = "serviceAreaAdjustmentInputShapeFileInitialServiceArea";
+	private static final String INPUT_SHAPEFILE_INITIAL_SERVICE_AREA_CRS = "serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS";
+	private static final String DEMAND_THRESHOLD_FOR_SERVICE_AREA_ADJUSTMENT = "serviceAreaAdjustmentDemandThreshold";
 
 	public OptDrtConfigGroup() {
 		super(GROUP_NAME);
