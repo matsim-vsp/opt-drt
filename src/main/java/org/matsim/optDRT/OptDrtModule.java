@@ -83,18 +83,21 @@ public class OptDrtModule extends AbstractModule {
 		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.Disabled) {
 			// disabled
 		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {	
+			
 			// TODO: The following should be done here and not one level above.
 			
 //			OptDrtServiceAreaStrategy optDrtServiceAreaStrategy = new OptDrtServiceAreaStrategyDemand(optDrtConfigGroup);
-//			this.bind(OptDrtServiceAreaStrategy.class).toInstance(optDrtServiceAreaStrategy);
-//			this.addEventHandlerBinding().toInstance((EventHandler) optDrtServiceAreaStrategy);
-//
+//			
 //			this.installQSimModule(new AbstractDvrpModeQSimModule(DrtConfigGroup.get(this.getConfig()).getMode()) {
+//				
 //				@Override
 //				protected void configureQSim() {
-//					bindModal(PassengerRequestValidator.class).toInstance((PassengerRequestValidator) optDrtServiceAreaStrategy);
+//					this.bindModal(PassengerRequestValidator.class).toInstance((PassengerRequestValidator) optDrtServiceAreaStrategy);										
 //				}
 //			});
+//			
+//			this.bind(OptDrtServiceAreaStrategy.class).toInstance(optDrtServiceAreaStrategy);
+//			this.addEventHandlerBinding().toInstance((EventHandler) optDrtServiceAreaStrategy);
 			
 		} else {
 			throw new RuntimeException("Unknown service area adjustment approach. Aborting...");
