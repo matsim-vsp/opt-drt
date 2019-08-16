@@ -44,8 +44,12 @@ public class RunDrtOpenBerlinScenario {
     	
     	if ( args.length != 0 ){
     		
-    		arguments = Arrays.copyOfRange( args, 0, args.length - 3 );
+    		arguments = Arrays.copyOfRange( args, 0, args.length - 2 );
     		log.info("arguments: " + arguments.toString());
+    		
+    		for (String arg : arguments) {
+        		log.info("arg: " + arg);
+    		}
     		
     		drtVehiclesFile = args[args.length - 2];
     		log.info("drtVehiclesFile: " + drtVehiclesFile);

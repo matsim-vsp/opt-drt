@@ -24,7 +24,7 @@ public class RunOptDrtOpenBerlinScenario {
     	
     	if ( args.length != 0 ){
     		
-    		arguments = Arrays.copyOfRange( args, 0, args.length - 3 );
+    		arguments = Arrays.copyOfRange( args, 0, args.length - 2 );
     		log.info("arguments: " + arguments.toString());
     		
     		drtVehiclesFile = args[args.length - 2];
