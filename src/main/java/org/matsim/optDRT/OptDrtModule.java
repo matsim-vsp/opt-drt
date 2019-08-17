@@ -19,14 +19,12 @@
 
 package org.matsim.optDRT;
 
-import org.matsim.contrib.drt.run.DrtConfigGroup;
-import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
-import org.matsim.contrib.dvrp.run.AbstractDvrpModeQSimModule;
 import org.matsim.core.controler.AbstractModule;
-import org.matsim.core.events.handler.EventHandler;
 import org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
+
+import com.google.inject.Inject;
 
 /**
 * @author ikaddoura
@@ -34,11 +32,8 @@ import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
 public class OptDrtModule extends AbstractModule {
 
-	private final OptDrtConfigGroup optDrtConfigGroup;
-	
-	public OptDrtModule(OptDrtConfigGroup optDrtConfigGroup) {
-		this.optDrtConfigGroup = optDrtConfigGroup;
-	}
+	@Inject
+	private OptDrtConfigGroup optDrtConfigGroup;
 
 	@Override
 	public void install() {		
@@ -82,23 +77,11 @@ public class OptDrtModule extends AbstractModule {
 		// service area strategy
 		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.Disabled) {
 			// disabled
-		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {	
-			
-			// TODO: The following should be done here and not one level above.
-			
-//			OptDrtServiceAreaStrategy optDrtServiceAreaStrategy = new OptDrtServiceAreaStrategyDemand(optDrtConfigGroup);
-//			
-//			this.installQSimModule(new AbstractDvrpModeQSimModule(DrtConfigGroup.get(this.getConfig()).getMode()) {
-//				
-//				@Override
-//				protected void configureQSim() {
-//					this.bindModal(PassengerRequestValidator.class).toInstance((PassengerRequestValidator) optDrtServiceAreaStrategy);										
-//				}
-//			});
-//			
-//			this.bind(OptDrtServiceAreaStrategy.class).toInstance(optDrtServiceAreaStrategy);
-//			this.addEventHandlerBinding().toInstance((EventHandler) optDrtServiceAreaStrategy);
-			
+		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {				
+			this.bind(OptDrtServiceAreaStrategyDemand.class).asEagerSingleton();
+			this.bind(OptDrtServiceAreaStrategy.class).to(OptDrtServiceAreaStrategyDemand.class);
+			this.addEventHandlerBinding().to(OptDrtServiceAreaStrategyDemand.class);
+			this.addControlerListenerBinding().to(OptDrtServiceAreaStrategyDemand.class);		
 		} else {
 			throw new RuntimeException("Unknown service area adjustment approach. Aborting...");
 		}

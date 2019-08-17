@@ -48,6 +48,8 @@ import org.matsim.api.core.v01.network.Link;
 import org.matsim.contrib.dvrp.passenger.DefaultPassengerRequestValidator;
 import org.matsim.contrib.dvrp.passenger.PassengerRequest;
 import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
+import org.matsim.core.controler.events.StartupEvent;
+import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.gbl.MatsimRandom;
 import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.gis.ShapeFileReader;
@@ -60,43 +62,22 @@ import com.google.inject.Inject;
 * @author ikaddoura
 */
 
-public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidator, OptDrtServiceAreaStrategy, PersonDepartureEventHandler, PersonArrivalEventHandler {
+public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidator, OptDrtServiceAreaStrategy, PersonDepartureEventHandler, PersonArrivalEventHandler, StartupListener {
 	private static final Logger log = Logger.getLogger(OptDrtServiceAreaStrategyDemand.class);
 
 	public static final String FROM_LINK_NOT_IN_SERVICE_AREA_CAUSE = "from_link_not_in_service_area";
 	public static final String TO_LINK_NOT_IN_SERVICE_AREA_CAUSE = "to_link_not_in_service_area";
 
 	private final DefaultPassengerRequestValidator delegate = new DefaultPassengerRequestValidator();
-	private final Map<Integer, Geometry> geometries;
-
+	private Map<Integer, Geometry> geometries;
 	private Map<Integer, Integer> currentServiceAreaGeometryIds2Demand = new HashMap<>();
-	
-	private final OptDrtConfigGroup optDrtCfg;
-	
     private int currentIteration;
-	
+
+	@Inject
+	private OptDrtConfigGroup optDrtCfg;
+		
 	@Inject
 	private Scenario scenario;
-
-	public OptDrtServiceAreaStrategyDemand(OptDrtConfigGroup optDrtCfg) {
-		this.optDrtCfg = optDrtCfg;
-		
-		geometries = loadShapeFile(optDrtCfg.getInputShapeFileForServiceAreaAdjustment());
-		
-		Map<Integer, Geometry> geometriesInitialServiceArea = null;
-		if (optDrtCfg.getInputShapeFileInitialServiceArea() != null && optDrtCfg.getInputShapeFileInitialServiceArea() != "") {
-			// load initial service area
-			geometriesInitialServiceArea = loadShapeFile(optDrtCfg.getInputShapeFileInitialServiceArea());
-		}
-		for (Integer key : geometries.keySet()) {
-			if (geometriesInitialServiceArea == null) {
-				// start without any restrictions re the service area
-				currentServiceAreaGeometryIds2Demand.put(key, 0);
-			} else {
-				if (isGeometryInArea(geometries.get(key), geometriesInitialServiceArea)) currentServiceAreaGeometryIds2Demand.put(key, 0);
-			}
-		}	
-	}
 	
 	@Override
 	public void reset(int iteration) {		
@@ -293,6 +274,28 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void notifyStartup(StartupEvent event) {
+		log.info("Loading service area geometries...");
+		
+		geometries = loadShapeFile(optDrtCfg.getInputShapeFileForServiceAreaAdjustment());
+		
+		Map<Integer, Geometry> geometriesInitialServiceArea = null;
+		if (optDrtCfg.getInputShapeFileInitialServiceArea() != null && optDrtCfg.getInputShapeFileInitialServiceArea() != "") {
+			// load initial service area
+			geometriesInitialServiceArea = loadShapeFile(optDrtCfg.getInputShapeFileInitialServiceArea());
+		}
+		for (Integer key : geometries.keySet()) {
+			if (geometriesInitialServiceArea == null) {
+				// start without any restrictions re the service area
+				currentServiceAreaGeometryIds2Demand.put(key, 0);
+			} else {
+				if (isGeometryInArea(geometries.get(key), geometriesInitialServiceArea)) currentServiceAreaGeometryIds2Demand.put(key, 0);
+			}
+		}	
+		log.info("Loading service area geometries... Done.");
 	}
 
 }

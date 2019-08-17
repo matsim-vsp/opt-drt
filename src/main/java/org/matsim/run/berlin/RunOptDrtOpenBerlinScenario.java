@@ -4,20 +4,11 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.drt.run.DrtConfigGroup;
-import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
-import org.matsim.contrib.dvrp.run.AbstractDvrpModeQSimModule;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
-import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
-import org.matsim.core.events.handler.EventHandler;
-import org.matsim.core.mobsim.qsim.AbstractQSimModule;
+import org.matsim.optDRT.OptDrt;
 import org.matsim.optDRT.OptDrtConfigGroup;
-import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
-import org.matsim.optDRT.OptDrtModule;
-import org.matsim.optDRT.OptDrtServiceAreaStrategy;
-import org.matsim.optDRT.OptDrtServiceAreaStrategyDemand;
 
 /**
  *
@@ -60,27 +51,7 @@ public class RunOptDrtOpenBerlinScenario {
     	Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario, drtServiceAreaShpFile);
     	
         OptDrtConfigGroup optDrtConfigGroup = ConfigUtils.addOrGetModule(config, OptDrtConfigGroup.class);
-        controler.addOverridingModule(new OptDrtModule(optDrtConfigGroup));
-              
-		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {			
-			OptDrtServiceAreaStrategy optDrtServiceAreaStrategy = new OptDrtServiceAreaStrategyDemand(optDrtConfigGroup);
-			
-			controler.addOverridingQSimModule(new AbstractDvrpModeQSimModule(DrtConfigGroup.get(config).getMode()) {
-				@Override
-				protected void configureQSim() {
-					this.bindModal(PassengerRequestValidator.class).toInstance((PassengerRequestValidator) optDrtServiceAreaStrategy);					
-				}
-			});
-			
-			controler.addOverridingModule(new AbstractModule() {		
-				@Override
-				public void install() {
-					this.bind(OptDrtServiceAreaStrategy.class).toInstance(optDrtServiceAreaStrategy);
-					this.addEventHandlerBinding().toInstance((EventHandler) optDrtServiceAreaStrategy);
-				}
-			});
-			
-		}
+    	OptDrt.addAsOverridingModule(controler, optDrtConfigGroup);
         
         return controler;
     }
