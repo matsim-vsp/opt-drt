@@ -178,11 +178,11 @@
 		<param name="fleetSizeTimeBinSize" value="900.0" />
 		
 		<param name="optDrtMode" value="drt" />
-		<param name="optDrtUpdateEndFractionIteration" value="0.8" />
+		<param name="optDrtUpdateEndFractionIteration" value="1.0" />
 		<param name="optDrtUpdateInterval" value="1" />
 		<param name="optDrtWriteInfoInterval" value="1" />
 		
-		<param name="serviceAreaAdjustment" value="100" />
+		<param name="serviceAreaAdjustment" value="300" />
 		<!-- Possible values: Disabled, DemandThreshold -->
 		<param name="serviceAreaAdjustmentApproach" value="DemandThreshold" />
 		<param name="serviceAreaAdjustmentDemandThreshold" value="10" />

@@ -86,9 +86,9 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			
 			String configFilename = "test/input/berlin-v5.4-1pct-optDrt-area.config.xml";
 			final String[] args = {configFilename,
-					"--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "test0",
-					"--config:controler.lastIteration", "1",
+					"--config:controler.lastIteration", "2",
 					"--config:plans.inputPlansFile", "drt-test-agent-in-berlin.xml",
 					"--config:transit.useTransit", "false",
 					"--config:controler.outputDirectory", utils.getOutputDirectory()};
@@ -114,7 +114,53 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			Assert.assertEquals("Wrong number of drt legs in iteation 0.", 2, drtTrips0 );
 
 			int drtTrips1 = modeAnalyzer.getIt2enteredDrtPassengers().get(1);
-			Assert.assertEquals("Wrong number of drt legs in iteation 1. (Service area should have been reduced to the minimum) ", 0, drtTrips1 );
+			Assert.assertEquals("Wrong number of drt legs in iteation 1. ", 0, drtTrips1 );
+			
+			log.info( "Done."  );
+			log.info("") ;
+			
+		} catch ( Exception ee ) {
+			ee.printStackTrace();
+			throw new RuntimeException(ee) ;
+		}
+	}
+	
+	@Test
+	public final void testAreaStrategy2() {
+		try {
+			
+			String configFilename = "test/input/berlin-v5.4-1pct-optDrt-area.config.xml";
+			final String[] args = {configFilename,
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
+					"--config:controler.runId", "test0",
+					"--config:controler.lastIteration", "1",
+					"--config:plans.inputPlansFile", "drt-test-agent-in-berlin.xml",
+					"--config:transit.useTransit", "false",
+					"--config:optDrt.serviceAreaAdjustmentDemandThreshold", "1",
+					"--config:controler.outputDirectory", utils.getOutputDirectory()};
+			
+			String drtVehiclesFile = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/berlin-sav-v5.2-10pct/input/berlkoenig-vehicles/berlin-v5.2.berlkoenig100veh_6seats.xml.gz";
+			String drtServiceAreaShpFile = null;
+		
+	        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args, drtVehiclesFile, drtServiceAreaShpFile);
+	        
+	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
+	        
+	        controler.addOverridingModule(new AbstractModule() {
+				
+				@Override
+				public void install() {
+					this.addEventHandlerBinding().toInstance(modeAnalyzer);
+				}
+			});
+	        
+	        controler.run() ;
+	        
+			int drtTrips0 = modeAnalyzer.getIt2enteredDrtPassengers().get(0);
+			Assert.assertEquals("Wrong number of drt legs in iteration 0.", 2, drtTrips0 );
+
+			int drtTrips1 = modeAnalyzer.getIt2enteredDrtPassengers().get(1);
+			Assert.assertEquals("Wrong number of drt legs in iteration 1.", 2, drtTrips1 );
 			
 			log.info( "Done."  );
 			log.info("") ;
