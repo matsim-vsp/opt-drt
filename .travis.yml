@@ -17,6 +17,7 @@ env:
     - TEST=RunOptDrtOpenBerlinScenarioTest#testAreaStrategy1
     - TEST=RunOptDrtOpenBerlinScenarioTest#testAreaStrategy2
     - TEST=RunOptDrtOpenBerlinScenarioTest#testBerlin1pct
+    - TEST=RunDrtTaxiDemoScenarioTest#test0
     
 script:
   - mvn -Dtest=${TEST} test --batch-mode -Dmatsim.preferLocalDtds=true -Dmaven.javadoc.skip -e
