@@ -41,14 +41,23 @@ public class ModeAnalyzer implements PersonDepartureEventHandler, PersonEntersVe
 	private final Set<Id<Person>> drtPassengers = new HashSet<>();
 	private int enteredDrtVehicles = 0;
 	private Map<Integer, Integer> it2enteredDrtPassengers = new HashMap<>();
+
+	private final Set<Id<Person>> taxiPassengers = new HashSet<>();
+	private int enteredTaxiVehicles = 0;
+	private Map<Integer, Integer> it2enteredTaxiPassengers = new HashMap<>();
+
 	private int currentIteration = 0;
-	
+
 	@Override
 	public void reset(int iteration) {
 		this.drtPassengers.clear();
 		this.enteredDrtVehicles = 0;
 		this.currentIteration = iteration;
 		this.it2enteredDrtPassengers.put(currentIteration, 0);
+
+		this.taxiPassengers.clear();
+		this.enteredTaxiVehicles = 0;
+		this.it2enteredTaxiPassengers.put(currentIteration, 0);
 	}
 
 	@Override
@@ -60,14 +69,28 @@ public class ModeAnalyzer implements PersonDepartureEventHandler, PersonEntersVe
 				drtPassengers.remove(event.getPersonId());
 			}
 		}
+
+		if (event.getLegMode().equals(TransportMode.taxi)) {
+			taxiPassengers.add(event.getPersonId());
+		} else {
+			if (taxiPassengers.contains(event.getPersonId())) {
+				taxiPassengers.remove(event.getPersonId());
+			}
+		}
 	}
 
 	@Override
 	public void handleEvent(PersonEntersVehicleEvent event) {
 		if (drtPassengers.contains(event.getPersonId())) {
 			enteredDrtVehicles++;
-			int oldNumber = this.it2enteredDrtPassengers.get(currentIteration);
-			this.it2enteredDrtPassengers.put(currentIteration, oldNumber + 1);
+			int oldDrtNumber = this.it2enteredDrtPassengers.get(currentIteration);
+			this.it2enteredDrtPassengers.put(currentIteration, oldDrtNumber + 1);
+		}
+
+		if (taxiPassengers.contains(event.getPersonId())) {
+			enteredTaxiVehicles++;
+			int oldTaxiNummber = this.it2enteredTaxiPassengers.get(currentIteration);
+			this.it2enteredTaxiPassengers.put(currentIteration, oldTaxiNummber + 1);
 		}
 	}
 
@@ -75,9 +98,17 @@ public class ModeAnalyzer implements PersonDepartureEventHandler, PersonEntersVe
 		return enteredDrtVehicles;
 	}
 
+	public int getEnteredTaxiVehicles() {
+		return enteredTaxiVehicles;
+	}
+
 	public Map<Integer, Integer> getIt2enteredDrtPassengers() {
 		return it2enteredDrtPassengers;
 	}
-	
+
+	public Map<Integer, Integer> getIt2enteredTaxiPassengers() {
+		return it2enteredTaxiPassengers;
+	}
+
 }
 

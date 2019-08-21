@@ -11,6 +11,9 @@
 <!-- ====================================================================== -->
 
 	<person id="1">
+		<attributes>
+			<attribute name="subpopulation" class="java.lang.String" >person</attribute>
+		</attributes>
 		<plan selected="yes">
 			<activity type="home" link="1" x="0" y="0" end_time="07:16:20" >
 			</activity>
@@ -29,12 +32,15 @@
 <!-- ====================================================================== -->
 
 	<person id="2">
+		<attributes>
+			<attribute name="subpopulation" class="java.lang.String" >person</attribute>
+		</attributes>
 		<plan selected="yes">
-			<activity type="home" link="65" x="0" y="0" end_time="07:18:21" >
+			<activity type="home" link="65"  end_time="07:18:21" >
 			</activity>
 			<leg mode="taxi" >
 			</leg>
-			<activity type="work" link="21" x="400" y="400" end_time="17:55:42" >
+			<activity type="work" link="21" end_time="17:55:42" >
 			</activity>
 			<leg mode="taxi">
 			</leg>
