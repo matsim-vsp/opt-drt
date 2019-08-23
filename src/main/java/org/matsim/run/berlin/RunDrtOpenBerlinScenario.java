@@ -70,7 +70,7 @@ public class RunDrtOpenBerlinScenario {
     	Config config = RunBerlinScenario.prepareConfig(args);
     	config.addModule(new DvrpConfigGroup());
     	config.addModule(new DrtConfigGroup());
-    	config.addModule(new DrtFaresConfigGroup());
+    	config.addModule(new DrtFareConfigGroup());
     	
     	// add drt mode	
     	List<String> modes = new ArrayList<String>(Arrays.asList(config.subtourModeChoice().getModes()));
@@ -111,13 +111,21 @@ public class RunDrtOpenBerlinScenario {
     	drtCfg.setPrintDetailedWarnings(false);
     	    	
     	// set drt fare
-    	for (DrtFareConfigGroup drtFareCfg : DrtFaresConfigGroup.get(config).getDrtFareConfigGroups()) {
-    		drtFareCfg.setBasefare(0.);
-        	drtFareCfg.setDailySubscriptionFee(0.);
-        	drtFareCfg.setDistanceFare_m(0.0015);
-        	drtFareCfg.setMinFarePerTrip(4.0);
-        	drtFareCfg.setTimeFare_h(0.);
-    	}
+    	DrtFareConfigGroup drtFareCfg = (DrtFareConfigGroup) config.getModules().get(DrtFareConfigGroup.GROUP_NAME);
+    	drtFareCfg.setBasefare(0.);
+    	drtFareCfg.setDailySubscriptionFee(0.);
+    	drtFareCfg.setDistanceFare_m(0.0015);
+    	drtFareCfg.setMinFarePerTrip(4.0);
+    	drtFareCfg.setTimeFare_h(0.);
+    	
+//    	DrtFaresConfigGroup.get(config).addParameterSet(new DrtFareConfigGroup());
+//    	for (DrtFareConfigGroup drtFareCfg : DrtFaresConfigGroup.get(config).getDrtFareConfigGroups()) {
+//    		drtFareCfg.setBasefare(0.);
+//        	drtFareCfg.setDailySubscriptionFee(0.);
+//        	drtFareCfg.setDistanceFare_m(0.0015);
+//        	drtFareCfg.setMinFarePerTrip(4.0);
+//        	drtFareCfg.setTimeFare_h(0.);
+//    	}
     	
     	return config;
     }

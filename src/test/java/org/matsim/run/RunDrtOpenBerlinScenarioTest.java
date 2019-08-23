@@ -24,7 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
 import org.matsim.core.config.Config;
+import org.matsim.core.config.ConfigGroup;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.run.berlin.RunDrtOpenBerlinScenario;
@@ -72,6 +74,9 @@ public class RunDrtOpenBerlinScenarioTest {
 	        controler.run() ;
 	        
 			Assert.assertEquals("Wrong number of drt legs in final iteation.", 2, modeAnalyzer.getEnteredDrtVehicles());
+			
+			DrtFareConfigGroup fareCfg = (DrtFareConfigGroup) config.getModules().get(DrtFareConfigGroup.GROUP_NAME);
+			Assert.assertEquals("Wrong minimum fare.", 4., fareCfg.getMinFarePerTrip(), MatsimTestUtils.EPSILON);
 
 			log.info( "Done."  );
 			log.info("") ;
