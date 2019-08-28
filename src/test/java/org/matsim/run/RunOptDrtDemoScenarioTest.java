@@ -23,7 +23,7 @@ public class RunOptDrtDemoScenarioTest {
             final String[] args = {configFilename,
                     "--config:plans.inputPlansFile","plans-allDrt-demo.xml",
                     "--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
-                    "--config:controler.runId", "test0",
+                    "--config:controler.runId", "testPositiveFare",
                     "--config:controler.lastIteration", "0",
                     "--config:transit.useTransit", "false",
                     "--config:controler.outputDirectory", utils.getOutputDirectory()};
