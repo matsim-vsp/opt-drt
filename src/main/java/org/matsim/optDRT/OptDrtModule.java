@@ -45,6 +45,10 @@ public class OptDrtModule extends AbstractModule {
 			this.bind(OptDrtFareStrategyWaitingTime.class).asEagerSingleton();
 			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyWaitingTime.class);
 			this.addEventHandlerBinding().to(OptDrtFareStrategyWaitingTime.class);	
+		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.Dummy) {
+			this.bind(OptDrtFareStrategyDummy.class).asEagerSingleton();
+			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyDummy.class);
+			this.addEventHandlerBinding().to(OptDrtFareStrategyDummy.class);
 		} else {
 			throw new RuntimeException("Unknown fare adjustment approach. Aborting...");
 		}

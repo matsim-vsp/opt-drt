@@ -65,6 +65,8 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private double updateEndFractionIteration = 0.8;
 	private int writeInfoInterval = 1;
 
+
+	// waitingTime approach
 	private FareAdjustmentApproach fareAdjustmentApproach = FareAdjustmentApproach.AverageWaitingTimeThreshold;
 	private double fareAdjustment = 0.5;
 	private double fareTimeBinSize = 900.;
@@ -89,7 +91,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private int demandThresholdForServiceAreaAdjustment = 1;
 
 	public enum FareAdjustmentApproach {
-		Disabled, AverageWaitingTimeThreshold
+		Disabled, AverageWaitingTimeThreshold,Dummy
 	}
 
 	public enum ServiceAreaAdjustmentApproach {

@@ -28,8 +28,9 @@ public class RunDrtTaxiDemoScenarioTest {
             String configFilename = "test/input/demo/demo-taxi-drt.config.xml";
             final String[] args = {configFilename,
                     "--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
+                    "--config:plans.inputPlansFile","plans-mixedDrtTaxi-demo.xml",
                     "--config:controler.runId", "test0",
-                    "--config:controler.lastIteration", "20",
+                    "--config:controler.lastIteration", "5",
                     "--config:transit.useTransit", "false",
                     "--config:controler.outputDirectory", utils.getOutputDirectory()};
 
@@ -51,11 +52,10 @@ public class RunDrtTaxiDemoScenarioTest {
             });
 
             controler.run();
-
-            Assert.assertEquals("Wrong number of drt legs in final iteation.", 2, modeAnalyzer.getEnteredDrtVehicles());
-            Assert.assertEquals("Wrong number of taxi legs in final iteation.", 2, modeAnalyzer.getEnteredTaxiVehicles());
-            Assert.assertEquals("Wrong number of drt legs in 9. Iteration", 4, modeAnalyzer.getIt2enteredDrtPassengers().get(9).intValue());
-            Assert.assertEquals("Wrong number of taxi legs in 19. Iteration", 4, modeAnalyzer.getIt2enteredTaxiPassengers().get(19).intValue());
+            Assert.assertEquals("Wrong number of drt legs in final iteation.", 4, modeAnalyzer.getEnteredDrtVehicles());
+            Assert.assertEquals("Wrong number of taxi legs in final iteation.", 0, modeAnalyzer.getEnteredTaxiVehicles());
+            Assert.assertEquals("Wrong number of drt legs in 2. Iteration", 3, modeAnalyzer.getIt2enteredDrtPassengers().get(2).intValue());
+            Assert.assertEquals("Wrong number of taxi legs in 2. Iteration", 1, modeAnalyzer.getIt2enteredTaxiPassengers().get(2).intValue());
 
 
 
