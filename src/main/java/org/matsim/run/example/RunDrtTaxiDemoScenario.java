@@ -10,6 +10,7 @@ import org.matsim.api.core.v01.TransportMode;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareModule;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
+import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFareConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFareModule;
 import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFaresConfigGroup;
 import org.matsim.contrib.drt.routing.DrtRoute;
@@ -78,9 +79,9 @@ public class RunDrtTaxiDemoScenario {
         Config config = RunBerlinScenario.prepareConfig(args);
         config.addModule(new DvrpConfigGroup());
         config.addModule(new DrtConfigGroup());
-        config.addModule(new DrtFaresConfigGroup());
+        config.addModule(new DrtFareConfigGroup());
         config.addModule(new TaxiConfigGroup());
-        config.addModule(new TaxiFaresConfigGroup());
+        config.addModule(new TaxiFareConfigGroup());
 
         // add drt and Taxi mode
         List<String> modes = new ArrayList<String>(Arrays.asList(config.subtourModeChoice().getModes()));
@@ -145,13 +146,20 @@ public class RunDrtTaxiDemoScenario {
         taxiCfg.addParameterSet(new AssignmentTaxiOptimizerParams());
 
         // set drt fare
-        for (DrtFareConfigGroup drtFareCfg : DrtFaresConfigGroup.get(config).getDrtFareConfigGroups()) {
-            drtFareCfg.setBasefare(0.);
-            drtFareCfg.setDailySubscriptionFee(0.);
-            drtFareCfg.setDistanceFare_m(0.0015);
-            drtFareCfg.setMinFarePerTrip(4.0);
-            drtFareCfg.setTimeFare_h(0.);
-        }
+        DrtFareConfigGroup drtFareCfg = DrtFareConfigGroup.get(config);
+        drtFareCfg.setBasefare(0.);
+        drtFareCfg.setDailySubscriptionFee(0.);
+        drtFareCfg.setDistanceFare_m(0.0015);
+        drtFareCfg.setMinFarePerTrip(4.0);
+        drtFareCfg.setTimeFare_h(0.);
+
+        // set taxi fare
+        TaxiFareConfigGroup taxiFareCfg = TaxiFareConfigGroup.get(config);
+        taxiFareCfg.setBasefare(4.0);
+        taxiFareCfg.setDistanceFare_m(0.002);
+        taxiFareCfg.setTimeFare_h(0);
+        taxiFareCfg.setMinFarePerTrip(4.0);
+
 
         return config;
     }

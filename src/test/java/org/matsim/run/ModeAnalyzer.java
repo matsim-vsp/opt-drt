@@ -33,7 +33,7 @@ import org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler;
 import org.matsim.api.core.v01.population.Person;
 
 /**
-* @author ikaddoura
+* @author ikaddoura zmeng
 */
 
 public class ModeAnalyzer implements PersonDepartureEventHandler, PersonEntersVehicleEventHandler {
