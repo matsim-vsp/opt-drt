@@ -16,7 +16,7 @@ public class RunOptDrtDemoScenarioTest {
     public MatsimTestUtils utils = new MatsimTestUtils();
 
     @Test
-    public final void TestPositiveFare() {
+    public final void testPositiveFare() {
         try {
 
             String configFilename = "test/input/demo/optDrt-demo-fare-dummy.config.xml";

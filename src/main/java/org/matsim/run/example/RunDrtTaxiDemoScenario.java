@@ -9,10 +9,8 @@ import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareModule;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFareConfigGroup;
 import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFareModule;
-import org.matsim.contrib.av.robotaxi.fares.taxi.TaxiFaresConfigGroup;
 import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
 import org.matsim.contrib.drt.run.DrtConfigGroup;
@@ -126,7 +124,6 @@ public class RunDrtTaxiDemoScenario {
 
         // set drt parameters
         DrtConfigGroup drtCfg = DrtConfigGroup.get(config);
-        drtCfg.getVehiclesFile();
         drtCfg.setVehiclesFile(drtVehiclesFile);
         drtCfg.setMaxTravelTimeAlpha(1.7);
         drtCfg.setMaxTravelTimeBeta(120.0);
