@@ -70,12 +70,16 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 					+ " Aborting... ");
 		}
 		
-		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled && optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == "") {
-			throw new RuntimeException("opt drt input shape file for service area adjustment is 'null'. Aborting...");
+		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
+			if (optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == null || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("") || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("null")) {
+				throw new RuntimeException("opt drt input shape file for service area adjustment is 'null'. Aborting...");
+			}
 		}
 		
-		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled && optDrtConfigGroup.getInputShapeFileInitialServiceArea() == null) {
-			log.info("opt drt input shape file for initial service area is empty. Starting without any restriction regarding the drt service area...");
+		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
+			if (optDrtConfigGroup.getInputShapeFileInitialServiceArea() == null || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("null") || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("")) {
+				log.info("opt drt input shape file for initial service area is empty. Starting without any restriction regarding the drt service area...");
+			}
 		}
 	}
 

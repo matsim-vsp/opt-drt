@@ -283,7 +283,7 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 		geometries = loadShapeFile(optDrtCfg.getInputShapeFileForServiceAreaAdjustment());
 		
 		Map<Integer, Geometry> geometriesInitialServiceArea = null;
-		if (optDrtCfg.getInputShapeFileInitialServiceArea() != null && optDrtCfg.getInputShapeFileInitialServiceArea() != "") {
+		if (optDrtCfg.getInputShapeFileInitialServiceArea() != null && !optDrtCfg.getInputShapeFileInitialServiceArea().equals("") && !optDrtCfg.getInputShapeFileInitialServiceArea().equals("null")) {
 			// load initial service area
 			geometriesInitialServiceArea = loadShapeFile(optDrtCfg.getInputShapeFileInitialServiceArea());
 		}
