@@ -123,8 +123,8 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
                 } else if (drtModeStats < optDrtConfigGroup.getModalSplitThresholdForFareAdjustment() ){
                     updatedDistanceFare = oldDistanceFare - optDrtConfigGroup.getFareAdjustment();
                 }
+                if (updatedDistanceFare < 0.) updatedDistanceFare = 0.;
 
-                // allow for negative fares
                 log.info("Fare in time bin " + timeBin + " changed from " + oldDistanceFare + " to " + updatedDistanceFare);
 
                 timeBin2distanceFarePerMeter.put(timeBin, updatedDistanceFare);
