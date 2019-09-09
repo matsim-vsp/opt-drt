@@ -19,6 +19,7 @@ env:
     - TEST=RunOptDrtOpenBerlinScenarioTest#testBerlin1pct
     - TEST=RunDrtTaxiDemoScenarioTest#test0
     - TEST=RunOptDrtDemoScenarioTest#testPositiveFare
-    
+    - TEST=RunOptDrtDemoScenarioTest#testModalSplitStrategyTo100pct
+    - TEST=RunOptDrtDemoScenarioTest#testModalSplitStrategyTo0pct
 script:
   - mvn -Dtest=${TEST} test --batch-mode -Dmatsim.preferLocalDtds=true -Dmaven.javadoc.skip -e
