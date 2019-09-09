@@ -25,6 +25,7 @@ import org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
 import com.google.inject.Inject;
+import org.matsim.optDRT.analysis.DrtModeStatsControlerListener;
 
 /**
 * @author ikaddoura
@@ -49,6 +50,12 @@ public class OptDrtModule extends AbstractModule {
 			this.bind(OptDrtFareStrategyDummy.class).asEagerSingleton();
 			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyDummy.class);
 			this.addEventHandlerBinding().to(OptDrtFareStrategyDummy.class);
+		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.ModeSplitThreshold) {
+			this.bind(DrtModeStatsControlerListener.class).asEagerSingleton();
+			addControlerListenerBinding().to(DrtModeStatsControlerListener.class);
+			this.bind(OptDrtFareStrategyModalSplit.class).asEagerSingleton();
+			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyModalSplit.class);
+			this.addEventHandlerBinding().to(OptDrtFareStrategyModalSplit.class);
 		} else {
 			throw new RuntimeException("Unknown fare adjustment approach. Aborting...");
 		}

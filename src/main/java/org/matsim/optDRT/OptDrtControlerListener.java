@@ -27,8 +27,10 @@ package org.matsim.optDRT;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.core.controler.events.IterationEndsEvent;
+import org.matsim.core.controler.events.IterationStartsEvent;
 import org.matsim.core.controler.events.StartupEvent;
 import org.matsim.core.controler.listener.IterationEndsListener;
+import org.matsim.core.controler.listener.IterationStartsListener;
 import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
@@ -41,7 +43,7 @@ import com.google.inject.Inject;
  *
  */
 
-public class OptDrtControlerListener implements StartupListener, IterationEndsListener {
+public class OptDrtControlerListener implements StartupListener, IterationEndsListener, IterationStartsListener {
 		
 	private static final Logger log = Logger.getLogger(OptDrtControlerListener.class);
 	
@@ -85,28 +87,55 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
 	@Override
 	public void notifyIterationEnds(IterationEndsEvent event) {
-				
-		if (optDrtConfigGroup.getUpdateInterval() != 0
-				&& event.getIteration() != this.scenario.getConfig().controler().getLastIteration()
-				&& event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
-				&& event.getIteration() % optDrtConfigGroup.getUpdateInterval() == 0.) {
-			
-			log.info("Iteration " + event.getIteration() + ". Applying DRT strategies...");
-			
-			if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.updateFares();
-			if (this.optDrtFleetStrategy != null) this.optDrtFleetStrategy.updateFleet();
-			if (this.optDrtServiceAreaStrategy != null) this.optDrtServiceAreaStrategy.updateServiceArea();
+		if(optDrtConfigGroup.getFareAdjustmentApproach() != OptDrtConfigGroup.FareAdjustmentApproach.ModeSplitThreshold){
+			if (optDrtConfigGroup.getUpdateInterval() != 0
+					&& event.getIteration() != this.scenario.getConfig().controler().getLastIteration()
+					&& event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
+					&& event.getIteration() % optDrtConfigGroup.getUpdateInterval() == 0.) {
 
-			log.info("Iteration " + event.getIteration() + ". Applying DRT strategies... Done.");
-			
+				log.info("Iteration " + event.getIteration() + ". Applying DRT strategies...");
+
+				if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.updateFares();
+				if (this.optDrtFleetStrategy != null) this.optDrtFleetStrategy.updateFleet();
+				if (this.optDrtServiceAreaStrategy != null) this.optDrtServiceAreaStrategy.updateServiceArea();
+
+				log.info("Iteration " + event.getIteration() + ". Applying DRT strategies... Done.");
+
+			}
+
+			if (optDrtConfigGroup.getWriteInfoInterval() != 0
+					&& event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
+
+				if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.writeInfo();;
+				if (this.optDrtFleetStrategy != null) this.optDrtFleetStrategy.writeInfo();
+				if (this.optDrtServiceAreaStrategy != null) this.optDrtServiceAreaStrategy.writeInfo();
+			}
 		}
-		
-		if (optDrtConfigGroup.getWriteInfoInterval() != 0
-				&& event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
-			
-			if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.writeInfo();;
-			if (this.optDrtFleetStrategy != null) this.optDrtFleetStrategy.writeInfo();
-			if (this.optDrtServiceAreaStrategy != null) this.optDrtServiceAreaStrategy.writeInfo();
+
+	}
+
+	@Override
+	public void notifyIterationStarts(IterationStartsEvent event) {
+		if(optDrtConfigGroup.getFareAdjustmentApproach() == OptDrtConfigGroup.FareAdjustmentApproach.ModeSplitThreshold){
+			if (optDrtConfigGroup.getUpdateInterval() != 0
+					&& event.getIteration() != this.scenario.getConfig().controler().getLastIteration()
+					&& event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
+					&& event.getIteration() % optDrtConfigGroup.getUpdateInterval() == 0.) {
+
+				log.info("Iteration " + event.getIteration() + ". Applying DRT strategies...");
+
+				this.optDrtFareStrategy.updateFares();
+
+				log.info("Iteration " + event.getIteration() + ". Applying DRT strategies... Done.");
+
+			}
+
+			if (optDrtConfigGroup.getWriteInfoInterval() != 0
+					&& event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
+
+				if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.writeInfo();
+			}
 		}
+
 	}
 }

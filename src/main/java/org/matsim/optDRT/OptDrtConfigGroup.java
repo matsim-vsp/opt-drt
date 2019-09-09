@@ -38,6 +38,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String FARE_ADJUSTMENT = "fareAdjustment";
 	private static final String FARE_ADJUSTMENT_APPROACH = "fareAdjustmentApproach";
 	private static final String WAITING_TIME_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentWaitingTimeThreshold";
+	private static final String MODAL_SPLIT_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentModalSplitThreshold";
 	private static final String FARE_TIME_BIN_SIZE = "fareTimeBinSize";
 
 	private static final String FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustment";
@@ -72,6 +73,9 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private double fareTimeBinSize = 900.;
 	private double waitingTimeThresholdForFareAdjustment = 600.;
 
+	// modeSplit approach
+	private double 	modeSplitThresholdForFareAdjustment = 0.2;
+
 	private FleetSizeAdjustmentApproach fleetSizeAdjustmentApproach = FleetSizeAdjustmentApproach.AverageWaitingTimeThreshold;
 	private int fleetSizeAdjustment = 1;
 	// profit approach
@@ -90,8 +94,9 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private int serviceAreaAdjustment = 1;
 	private int demandThresholdForServiceAreaAdjustment = 1;
 
+
 	public enum FareAdjustmentApproach {
-		Disabled, AverageWaitingTimeThreshold,Dummy
+		Disabled, AverageWaitingTimeThreshold,Dummy,ModeSplitThreshold
 	}
 
 	public enum ServiceAreaAdjustmentApproach {
@@ -110,6 +115,14 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter( DEMAND_THRESHOLD_FOR_SERVICE_AREA_ADJUSTMENT )
 	public void setDemandThresholdForServiceAreaAdjustment(int demandThresholdForServiceAreaAdjustment) {
 		this.demandThresholdForServiceAreaAdjustment = demandThresholdForServiceAreaAdjustment;
+	}
+	@StringGetter( MODAL_SPLIT_THRESHOLD_FOR_FARE_ADJUSTMENT )
+	public double getModalSplitThresholdForFareAdjustment() {
+		return modeSplitThresholdForFareAdjustment;
+	}
+	@StringSetter( MODAL_SPLIT_THRESHOLD_FOR_FARE_ADJUSTMENT )
+	public void setModeSplitThresholdForFareAdjustment(double modeSplitThresholdForFareAdjustment) {
+		this.modeSplitThresholdForFareAdjustment = modeSplitThresholdForFareAdjustment;
 	}
 
 	@StringGetter( SERVICE_AREA_ADJUSTMENT )
