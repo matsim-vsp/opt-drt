@@ -114,6 +114,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
 	}
 
+	//When modal split is used as the evaluation criterion, fare update is performed at IterationStartsEvent. For the time being, we will not consider the joint effects of various strategies
 	@Override
 	public void notifyIterationStarts(IterationStartsEvent event) {
 		if(optDrtConfigGroup.getFareAdjustmentApproach() == OptDrtConfigGroup.FareAdjustmentApproach.ModeSplitThreshold){

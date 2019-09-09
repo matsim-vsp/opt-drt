@@ -4,14 +4,8 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
-import org.matsim.api.core.v01.population.*;
-import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
-import org.matsim.core.population.io.PopulationReader;
-import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.run.example.RunOptDrtDemoScenario;
 import org.matsim.testcases.MatsimTestUtils;
 import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
@@ -22,6 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *
+ * @author ikaddoura
+ *
+ */
 public class RunOptDrtDemoScenarioTest {
     private static final Logger log = Logger.getLogger(RunOptDrtDemoScenarioTest.class);
 

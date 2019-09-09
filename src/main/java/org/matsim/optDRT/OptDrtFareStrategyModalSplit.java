@@ -6,28 +6,20 @@ import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;
 import org.matsim.api.core.v01.events.PersonDepartureEvent;
-import org.matsim.api.core.v01.events.PersonEntersVehicleEvent;
 import org.matsim.api.core.v01.events.PersonMoneyEvent;
 import org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
-import org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEvent;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
-import org.matsim.core.controler.events.IterationEndsEvent;
-import org.matsim.core.controler.events.StartupEvent;
-import org.matsim.core.controler.listener.IterationEndsListener;
-import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.optDRT.analysis.DrtModeStatsControlerListener;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +30,7 @@ import java.util.Map;
  *
  * Note that these fares are scored in excess to anything set in the modeparams in the config file or any other drt fare handler.
  */
-public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler, PersonArrivalEventHandler, OptDrtFareStrategy, DrtRequestSubmittedEventHandler, StartupListener,IterationEndsListener {
+public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler, PersonArrivalEventHandler, OptDrtFareStrategy, DrtRequestSubmittedEventHandler {
     private static final Logger log = Logger.getLogger(OptDrtFareStrategyWaitingTime.class);
 
     private Map<Integer,Double> timeBin2distanceFarePerMeter = new HashMap<>();
@@ -177,16 +169,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
         if(optDrtConfigGroup.getOptDrtMode().equals(event.getLegMode())){
             this.drtUserDepartureTime.put(event.getPersonId(),event.getTime());
         }
-
-    }
-
-    @Override
-    public void notifyIterationEnds(IterationEndsEvent iterationEndsEvent) {
-
-    }
-
-    @Override
-    public void notifyStartup(StartupEvent startupEvent) {
 
     }
 }
