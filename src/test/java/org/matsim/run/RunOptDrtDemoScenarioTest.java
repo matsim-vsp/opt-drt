@@ -111,7 +111,7 @@ public class RunOptDrtDemoScenarioTest {
                 "--config:plans.inputPlansFile", "plans-allDrt-demo.xml",
                 "--config:strategy.fractionOfIterationsToDisableInnovation", "0.8",
                 "--config:controler.runId", "testModalSplitStrategyTo0pct",
-                "--config:controler.lastIteration", "10",
+                "--config:controler.lastIteration", "20",
                 "--config:transit.useTransit", "false",
                 "--config:controler.outputDirectory", utils.getOutputDirectory()};
 
@@ -144,6 +144,30 @@ public class RunOptDrtDemoScenarioTest {
         }
 
         Assert.assertEquals("Wrong modestats in final iteation.", "0.0", it2DrtModeSplit.get("10"));
+
+        log.info("Done.");
+        log.info("");
+
+    }
+
+    @Test
+    public final void testLowestPrice(){
+        String configFilename = "test/input/demo/optDrt-demo-fare-modalSplit-100pct.config.xml";
+        final String[] args = {configFilename,
+                "--config:plans.inputPlansFile", "plans-allDrt-demo.xml",
+                "--config:strategy.fractionOfIterationsToDisableInnovation", "0.8",
+                "--config:controler.runId", "testLowestPrice",
+                "--config:controler.lastIteration", "10",
+                "--config:transit.useTransit", "false",
+                "--config:controler.outputDirectory", utils.getOutputDirectory()};
+
+        String drtVehiclesFile = "one_drt.xml";
+        String taxiVehicleFile = "two_taxi.xml";
+
+        Controler controler = new RunOptDrtDemoScenario().prepareControler(args, drtVehiclesFile, taxiVehicleFile);
+        controler.run();
+
+        Map<String,String> it2DrtModeSplit = new HashMap<>();
 
         log.info("Done.");
         log.info("");

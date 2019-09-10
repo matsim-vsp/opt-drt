@@ -76,6 +76,7 @@ public class DrtModeStatsControlerListener implements StartupListener, Iteration
         }
         for (TripStructureUtils.Trip t :
                 trips) {
+            //todo ask if it is reasonable to use OriginActivitys' Endtime
             int a = (int) (t.getOriginActivity().getEndTime() / optDrtConfigGroup.getFareTimeBinSize());
             timeBin2totalTrips.put(a,(timeBin2totalTrips.get(a) + 1));
             if (this.mainModeIdentifier.identifyMainMode(t.getTripElements()).equals(TransportMode.drt)){
@@ -86,7 +87,7 @@ public class DrtModeStatsControlerListener implements StartupListener, Iteration
             if( timeBin2totalTrips.get(i) == 0){
                 timeBin2drtModeStats.put(i, 0.);
             } else {
-                timeBin2drtModeStats.put(i, (double) (timeBin2drtTrips.get(i) / timeBin2totalTrips.get(i)));
+                timeBin2drtModeStats.put(i, ((double)timeBin2drtTrips.get(i) / (double)timeBin2totalTrips.get(i)));
             }
             log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2drtModeStats.get(i));
         }

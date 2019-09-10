@@ -119,7 +119,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 	public void notifyIterationStarts(IterationStartsEvent event) {
 		if(optDrtConfigGroup.getFareAdjustmentApproach() == OptDrtConfigGroup.FareAdjustmentApproach.ModeSplitThreshold){
 			if (optDrtConfigGroup.getUpdateInterval() != 0
-					&& event.getIteration() != this.scenario.getConfig().controler().getLastIteration()
+					&& event.getIteration() != this.scenario.getConfig().controler().getFirstIteration()
 					&& event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
 					&& event.getIteration() % optDrtConfigGroup.getUpdateInterval() == 0.) {
 
@@ -132,6 +132,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 			}
 
 			if (optDrtConfigGroup.getWriteInfoInterval() != 0
+					&& event.getIteration() != this.scenario.getConfig().controler().getFirstIteration()
 					&& event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
 
 				if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.writeInfo();

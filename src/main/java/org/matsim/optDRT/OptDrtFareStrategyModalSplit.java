@@ -10,6 +10,7 @@ import org.matsim.api.core.v01.events.PersonMoneyEvent;
 import org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
 import org.matsim.api.core.v01.population.Person;
+import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEvent;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
@@ -53,6 +54,9 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     @Inject
     DrtModeStatsControlerListener drtModeStatsControlerListener;
 
+    @Inject
+    DrtFareConfigGroup drtFareConfigGroup;
+
     @Override
     public void handleEvent(PersonArrivalEvent event) {
 
@@ -65,9 +69,14 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             if (this.timeBin2distanceFarePerMeter.get(timeBin) != null) {
                 timeBinDistanceFare = this.timeBin2distanceFarePerMeter.get(timeBin);
             }
+            // update the price, and make sure the new price will not be lower than the minFare in drtFareConfig.
             double fare = e.getUnsharedRideDistance() * timeBinDistanceFare;
-
-            events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare));
+            double oldFare = Math.max(e.getUnsharedRideDistance() * drtFareConfigGroup.getDistanceFare_m(), drtFareConfigGroup.getMinFarePerTrip());
+            if(oldFare + fare < drtFareConfigGroup.getMinFarePerTrip()){
+                events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), ((-drtFareConfigGroup.getMinFarePerTrip()))+oldFare));
+            } else {
+                events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare));
+            }
 
             this.drtUserDepartureTime.remove(event.getPersonId());
             this.lastRequestSubmission.remove(event.getPersonId());
@@ -97,9 +106,8 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void updateFares() {
-        if(this.currentIteration != 0){
 
-            this.timeBin2DrtModalStats = this.drtModeStatsControlerListener.getIt2TimeBin2drtModeStats().get(this.currentIteration - 1);
+        this.timeBin2DrtModalStats = this.drtModeStatsControlerListener.getIt2TimeBin2drtModeStats().get(this.currentIteration);
 
             for(int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin ++) {
                 double drtModeStats = timeBin2DrtModalStats.get(timeBin);
@@ -115,12 +123,15 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
                 } else if (drtModeStats < optDrtConfigGroup.getModalSplitThresholdForFareAdjustment() ){
                     updatedDistanceFare = oldDistanceFare - optDrtConfigGroup.getFareAdjustment();
                 }
-                if (updatedDistanceFare < 0.) updatedDistanceFare = 0.;
+
+                // negative price should not be allowed.However, considering that the updated price is based on the original price.
+                // Lower than the price defined in the drt-fare module should be taken into account.
+                if (updatedDistanceFare < (0 - drtFareConfigGroup.getDistanceFare_m())) updatedDistanceFare = 0 - drtFareConfigGroup.getDistanceFare_m();
 
                 log.info("Fare in time bin " + timeBin + " changed from " + oldDistanceFare + " to " + updatedDistanceFare);
 
                 timeBin2distanceFarePerMeter.put(timeBin, updatedDistanceFare);
-            }
+
         }
 
 
@@ -128,12 +139,13 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void writeInfo() {
-        if(this.currentIteration != 0){
 
             String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
             if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 
-            String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig().controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
+            int num = currentIteration + 1;
+
+            String fileName = runOutputDirectory + "ITERS/it." + num + "/" + this.scenario.getConfig().controler().getRunId() + "." + num + ".info_" + this.getClass().getName() + ".csv";
             File file = new File(fileName);
 
             try {
@@ -142,7 +154,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
                 bw.write("time bin;time bin start time [sec];time bin end time [sec];totalTrips ;drtTrips ; drtModeStats ;fare [monetary units / meter]");
                 bw.newLine();
 
-                for (Integer timeBin : this.drtModeStatsControlerListener.getIt2TimeBin2drtModeStats().get(currentIteration-1).keySet()) {
+                for (Integer timeBin : this.drtModeStatsControlerListener.getIt2TimeBin2drtModeStats().get(currentIteration).keySet()) {
 
                     double timeBinStart = timeBin * optDrtConfigGroup.getFareTimeBinSize();
                     double timeBinEnd = timeBin * optDrtConfigGroup.getFareTimeBinSize() + optDrtConfigGroup.getFareTimeBinSize();
@@ -161,7 +173,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+
     }
 
     @Override
