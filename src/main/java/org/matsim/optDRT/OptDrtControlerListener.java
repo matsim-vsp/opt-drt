@@ -24,14 +24,23 @@
 
 package org.matsim.optDRT;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.population.Person;
+import org.matsim.api.core.v01.population.Plan;
+import org.matsim.core.config.groups.StrategyConfigGroup;
+import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.controler.events.IterationEndsEvent;
 import org.matsim.core.controler.events.IterationStartsEvent;
 import org.matsim.core.controler.events.StartupEvent;
 import org.matsim.core.controler.listener.IterationEndsListener;
 import org.matsim.core.controler.listener.IterationStartsListener;
 import org.matsim.core.controler.listener.StartupListener;
+import org.matsim.core.replanning.GenericPlanStrategy;
+import org.matsim.core.replanning.ReplanningUtils;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
 import com.google.inject.Inject;
@@ -61,6 +70,9 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 		
 	@Inject
 	Scenario scenario;
+	
+	private int nextDisableInnovativeStrategiesIteration = -1;
+	private int nextEnableInnovativeStrategiesIteration = -1;
 		
 	@Override
 	public void notifyStartup(StartupEvent event) {	
@@ -114,9 +126,90 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
 	}
 
-	//When modal split is used as the evaluation criterion, fare update is performed at IterationStartsEvent. For the time being, we will not consider the joint effects of various strategies
 	@Override
 	public void notifyIterationStarts(IterationStartsEvent event) {
+	
+		if (optDrtConfigGroup.getUpdateInterval() > 1) {
+			
+			Set<String> subpopulations = new HashSet<>();		
+			for (StrategySettings setting : this.scenario.getConfig().strategy().getStrategySettings()) {
+				String subpop = setting.getSubpopulation();
+				if (!subpopulations.contains(subpop)) subpopulations.add(subpop);
+				if (subpopulations.size() == 0) subpopulations.add(null);
+			}
+			
+			if (event.getIteration() == this.scenario.getConfig().controler().getFirstIteration()) {
+				
+				this.nextDisableInnovativeStrategiesIteration = (int) (this.scenario.getConfig().strategy().getFractionOfIterationsToDisableInnovation() * optDrtConfigGroup.getUpdateInterval());
+				log.info("next disable innovative strategies iteration: " + this.nextDisableInnovativeStrategiesIteration);
+
+				if (this.nextDisableInnovativeStrategiesIteration != 0) {
+					this.nextEnableInnovativeStrategiesIteration = (int) (optDrtConfigGroup.getUpdateInterval() + 1);
+				}
+				log.info("next enable innovative strategies iteration: " + this.nextEnableInnovativeStrategiesIteration);
+
+			} else {
+				
+				if (event.getIteration() == this.nextDisableInnovativeStrategiesIteration) {
+					// set weight to zero
+					log.warn("Strategy weight adjustment (set to zero) in iteration " + event.getIteration());
+		
+					for (String subpop : subpopulations) {
+						for (GenericPlanStrategy<Plan, Person> strategy : event.getServices().getStrategyManager().getStrategies(subpop)) {		
+							String strategyName = strategy.toString();
+							if (isInnovativeStrategy(strategy)) {
+								log.info("Setting weight for " + strategyName + " to zero.");
+								event.getServices().getStrategyManager().changeWeightOfStrategy(strategy, subpop, 0.0);
+							}
+						}
+					}
+					
+					this.nextDisableInnovativeStrategiesIteration += optDrtConfigGroup.getUpdateInterval();
+					log.info("next disable innovative strategies iteration: " + this.nextDisableInnovativeStrategiesIteration);
+					
+				} else if (event.getIteration() == this.nextEnableInnovativeStrategiesIteration) {
+					// set weight back to original value
+
+					if (event.getIteration() >= this.scenario.getConfig().strategy().getFractionOfIterationsToDisableInnovation() * (this.scenario.getConfig().controler().getLastIteration() - this.scenario.getConfig().controler().getFirstIteration())) {		
+						log.info("Strategies are switched off by global settings. Do not set back the strategy parameters to original values...");
+					
+					} else {
+						
+						log.info("Strategy weight adjustment (set back to original value) in iteration " + event.getIteration());
+						
+						for (String subpop : subpopulations) {
+							for (GenericPlanStrategy<Plan, Person> strategy : event.getServices().getStrategyManager().getStrategies(subpop)) {
+								
+								String strategyName = strategy.toString();
+								if (isInnovativeStrategy(strategy)) {
+									
+									double originalValue = -1.0;
+									for (StrategySettings setting : event.getServices().getConfig().strategy().getStrategySettings()) {
+										log.info("setting: " + setting.getStrategyName());
+										log.info("strategyName: " + strategyName);
+
+										if (strategyName.contains(setting.getStrategyName())) {
+											originalValue = setting.getWeight();
+										}
+									}		
+									
+									if (originalValue == -1.0) {
+										throw new RuntimeException("Aborting...");
+									}
+									
+									log.warn("Setting weight for " + strategyName + " back to original value: " + originalValue);
+									event.getServices().getStrategyManager().changeWeightOfStrategy(strategy, subpop, originalValue);
+								}
+							}	
+						}
+								
+						this.nextEnableInnovativeStrategiesIteration += optDrtConfigGroup.getUpdateInterval();
+					}
+				}
+			}	
+		}
+				
+		//When modal split is used as the evaluation criterion, fare update is performed at IterationStartsEvent. For the time being, we will not consider the joint effects of various strategies
 		if(optDrtConfigGroup.getFareAdjustmentApproach() == OptDrtConfigGroup.FareAdjustmentApproach.ModeSplitThreshold){
 			if (optDrtConfigGroup.getUpdateInterval() != 0
 					&& event.getIteration() != this.scenario.getConfig().controler().getFirstIteration()
@@ -139,5 +232,12 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 			}
 		}
 
+	}
+	
+	private boolean isInnovativeStrategy( GenericPlanStrategy<Plan, Person> strategy) {
+		log.info("Strategy name: " + strategy.toString() );
+		boolean innovative = ! ( ReplanningUtils.isOnlySelector( strategy ) ) ;
+		log.info("Innovative: " + innovative);
+		return innovative;
 	}
 }
