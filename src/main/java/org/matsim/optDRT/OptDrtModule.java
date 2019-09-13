@@ -51,8 +51,6 @@ public class OptDrtModule extends AbstractModule {
 			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyDummy.class);
 			this.addEventHandlerBinding().to(OptDrtFareStrategyDummy.class);
 		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.ModeSplitThreshold) {
-			this.bind(DrtModeStatsControlerListener.class).asEagerSingleton();
-			addControlerListenerBinding().to(DrtModeStatsControlerListener.class);
 			this.bind(OptDrtFareStrategyModalSplit.class).asEagerSingleton();
 			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyModalSplit.class);
 			this.addEventHandlerBinding().to(OptDrtFareStrategyModalSplit.class);

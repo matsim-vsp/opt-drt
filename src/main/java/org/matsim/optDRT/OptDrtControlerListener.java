@@ -104,7 +104,6 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
 	@Override
 	public void notifyIterationEnds(IterationEndsEvent event) {
-		if(optDrtConfigGroup.getFareAdjustmentApproach() != OptDrtConfigGroup.FareAdjustmentApproach.ModeSplitThreshold){
 			if (optDrtConfigGroup.getUpdateInterval() != 0
 					&& event.getIteration() != this.scenario.getConfig().controler().getLastIteration()
 					&& event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
@@ -127,8 +126,6 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 				if (this.optDrtFleetStrategy != null) this.optDrtFleetStrategy.writeInfo();
 				if (this.optDrtServiceAreaStrategy != null) this.optDrtServiceAreaStrategy.writeInfo();
 			}
-		}
-
 	}
 
 	@Override
@@ -197,30 +194,6 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 				}
 			}	
 		}
-				
-		//When modal split is used as the evaluation criterion, fare update is performed at IterationStartsEvent. For the time being, we will not consider the joint effects of various strategies
-		if(optDrtConfigGroup.getFareAdjustmentApproach() == OptDrtConfigGroup.FareAdjustmentApproach.ModeSplitThreshold){
-			if (optDrtConfigGroup.getUpdateInterval() != 0
-					&& event.getIteration() != this.scenario.getConfig().controler().getFirstIteration()
-					&& event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
-					&& event.getIteration() % optDrtConfigGroup.getUpdateInterval() == 0.) {
-
-				log.info("Iteration " + event.getIteration() + ". Applying DRT strategies...");
-
-				this.optDrtFareStrategy.updateFares();
-
-				log.info("Iteration " + event.getIteration() + ". Applying DRT strategies... Done.");
-
-			}
-
-			if (optDrtConfigGroup.getWriteInfoInterval() != 0
-					&& event.getIteration() != this.scenario.getConfig().controler().getFirstIteration()
-					&& event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
-
-				if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.writeInfo();
-			}
-		}
-
 	}
 	
 	private boolean isInnovativeStrategy( GenericPlanStrategy<Plan, Person> strategy) {
