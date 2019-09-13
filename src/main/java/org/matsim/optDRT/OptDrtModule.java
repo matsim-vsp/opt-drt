@@ -25,7 +25,6 @@ import org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
 import com.google.inject.Inject;
-import org.matsim.optDRT.analysis.DrtModeStatsControlerListener;
 
 /**
 * @author ikaddoura
