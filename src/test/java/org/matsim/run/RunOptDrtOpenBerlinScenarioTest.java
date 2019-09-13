@@ -23,8 +23,10 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
+import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
+import org.matsim.optDRT.OptDrtConfigGroup;
 import org.matsim.run.berlin.RunOptDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
 
@@ -243,6 +245,48 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			Assert.assertEquals("Wrong average executed score in iteration 0.", 114.7485847286583, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(0), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("Wrong number of drt legs in final iteation.", 61, modeAnalyzer.getEnteredDrtVehicles());
 
+			log.info( "Done."  );
+			log.info("") ;
+			
+		} catch ( Exception ee ) {
+			ee.printStackTrace();
+			throw new RuntimeException(ee) ;
+		}
+	}
+	
+	@Test
+	public final void testSeveralIterations() {
+		try {
+			
+			String configFilename = "test/input/berlin-v5.4-1pct-optDrt-fleetSize.config.xml";
+			final String[] args = {configFilename,
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.8",
+					"--config:controler.runId", "testSeveralIterations",
+					"--config:controler.lastIteration", "30",
+					"--config:plans.inputPlansFile", "stay-home-agent.xml",
+					"--config:network.inputNetworkFile", "one-link-network.xml",
+					"--config:transit.useTransit", "false",
+					"--config:controler.outputDirectory", utils.getOutputDirectory()};
+			
+			String drtVehiclesFile = "one-drt-vehicle.xml";
+			String drtServiceAreaShpFile = null;
+		
+	        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args, drtVehiclesFile, drtServiceAreaShpFile);
+	        OptDrtConfigGroup optDrtConfigGroup = ConfigUtils.addOrGetModule(controler.getConfig(), OptDrtConfigGroup.class);
+	        optDrtConfigGroup.setUpdateInterval(10);
+	        
+	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
+	        
+	        controler.addOverridingModule(new AbstractModule() {
+				
+				@Override
+				public void install() {
+					this.addEventHandlerBinding().toInstance(modeAnalyzer);
+				}
+			});
+	        
+	        controler.run() ;
+	        			
 			log.info( "Done."  );
 			log.info("") ;
 			

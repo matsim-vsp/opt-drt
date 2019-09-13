@@ -31,7 +31,6 @@ import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.Plan;
-import org.matsim.core.config.groups.StrategyConfigGroup;
 import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.controler.events.IterationEndsEvent;
 import org.matsim.core.controler.events.IterationStartsEvent;
@@ -145,8 +144,8 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
 				if (this.nextDisableInnovativeStrategiesIteration != 0) {
 					this.nextEnableInnovativeStrategiesIteration = (int) (optDrtConfigGroup.getUpdateInterval() + 1);
+					log.info("next enable innovative strategies iteration: " + this.nextEnableInnovativeStrategiesIteration);
 				}
-				log.info("next enable innovative strategies iteration: " + this.nextEnableInnovativeStrategiesIteration);
 
 			} else {
 				
@@ -155,6 +154,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 					log.warn("Strategy weight adjustment (set to zero) in iteration " + event.getIteration());
 		
 					for (String subpop : subpopulations) {
+						log.info("subpopulation: " + subpop);
 						for (GenericPlanStrategy<Plan, Person> strategy : event.getServices().getStrategyManager().getStrategies(subpop)) {		
 							String strategyName = strategy.toString();
 							if (isInnovativeStrategy(strategy)) {
@@ -178,32 +178,38 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 						log.info("Strategy weight adjustment (set back to original value) in iteration " + event.getIteration());
 						
 						for (String subpop : subpopulations) {
+							log.info("subpopulation: " + subpop);
+							
 							for (GenericPlanStrategy<Plan, Person> strategy : event.getServices().getStrategyManager().getStrategies(subpop)) {
-								
-								String strategyName = strategy.toString();
 								if (isInnovativeStrategy(strategy)) {
-									
-									double originalValue = -1.0;
+									log.info("Getting original settings for " + strategy.toString() + " from config...");
+							
+									double originalWeight = -1.0;
 									for (StrategySettings setting : event.getServices().getConfig().strategy().getStrategySettings()) {
-										log.info("setting: " + setting.getStrategyName());
-										log.info("strategyName: " + strategyName);
-
-										if (strategyName.contains(setting.getStrategyName())) {
-											originalValue = setting.getWeight();
+										if (setting.getSubpopulation().equals(subpop) && strategy.toString().contains(setting.getStrategyName())) {
+											log.info("\t --> Matching strategy setting: " + setting.getStrategyName());
+											if (originalWeight == -1.0) {
+												originalWeight = setting.getWeight();
+											} else {
+												if (originalWeight != setting.getWeight()) {
+													throw new RuntimeException("Could not find the original strategy settings in the config. Aborting...");
+												}
+											}
 										}
 									}		
 									
-									if (originalValue == -1.0) {
-										throw new RuntimeException("Aborting...");
+									if (originalWeight == -1.0) {
+										throw new RuntimeException("Could not find original strategy settings in the config. Aborting...");
 									}
 									
-									log.warn("Setting weight for " + strategyName + " back to original value: " + originalValue);
-									event.getServices().getStrategyManager().changeWeightOfStrategy(strategy, subpop, originalValue);
+									log.info("\t --> Setting weight for " + strategy.toString() + " back to original value: " + originalWeight);
+									event.getServices().getStrategyManager().changeWeightOfStrategy(strategy, subpop, originalWeight);
 								}
 							}	
 						}
 								
 						this.nextEnableInnovativeStrategiesIteration += optDrtConfigGroup.getUpdateInterval();
+						log.info("next enable innovative strategies iteration: " + this.nextEnableInnovativeStrategiesIteration);
 					}
 				}
 			}	
@@ -235,9 +241,8 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 	}
 	
 	private boolean isInnovativeStrategy( GenericPlanStrategy<Plan, Person> strategy) {
-		log.info("Strategy name: " + strategy.toString() );
 		boolean innovative = ! ( ReplanningUtils.isOnlySelector( strategy ) ) ;
-		log.info("Innovative: " + innovative);
+		log.info("Strategy name: " + strategy.toString()  + " --> Innovative: " + innovative);
 		return innovative;
 	}
 }
