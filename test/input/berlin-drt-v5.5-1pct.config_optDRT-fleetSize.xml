@@ -8,17 +8,17 @@
 		<param name="fareAdjustmentWaitingTimeThreshold" value="600.0" />
 		<param name="fareTimeBinSize" value="900.0" />
 		
-		<param name="fleetSizeAdjustment" value="200" />
+		<param name="fleetSizeAdjustment" value="99999" />
 		<!-- Possible values: Disabled, ProfitThreshold, AverageWaitingTimeThreshold -->
 		<param name="fleetSizeAdjustmentApproach" value="AverageWaitingTimeThreshold" />
 		<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3" />
 		<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4" />
 		<param name="fleetSizeAdjustmentProfitThreshold" value="0.0" />
-		<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="3600.0" />
+		<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="999999.0" />
 		<param name="fleetSizeTimeBinSize" value="900.0" />
 		
 		<param name="optDrtMode" value="drt" />
-		<param name="optDrtUpdateEndFractionIteration" value="0.8" />
+		<param name="optDrtUpdateEndFractionIteration" value="1.0" />
 		<param name="optDrtUpdateInterval" value="1" />
 		<param name="optDrtWriteInfoInterval" value="1" />
 		

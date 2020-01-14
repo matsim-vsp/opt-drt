@@ -65,7 +65,10 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	        
 	        controler.run() ;
 	        
-			Assert.assertEquals("Wrong number of drt legs in final iteation.", 2, modeAnalyzer.getEnteredDrtVehicles());
+	        Assert.assertEquals("Wrong number of drt legs in first iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(0), MatsimTestUtils.EPSILON);
+			Assert.assertEquals("In iteration 0 the fare should be very low yielding a 'normal' score.", true, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(0) > 0.0);
+	        
+			Assert.assertEquals("Wrong number of drt legs in final iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("In iteration 1 the fare should have increased to 9999999.0 yielding a very low score.", true, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(1) < -100000.0);
 
 			log.info( "Done."  );
@@ -83,7 +86,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			
 			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-fleetSize.xml";
 			final String[] args = {configFilename,
-					"--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "testFleetStrategy",
 					"--config:controler.lastIteration", "1",
 					"--config:plans.inputPlansFile", "one-drt-agent-inside-berlin.xml",
@@ -104,8 +107,10 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			});
 	        
 	        controler.run() ;
-	        
-			Assert.assertEquals("Wrong number of drt legs in final iteation.", 0, modeAnalyzer.getEnteredDrtVehicles());
+
+			Assert.assertEquals("Wrong number of drt legs in first iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(0), MatsimTestUtils.EPSILON);
+			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should have been reduced to 0 vehicles.", 0, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
+			Assert.assertEquals("Wrong number of drt legs in final iteration.", 0, modeAnalyzer.getEnteredDrtVehicles());
 			
 			log.info( "Done."  );
 			log.info("") ;
@@ -145,10 +150,10 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	        controler.run() ;
 	        
 			int drtTrips0 = modeAnalyzer.getIt2enteredDrtPassengers().get(0);
-			Assert.assertEquals("Wrong number of drt legs in iteation 0.", 2, drtTrips0 );
+			Assert.assertEquals("Wrong number of drt legs in iteration 0.", 2, drtTrips0 );
 
 			int drtTrips1 = modeAnalyzer.getIt2enteredDrtPassengers().get(1);
-			Assert.assertEquals("Wrong number of drt legs in iteation 1. ", 0, drtTrips1 );
+			Assert.assertEquals("Wrong number of drt legs in iteration 1. The service area should have been reduced until service shutdown.", 0, drtTrips1 );
 			
 			log.info( "Done."  );
 			log.info("") ;
@@ -168,7 +173,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "testAreaStrategy2",
 					"--config:controler.lastIteration", "1",
-					"--config:plans.inputPlansFile", "one-test-agent-outside-berlin.xml",
+					"--config:plans.inputPlansFile", "one-drt-agent-inside-berlin.xml",
 					"--config:transit.useTransit", "false",
 					"--config:transit.usingTransitInMobsim", "false",
 					"--config:optDrt.serviceAreaAdjustmentDemandThreshold", "1",
@@ -192,7 +197,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			Assert.assertEquals("Wrong number of drt legs in iteration 0.", 2, drtTrips0 );
 
 			int drtTrips1 = modeAnalyzer.getIt2enteredDrtPassengers().get(1);
-			Assert.assertEquals("Wrong number of drt legs in iteration 1.", 2, drtTrips1 );
+			Assert.assertEquals("Wrong number of drt legs in iteration 1. The service area should NOT (!) have been reduced.", 2, drtTrips1 );
 			
 			log.info( "Done."  );
 			log.info("") ;
