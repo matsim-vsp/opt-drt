@@ -15,13 +15,13 @@ import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
 import org.matsim.contrib.drt.run.DrtConfigGroup;
 import org.matsim.contrib.drt.run.DrtConfigs;
-import org.matsim.contrib.drt.run.DrtModule;
+import org.matsim.contrib.drt.run.MultiModeDrtModule;
 import org.matsim.contrib.dvrp.run.DvrpConfigGroup;
 import org.matsim.contrib.dvrp.run.DvrpModule;
 import org.matsim.contrib.dvrp.run.DvrpQSimComponents;
 import org.matsim.contrib.taxi.optimizer.assignment.AssignmentTaxiOptimizerParams;
+import org.matsim.contrib.taxi.run.MultiModeTaxiModule;
 import org.matsim.contrib.taxi.run.TaxiConfigGroup;
-import org.matsim.contrib.taxi.run.TaxiModule;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
 import org.matsim.core.config.groups.QSimConfigGroup.StarttimeInterpretation;
@@ -90,7 +90,7 @@ public class RunDrtTaxiDemoScenario {
         // required by drt module
         config.qsim().setNumberOfThreads(1);
         config.qsim().setSimStarttimeInterpretation(StarttimeInterpretation.onlyUseStarttime);
-        DrtConfigs.adjustDrtConfig(DrtConfigGroup.get(config), config.planCalcScore());
+        DrtConfigs.adjustDrtConfig(DrtConfigGroup.getSingleModeDrtConfig(config), config.planCalcScore(), config.plansCalcRoute());
 
         // add drt stage activity (per default only added in case of stop-based drt operation mode)
         PlanCalcScoreConfigGroup.ActivityParams drtActivityParams = new PlanCalcScoreConfigGroup.ActivityParams(TransportMode.drt + " interaction");
@@ -123,7 +123,7 @@ public class RunDrtTaxiDemoScenario {
         config.planCalcScore().getScoringParametersPerSubpopulation().values().forEach(k -> k.addModeParams(taxiModeParams));
 
         // set drt parameters
-        DrtConfigGroup drtCfg = DrtConfigGroup.get(config);
+        DrtConfigGroup drtCfg = DrtConfigGroup.getSingleModeDrtConfig(config);
         drtCfg.setVehiclesFile(drtVehiclesFile);
         drtCfg.setMaxTravelTimeAlpha(1.7);
         drtCfg.setMaxTravelTimeBeta(120.0);
@@ -131,11 +131,11 @@ public class RunDrtTaxiDemoScenario {
         drtCfg.setMaxWaitTime(300.);
         drtCfg.setChangeStartLinkToLastLinkInSchedule(true);
         drtCfg.setIdleVehiclesReturnToDepots(false);
-        drtCfg.setRequestRejection(false);
-        drtCfg.setPrintDetailedWarnings(false);
+        drtCfg.setRejectRequestIfMaxWaitOrTravelTimeViolated(false);
+        drtCfg.setPlotDetailedCustomerStats(false);
 
         // set taxi parameters
-        TaxiConfigGroup taxiCfg = TaxiConfigGroup.get(config);
+        TaxiConfigGroup taxiCfg = TaxiConfigGroup.getSingleModeTaxiConfig(config);
         taxiCfg.setPickupDuration(120);
         taxiCfg.setDropoffDuration(60);
         taxiCfg.setTaxisFile(taxiVehicleFile);
@@ -176,9 +176,9 @@ public class RunDrtTaxiDemoScenario {
         Controler controler = RunBerlinScenario.prepareControler(scenario);
 
         controler.addOverridingModule(new DvrpModule());
-        controler.addOverridingModule(new DrtModule());
+        controler.addOverridingModule(new MultiModeDrtModule());
         controler.addOverridingModule(new DrtFareModule());
-        controler.addOverridingModule(new TaxiModule());
+        controler.addOverridingModule(new MultiModeTaxiModule());
         controler.addOverridingModule(new TaxiFareModule());
 
 

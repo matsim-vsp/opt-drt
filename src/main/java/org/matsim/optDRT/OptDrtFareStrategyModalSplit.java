@@ -1,7 +1,6 @@
 package org.matsim.optDRT;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
@@ -16,8 +15,6 @@ import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEvent;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.router.MainModeIdentifier;
-import org.matsim.core.router.StageActivityTypes;
-import org.matsim.core.router.TripRouter;
 import org.matsim.core.router.TripStructureUtils;
 
 import java.io.BufferedWriter;
@@ -48,7 +45,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     private Boolean updateFare;
 
-    private StageActivityTypes stageActivityTypes;
     private MainModeIdentifier mainModeIdentifier;
 
     private List<String> mainTransportModes = new LinkedList<>();
@@ -68,9 +64,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Inject
     DrtFareConfigGroup drtFareConfigGroup;
-
-    @Inject
-    private Provider<TripRouter> tripRouterFactory;
 
     @Override
     public void handleEvent(PersonArrivalEvent event) {
@@ -127,10 +120,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
         drtUserDepartureTime.clear();
         this.currentIteration = iteration;
 
-        TripRouter tripRouter = (TripRouter) this.tripRouterFactory.get();
-        this.stageActivityTypes = tripRouter.getStageActivityTypes();
-        this.mainModeIdentifier = tripRouter.getMainModeIdentifier();
-
         // 收集这个it里所有有效person的id
         this.personList = this.scenario.getPopulation().getPersons().keySet();
         log.info("-- active persons in " + this.currentIteration + ".it are " + Arrays.toString(personList.toArray()));
@@ -139,7 +128,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
         List<TripStructureUtils.Trip> trips = new LinkedList<>();
         for (Person person :
                 this.scenario.getPopulation().getPersons().values()) {
-            trips.addAll(TripStructureUtils.getTrips(person.getSelectedPlan(), this.stageActivityTypes));
+            trips.addAll(TripStructureUtils.getTrips((person.getSelectedPlan())));
         }
         for (TripStructureUtils.Trip t :
                 trips) {

@@ -15,7 +15,7 @@ import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
 import org.matsim.contrib.drt.run.DrtConfigGroup;
 import org.matsim.contrib.drt.run.DrtConfigs;
-import org.matsim.contrib.drt.run.DrtModule;
+import org.matsim.contrib.drt.run.MultiModeDrtModule;
 import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeQSimModule;
 import org.matsim.contrib.dvrp.run.DvrpConfigGroup;
@@ -80,7 +80,7 @@ public class RunDrtOpenBerlinScenario {
     	// required by drt module
     	config.qsim().setNumberOfThreads(1);
     	config.qsim().setSimStarttimeInterpretation(StarttimeInterpretation.onlyUseStarttime);
-    	DrtConfigs.adjustDrtConfig(DrtConfigGroup.get(config), config.planCalcScore());
+    	DrtConfigs.adjustDrtConfig(DrtConfigGroup.getSingleModeDrtConfig(config), config.planCalcScore(), config.plansCalcRoute());
     	
     	// add drt stage activity (per default only added in case of stop-based drt operation mode)
     	PlanCalcScoreConfigGroup.ActivityParams params = new PlanCalcScoreConfigGroup.ActivityParams(TransportMode.drt + " interaction");
@@ -98,7 +98,7 @@ public class RunDrtOpenBerlinScenario {
 		config.planCalcScore().getScoringParametersPerSubpopulation().values().forEach(k -> k.addModeParams(drtModeParams));
     	    	
     	// set drt parameters
-    	DrtConfigGroup drtCfg = DrtConfigGroup.get(config);
+    	DrtConfigGroup drtCfg = DrtConfigGroup.getSingleModeDrtConfig(config);
     	drtCfg.getVehiclesFile();
     	drtCfg.setVehiclesFile(drtVehiclesFile);
     	drtCfg.setMaxTravelTimeAlpha(1.7);
@@ -107,8 +107,8 @@ public class RunDrtOpenBerlinScenario {
     	drtCfg.setMaxWaitTime(300.);
     	drtCfg.setChangeStartLinkToLastLinkInSchedule(true);
     	drtCfg.setIdleVehiclesReturnToDepots(false);
-    	drtCfg.setRequestRejection(false);
-    	drtCfg.setPrintDetailedWarnings(false);
+    	drtCfg.setRejectRequestIfMaxWaitOrTravelTimeViolated(false);
+    	drtCfg.setPlotDetailedCustomerStats(false);
     	    	
     	// set drt fare
     	DrtFareConfigGroup drtFareCfg = (DrtFareConfigGroup) config.getModules().get(DrtFareConfigGroup.GROUP_NAME);
@@ -148,15 +148,15 @@ public class RunDrtOpenBerlinScenario {
     	
     	// add drt module (and related modules)
     	controler.addOverridingModule(new DvrpModule());
-		controler.addOverridingModule(new DrtModule());
-		controler.configureQSimComponents(DvrpQSimComponents.activateModes(DrtConfigGroup.get(scenario.getConfig()).getMode()));
+		controler.addOverridingModule(new MultiModeDrtModule());
+		controler.configureQSimComponents(DvrpQSimComponents.activateModes(DrtConfigGroup.getSingleModeDrtConfig(scenario.getConfig()).getMode()));
 		
 		// add drt fare module
         controler.addOverridingModule(new DrtFareModule());
         
         if (drtServiceAreaShpFile != null) {
         	// only serve drt requests within the service area
-        	controler.addOverridingQSimModule(new AbstractDvrpModeQSimModule(DrtConfigGroup.get(scenario.getConfig()).getMode()) {
+        	controler.addOverridingQSimModule(new AbstractDvrpModeQSimModule(DrtConfigGroup.getSingleModeDrtConfig(scenario.getConfig()).getMode()) {
         		@Override
         		protected void configureQSim() {
         			bindModal(PassengerRequestValidator.class).toInstance(new ServiceAreaRequestValidator(drtServiceAreaAttribute));
