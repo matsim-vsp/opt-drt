@@ -168,7 +168,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "testAreaStrategy2",
 					"--config:controler.lastIteration", "1",
-					"--config:plans.inputPlansFile", "one-drt-agent-outside-berlin.xml",
+					"--config:plans.inputPlansFile", "one-test-agent-outside-berlin.xml",
 					"--config:transit.useTransit", "false",
 					"--config:transit.usingTransitInMobsim", "false",
 					"--config:optDrt.serviceAreaAdjustmentDemandThreshold", "1",
