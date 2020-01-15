@@ -43,7 +43,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			
 			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-fare.xml";
 			final String[] args = {configFilename,
-					"--config:global.numberOfThreads 1",
+					"--config:global.numberOfThreads", "1",
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.0",
 					"--config:plans.inputPlansFile", "one-drt-agent-inside-berlin.xml",
 					"--config:controler.runId", "testFareStrategy",
@@ -87,7 +87,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			
 			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-fleetSize1.xml";
 			final String[] args = {configFilename,
-					"--config:global.numberOfThreads 1",
+					"--config:global.numberOfThreads", "1",
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "testFleetStrategy1",
 					"--config:controler.lastIteration", "1",
@@ -129,7 +129,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			
 			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-fleetSize2.xml";
 			final String[] args = {configFilename,
-					"--config:global.numberOfThreads 1",
+					"--config:global.numberOfThreads", "1",
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "testFleetStrategy2",
 					"--config:controler.lastIteration", "1",
@@ -171,7 +171,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			
 			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-area.xml";
 			final String[] args = {configFilename,
-					"--config:global.numberOfThreads 1",
+					"--config:global.numberOfThreads", "1",
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "testAreaStrategy1",
 					"--config:controler.lastIteration", "1",
@@ -215,7 +215,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			
 			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-area.xml";
 			final String[] args = {configFilename,
-					"--config:global.numberOfThreads 1",
+					"--config:global.numberOfThreads", "1",
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "testAreaStrategy2",
 					"--config:controler.lastIteration", "1",
