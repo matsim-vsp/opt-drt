@@ -111,9 +111,9 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
 				log.info("Iteration " + event.getIteration() + ". Applying DRT strategies...");
 
-				if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.updateFares();
-				if (this.optDrtFleetStrategy != null) this.optDrtFleetStrategy.updateFleet();
-				if (this.optDrtServiceAreaStrategy != null) this.optDrtServiceAreaStrategy.updateServiceArea();
+				this.optDrtFareStrategy.updateFares();
+				this.optDrtFleetStrategy.updateFleet();
+				this.optDrtServiceAreaStrategy.updateServiceArea();
 
 				log.info("Iteration " + event.getIteration() + ". Applying DRT strategies... Done.");
 
@@ -122,9 +122,9 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 			if (optDrtConfigGroup.getWriteInfoInterval() != 0
 					&& event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
 
-				if (this.optDrtFareStrategy != null) this.optDrtFareStrategy.writeInfo();;
-				if (this.optDrtFleetStrategy != null) this.optDrtFleetStrategy.writeInfo();
-				if (this.optDrtServiceAreaStrategy != null) this.optDrtServiceAreaStrategy.writeInfo();
+				this.optDrtFareStrategy.writeInfo();;
+				this.optDrtFleetStrategy.writeInfo();
+				this.optDrtServiceAreaStrategy.writeInfo();
 			}
 	}
 
