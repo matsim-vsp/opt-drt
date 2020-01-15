@@ -111,8 +111,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	        controler.run() ;
 
 			Assert.assertEquals("Wrong number of drt legs in first iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(0), MatsimTestUtils.EPSILON);
-			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should have been reduced to 0 vehicles.", 0, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
-			Assert.assertEquals("Wrong number of drt legs in final iteration.", 0, modeAnalyzer.getEnteredDrtVehicles());
+			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should have been reduced to 1 vehicle.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
 			
 			log.info( "Done."  );
 			log.info("") ;
@@ -153,8 +152,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	        controler.run() ;
 
 			Assert.assertEquals("Wrong number of drt legs in first iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(0), MatsimTestUtils.EPSILON);
-			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should not have been reduced to 0 vehicles.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
-			Assert.assertEquals("Wrong number of drt legs in final iteration.", 2, modeAnalyzer.getEnteredDrtVehicles());
+			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should not have been reduced to 1 vehicle.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
 			
 			log.info( "Done."  );
 			log.info("") ;

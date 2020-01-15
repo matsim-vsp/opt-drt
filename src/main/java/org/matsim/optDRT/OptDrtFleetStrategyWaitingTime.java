@@ -124,8 +124,10 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 		}
 		
 		for (Id<DvrpVehicle> id : dvrpVehiclesToRemove) {
-			fleetSpecification.removeVehicleSpecification(id);
-			log.info("Removing dvrp vehicle " + id); 
+			if (fleetSpecification.getVehicleSpecifications().size() > 1) {
+				fleetSpecification.removeVehicleSpecification(id);
+				log.info("Removing dvrp vehicle " + id); 
+			}
 		}
 		
 		int vehiclesAfter = fleetSpecification.getVehicleSpecifications().size();
