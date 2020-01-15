@@ -61,13 +61,13 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 	@Inject
 	private OptDrtConfigGroup optDrtConfigGroup;
 	
-	@Inject(optional=true)
+	@Inject
 	private OptDrtFareStrategy optDrtFareStrategy;
 	
-	@Inject(optional=true)
+	@Inject
 	private OptDrtFleetStrategy optDrtFleetStrategy;
 	
-	@Inject(optional=true)
+	@Inject
 	private OptDrtServiceAreaStrategy optDrtServiceAreaStrategy;
 		
 	@Inject

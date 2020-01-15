@@ -40,7 +40,7 @@ public class OptDrtModule extends AbstractModule {
 		
 		// dynamic fare strategy
 		if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.Disabled) {
-			// disabled
+			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyDisabled.class);
 		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.AverageWaitingTimeThreshold) {
 			this.bind(OptDrtFareStrategyWaitingTime.class).asEagerSingleton();
 			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyWaitingTime.class);
@@ -59,7 +59,7 @@ public class OptDrtModule extends AbstractModule {
 		
 		// fleet size strategy
 		if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.Disabled) {
-			// disabled
+			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyDisabled.class);
 		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.ProfitThreshold) {
 			this.bind(OptDrtFleetStrategyProfit.class).asEagerSingleton();
 			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyProfit.class);
@@ -84,7 +84,7 @@ public class OptDrtModule extends AbstractModule {
 		
 		// service area strategy
 		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.Disabled) {
-			// disabled
+			this.bind(OptDrtServiceAreaStrategy.class).to(OptDrtServiceAreaStrategyDisabled.class);
 		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {				
 			this.bind(OptDrtServiceAreaStrategyDemand.class).asEagerSingleton();
 			this.bind(OptDrtServiceAreaStrategy.class).to(OptDrtServiceAreaStrategyDemand.class);
