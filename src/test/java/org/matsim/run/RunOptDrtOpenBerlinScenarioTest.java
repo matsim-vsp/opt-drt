@@ -81,13 +81,13 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	}
 	
 	@Test
-	public final void testFleetStrategy() {
+	public final void testFleetStrategy1() {
 		try {
 			
-			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-fleetSize.xml";
+			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-fleetSize1.xml";
 			final String[] args = {configFilename,
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
-					"--config:controler.runId", "testFleetStrategy",
+					"--config:controler.runId", "testFleetStrategy1",
 					"--config:controler.lastIteration", "1",
 					"--config:plans.inputPlansFile", "one-drt-agent-inside-berlin.xml",
 					"--config:transit.useTransit", "false",
@@ -111,6 +111,47 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			Assert.assertEquals("Wrong number of drt legs in first iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(0), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should have been reduced to 0 vehicles.", 0, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("Wrong number of drt legs in final iteration.", 0, modeAnalyzer.getEnteredDrtVehicles());
+			
+			log.info( "Done."  );
+			log.info("") ;
+			
+		} catch ( Exception ee ) {
+			ee.printStackTrace();
+			throw new RuntimeException(ee) ;
+		}
+	}
+	
+	@Test
+	public final void testFleetStrategy2() {
+		try {
+			
+			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-fleetSize2.xml";
+			final String[] args = {configFilename,
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
+					"--config:controler.runId", "testFleetStrategy2",
+					"--config:controler.lastIteration", "1",
+					"--config:plans.inputPlansFile", "one-drt-agent-inside-berlin.xml",
+					"--config:transit.useTransit", "false",
+					"--config:transit.usingTransitInMobsim", "false",
+					"--config:controler.outputDirectory", utils.getOutputDirectory()};
+			
+	        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args);
+	        
+	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
+	        
+	        controler.addOverridingModule(new AbstractModule() {
+				
+				@Override
+				public void install() {
+					this.addEventHandlerBinding().toInstance(modeAnalyzer);
+				}
+			});
+	        
+	        controler.run() ;
+
+			Assert.assertEquals("Wrong number of drt legs in first iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(0), MatsimTestUtils.EPSILON);
+			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should not have been reduced to 0 vehicles.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
+			Assert.assertEquals("Wrong number of drt legs in final iteration.", 2, modeAnalyzer.getEnteredDrtVehicles());
 			
 			log.info( "Done."  );
 			log.info("") ;
