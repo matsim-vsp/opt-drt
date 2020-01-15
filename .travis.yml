@@ -7,19 +7,9 @@ env:
   global:
     - MAVEN_OPTS="-Xmx6g"
   matrix:
-    - TEST=RunDrtOpenBerlinScenarioTest#test1Agent
-    - TEST=RunDrtOpenBerlinScenarioTest#test1AgentRejected
-    - TEST=RunDrtOpenBerlinScenarioTest#test1agentSameLink
-    - TEST=RunDrtOpenBerlinScenarioTest#testAnotherAgent
-    - TEST=RunDrtOpenBerlinScenarioTest#testBerlin1pct
     - TEST=RunOptDrtOpenBerlinScenarioTest#testFareStrategy
     - TEST=RunOptDrtOpenBerlinScenarioTest#testFleetStrategy
     - TEST=RunOptDrtOpenBerlinScenarioTest#testAreaStrategy1
     - TEST=RunOptDrtOpenBerlinScenarioTest#testAreaStrategy2
-    - TEST=RunOptDrtOpenBerlinScenarioTest#testBerlin1pct
-    - TEST=RunDrtTaxiDemoScenarioTest#test0
-    - TEST=RunOptDrtDemoScenarioTest#testPositiveFare
-    - TEST=RunOptDrtDemoScenarioTest#testModalSplitStrategyTo100pct
-    - TEST=RunOptDrtDemoScenarioTest#testModalSplitStrategyTo0pct
 script:
   - mvn -Dtest=${TEST} test --batch-mode -Dmatsim.preferLocalDtds=true -Dmaven.javadoc.skip -e
