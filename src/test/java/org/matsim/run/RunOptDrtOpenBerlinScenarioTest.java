@@ -71,6 +71,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	        
 			Assert.assertEquals("Wrong number of drt legs in final iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("In iteration 1 the fare should have increased to 9999999.0 yielding a very low score.", true, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(1) < -100000.0);
+			// TODO: add additional asserts
 
 			log.info( "Done."  );
 			log.info("") ;
@@ -112,7 +113,8 @@ public class RunOptDrtOpenBerlinScenarioTest {
 
 			Assert.assertEquals("Wrong number of drt legs in first iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(0), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should have been reduced to 1 vehicle.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
-			
+			// TODO: add additional asserts
+
 			log.info( "Done."  );
 			log.info("") ;
 			
@@ -153,6 +155,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 
 			Assert.assertEquals("Wrong number of drt legs in first iteration.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(0), MatsimTestUtils.EPSILON);
 			Assert.assertEquals("Wrong number of drt legs in final iteration. The vehicle fleet should not have been reduced to 1 vehicle.", 2, modeAnalyzer.getIt2enteredDrtPassengers().get(1), MatsimTestUtils.EPSILON);
+			// TODO: add additional asserts
 			
 			log.info( "Done."  );
 			log.info("") ;
@@ -198,6 +201,8 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			int drtTrips1 = modeAnalyzer.getIt2enteredDrtPassengers().get(1);
 			Assert.assertEquals("Wrong number of drt legs in iteration 1. The service area should have been reduced until service shutdown.", 0, drtTrips1 );
 			
+			// TODO: add additional asserts
+
 			log.info( "Done."  );
 			log.info("") ;
 			
@@ -243,6 +248,8 @@ public class RunOptDrtOpenBerlinScenarioTest {
 			int drtTrips1 = modeAnalyzer.getIt2enteredDrtPassengers().get(1);
 			Assert.assertEquals("Wrong number of drt legs in iteration 1. The service area should NOT (!) have been reduced.", 2, drtTrips1 );
 			
+			// TODO: add additional asserts
+
 			log.info( "Done."  );
 			log.info("") ;
 			
