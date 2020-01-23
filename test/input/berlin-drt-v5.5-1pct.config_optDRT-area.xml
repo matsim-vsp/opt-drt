@@ -29,8 +29,8 @@
 		<param name="serviceAreaAdjustmentDemandThreshold" value="10" />
 		<param name="serviceAreaAdjustmentInputShapeFile" value="https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/shp-files/shp-stadtteile-split-zone-3/Bezirksregionen_zone_GK4_fixed.shp" />
 		<param name="serviceAreaAdjustmentInputShapeFileCRS" value="EPSG:31468" />
-		<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="" />
-		<param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="" />
+		<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/projects/avoev/shp-files/shp-stadtteile-split-zone-3/Bezirksregionen_zone_GK4_fixed.shp" />
+		<param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="EPSG:31468" />
 	</module>
 	<module name="TimeAllocationMutator" >
 		<param name="mutationRange" value="7200.0" />

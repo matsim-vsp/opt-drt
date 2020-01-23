@@ -52,6 +52,7 @@ import org.matsim.core.controler.events.StartupEvent;
 import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.gbl.MatsimRandom;
 import org.matsim.core.utils.geometry.geotools.MGC;
+import org.matsim.core.utils.gis.PolygonFeatureFactory;
 import org.matsim.core.utils.gis.ShapeFileReader;
 import org.matsim.core.utils.gis.ShapeFileWriter;
 import org.matsim.core.utils.io.UncheckedIOException;
@@ -103,7 +104,7 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 	}
 
 	private Map<Integer, SimpleFeature> loadShapeFile(String shapeFile) {
-		Map<Integer, SimpleFeature> geometries = new HashMap<>();
+		Map<Integer, SimpleFeature> ownId2feature = new HashMap<>();
 
 		Collection<SimpleFeature> features = null;
 		if (new File(shapeFile).exists()) {
@@ -118,10 +119,10 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 		if (features == null) throw new RuntimeException("Aborting...");
 		int featureCounter = 0;
 		for (SimpleFeature feature : features) {
-			geometries.put(featureCounter, feature);
+			ownId2feature.put(featureCounter, feature);
 			featureCounter++;
 		}
-		return geometries;
+		return ownId2feature;
 	}
 	
 	private Collection<SimpleFeature> getAllFeatures(final URL url) {
@@ -306,7 +307,24 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 		
 		String fileName = runOutputDirectory + this.scenario.getConfig().controler().getRunId() + "." + this.getClass().getName() + "_geometries.shp";		
-		ShapeFileWriter.writeGeometries(features.values(), fileName);
+		
+		Collection<SimpleFeature> featuresToPrint = new ArrayList<>();
+		PolygonFeatureFactory pointFeatureFactory = new PolygonFeatureFactory.Builder()
+				.setName("zones")
+				.setCrs(MGC.getCRS(optDrtCfg.getInputShapeFileForServiceAreaAdjustmentCrs()))
+				.addAttribute("optDrtId", String.class)
+				.create();
+			
+		for (Integer id : features.keySet()) {
+			SimpleFeature feature = features.get(id);
+			
+			Geometry geometry = (Geometry) feature.getDefaultGeometry();
+			SimpleFeature f = pointFeatureFactory.createPolygon(geometry.getCoordinates());
+			f.setAttribute("optDrtId", id.toString());
+			featuresToPrint.add(f);
+		}
+		
+		ShapeFileWriter.writeGeometries(featuresToPrint, fileName);
 		
 	}
 
