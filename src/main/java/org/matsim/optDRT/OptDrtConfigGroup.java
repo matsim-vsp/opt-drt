@@ -49,7 +49,8 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String WAITING_TIME_THRESHOLD_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentWaitingTimeThreshold";
 	private static final String FlEETSIZE_TIME_BIN_SIZE = "fleetSizeTimeBinSize";
 
-	private static final String SERVICE_AREA_ADJUSTMENT = "serviceAreaAdjustment";
+	private static final String SERVICE_AREA_ADJUSTMENT_EXPAND = "serviceAreaAdjustmentExpand";
+	private static final String SERVICE_AREA_ADJUSTMENT_REDUCE = "serviceAreaAdjustmentReduce";
 	private static final String SERVICE_AREA_ADJUSTMENT_APPROACH = "serviceAreaAdjustmentApproach";
 	private static final String INPUT_SHAPEFILE_FOR_SERVICE_AREA_ADJUSTMENT = "serviceAreaAdjustmentInputShapeFile";
 	private static final String INPUT_SHAPEFILE_FOR_SERVICE_AREA_ADJUSTMENT_CRS = "serviceAreaAdjustmentInputShapeFileCRS";
@@ -91,7 +92,8 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private String inputShapeFileForServiceAreaAdjustmentCrs = null;
 	private String inputShapeFileInitialServiceArea = null;
 	private String inputShapeFileInitialServiceAreaCrs = null;
-	private int serviceAreaAdjustment = 1;
+	private int serviceAreaAdjustmentExpand = 1;
+	private int serviceAreaAdjustmentReduce = 1;
 	private int demandThresholdForServiceAreaAdjustment = 1;
 
 
@@ -125,14 +127,24 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 		this.modeSplitThresholdForFareAdjustment = modeSplitThresholdForFareAdjustment;
 	}
 
-	@StringGetter( SERVICE_AREA_ADJUSTMENT )
-	public int getServiceAreaAdjustment() {
-		return serviceAreaAdjustment;
+	@StringGetter( SERVICE_AREA_ADJUSTMENT_EXPAND )
+	public int getServiceAreaAdjustmentExpand() {
+		return serviceAreaAdjustmentExpand;
 	}
 
-	@StringSetter( SERVICE_AREA_ADJUSTMENT )
-	public void setServiceAreaAdjustment(int serviceAreaAdjustment) {
-		this.serviceAreaAdjustment = serviceAreaAdjustment;
+	@StringSetter( SERVICE_AREA_ADJUSTMENT_EXPAND )
+	public void setServiceAreaAdjustmentExpand(int serviceAreaAdjustment) {
+		this.serviceAreaAdjustmentExpand = serviceAreaAdjustment;
+	}
+	
+	@StringGetter( SERVICE_AREA_ADJUSTMENT_REDUCE )
+	public int getServiceAreaAdjustmentReduce() {
+		return serviceAreaAdjustmentReduce;
+	}
+
+	@StringSetter( SERVICE_AREA_ADJUSTMENT_REDUCE )
+	public void setServiceAreaAdjustmentReduce(int serviceAreaAdjustment) {
+		this.serviceAreaAdjustmentReduce = serviceAreaAdjustment;
 	}
 	
 	@StringGetter( OPT_DRT_MODE )

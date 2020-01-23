@@ -22,7 +22,8 @@
 		<param name="optDrtUpdateInterval" value="1" />
 		<param name="optDrtWriteInfoInterval" value="1" />
 		
-		<param name="serviceAreaAdjustment" value="300" />
+		<param name="serviceAreaAdjustmentExpand" value="300" />
+		<param name="serviceAreaAdjustmentReduce" value="300" />
 		<!-- Possible values: Disabled, DemandThreshold -->
 		<param name="serviceAreaAdjustmentApproach" value="DemandThreshold" />
 		<param name="serviceAreaAdjustmentDemandThreshold" value="10" />

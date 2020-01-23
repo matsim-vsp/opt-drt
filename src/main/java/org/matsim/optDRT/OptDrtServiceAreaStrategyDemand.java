@@ -53,6 +53,7 @@ import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.gbl.MatsimRandom;
 import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.gis.ShapeFileReader;
+import org.matsim.core.utils.gis.ShapeFileWriter;
 import org.matsim.core.utils.io.UncheckedIOException;
 import org.opengis.feature.simple.SimpleFeature;
 
@@ -69,7 +70,7 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 	public static final String TO_LINK_NOT_IN_SERVICE_AREA_CAUSE = "to_link_not_in_service_area";
 
 	private final DefaultPassengerRequestValidator delegate = new DefaultPassengerRequestValidator();
-	private Map<Integer, Geometry> geometries;
+	private Map<Integer, SimpleFeature> features;
 	private Map<Integer, Integer> currentServiceAreaGeometryIds2Demand = new HashMap<>();
     private int currentIteration;
 
@@ -89,9 +90,11 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
     	}
 	}
 
-	private boolean isGeometryInArea(Geometry geometry, Map<Integer, Geometry> areaGeometries) {
+	private boolean isGeometryInArea(SimpleFeature feature, Map<Integer, SimpleFeature> areaFeatures) {
 		boolean coordInArea = false;
-		for (Geometry areaGeometry : areaGeometries.values()) {
+		for (SimpleFeature areaFeature : areaFeatures.values()) {
+			Geometry geometry = (Geometry) feature.getDefaultGeometry();
+			Geometry areaGeometry = (Geometry) areaFeature.getDefaultGeometry();
 			if (geometry.within(areaGeometry)) {
 				coordInArea = true;
 			}
@@ -99,8 +102,8 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 		return coordInArea;
 	}
 
-	private Map<Integer, Geometry> loadShapeFile(String shapeFile) {
-		Map<Integer, Geometry> geometries = new HashMap<>();
+	private Map<Integer, SimpleFeature> loadShapeFile(String shapeFile) {
+		Map<Integer, SimpleFeature> geometries = new HashMap<>();
 
 		Collection<SimpleFeature> features = null;
 		if (new File(shapeFile).exists()) {
@@ -115,7 +118,7 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 		if (features == null) throw new RuntimeException("Aborting...");
 		int featureCounter = 0;
 		for (SimpleFeature feature : features) {
-			geometries.put(featureCounter, (Geometry) feature.getDefaultGeometry());
+			geometries.put(featureCounter, feature);
 			featureCounter++;
 		}
 		return geometries;
@@ -168,7 +171,8 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 
 	private Integer isLinkInCurrentServiceArea(Link link) {
 		for (Integer key : this.currentServiceAreaGeometryIds2Demand.keySet()) {
-			if (MGC.coord2Point(link.getCoord()).within(this.geometries.get(key))) return key;
+			Geometry geometry = (Geometry) this.features.get(key).getDefaultGeometry();
+			if (MGC.coord2Point(link.getCoord()).within(geometry)) return key;
 		}
 		return null;
 	}
@@ -184,15 +188,17 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 			}
 		}
 		
+		log.info("Geometries with demand below threshold: " + geometriesWithDemandBelowThreshold.size());
+		
 		Set<Integer> geometriesToRemove = new HashSet<>();
-		for (int counter = 0; counter < this.optDrtCfg.getServiceAreaAdjustment(); counter++) {
+		for (int counter = 0; counter < this.optDrtCfg.getServiceAreaAdjustmentReduce(); counter++) {
 			if (geometriesWithDemandBelowThreshold.size() > 0) {
 				int randomNr = (int) (MatsimRandom.getLocalInstance().nextDouble() * geometriesWithDemandBelowThreshold.size());
 				Integer keyToRemove = geometriesWithDemandBelowThreshold.get(randomNr);
 				geometriesToRemove.add(keyToRemove);
 				geometriesWithDemandBelowThreshold.remove(keyToRemove);
 			} else {
-				log.info("Drt service area has reached minimum expansion. To further reduce the service area set the demand threshold to a larger number!");
+				break;
 			}
 		}
 
@@ -203,7 +209,7 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 		
 		// expand service area
 		List<Integer> nonServiceAreaAndNotJustRemovedServiceAreaKeys = new ArrayList<>();
-		for (Integer key : this.geometries.keySet()) {
+		for (Integer key : this.features.keySet()) {
 			if (this.currentServiceAreaGeometryIds2Demand.get(key) == null &&
 					!geometriesToRemove.contains(key)) {
 				// do not add service area geometries which have been eliminated in the previous step.
@@ -211,7 +217,7 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 			}
 		}
 		List<Integer> newServiceAreaKeys = new ArrayList<>();
-		for (int counter = 0; counter < this.optDrtCfg.getServiceAreaAdjustment(); counter++) {
+		for (int counter = 0; counter < this.optDrtCfg.getServiceAreaAdjustmentExpand(); counter++) {
 			if (nonServiceAreaAndNotJustRemovedServiceAreaKeys.size() > 0) {
 				int randomNr = (int) (MatsimRandom.getLocalInstance().nextDouble() * nonServiceAreaAndNotJustRemovedServiceAreaKeys.size());
 				Integer keyToAdd = nonServiceAreaAndNotJustRemovedServiceAreaKeys.get(randomNr);
@@ -280,22 +286,28 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 	public void notifyStartup(StartupEvent event) {
 		log.info("Loading service area geometries...");
 		
-		geometries = loadShapeFile(optDrtCfg.getInputShapeFileForServiceAreaAdjustment());
+		features = loadShapeFile(optDrtCfg.getInputShapeFileForServiceAreaAdjustment());
 		
-		Map<Integer, Geometry> geometriesInitialServiceArea = null;
+		Map<Integer, SimpleFeature> geometriesInitialServiceArea = null;
 		if (optDrtCfg.getInputShapeFileInitialServiceArea() != null && !optDrtCfg.getInputShapeFileInitialServiceArea().equals("") && !optDrtCfg.getInputShapeFileInitialServiceArea().equals("null")) {
 			// load initial service area
 			geometriesInitialServiceArea = loadShapeFile(optDrtCfg.getInputShapeFileInitialServiceArea());
 		}
-		for (Integer key : geometries.keySet()) {
+		for (Integer key : features.keySet()) {
 			if (geometriesInitialServiceArea == null) {
-				// start without any restrictions re the service area
-				currentServiceAreaGeometryIds2Demand.put(key, 0);
+				// start without any service area
 			} else {
-				if (isGeometryInArea(geometries.get(key), geometriesInitialServiceArea)) currentServiceAreaGeometryIds2Demand.put(key, 0);
+				if (isGeometryInArea(features.get(key), geometriesInitialServiceArea)) currentServiceAreaGeometryIds2Demand.put(key, 0);
 			}
 		}	
 		log.info("Loading service area geometries... Done.");
+		
+		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
+		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
+		
+		String fileName = runOutputDirectory + this.scenario.getConfig().controler().getRunId() + "." + this.getClass().getName() + "_geometries.shp";		
+		ShapeFileWriter.writeGeometries(features.values(), fileName);
+		
 	}
 
 }
