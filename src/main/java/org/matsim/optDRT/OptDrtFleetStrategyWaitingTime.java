@@ -211,7 +211,7 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 	}
 	
 	private int getTimeBin(double time) {
-		int timeBin = (int) (time / optDrtConfigGroup.getFareTimeBinSize());
+		int timeBin = (int) (time / optDrtConfigGroup.getFleetSizeTimeBinSize());
 		return timeBin;
 	}
 
@@ -242,8 +242,8 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 					}
 				}
 				
-				double timeBinStart = timeBin * optDrtConfigGroup.getFareTimeBinSize();
-				double timeBinEnd = timeBin * optDrtConfigGroup.getFareTimeBinSize() + optDrtConfigGroup.getFareTimeBinSize();
+				double timeBinStart = timeBin * optDrtConfigGroup.getFleetSizeTimeBinSize();
+				double timeBinEnd = timeBin * optDrtConfigGroup.getFleetSizeTimeBinSize() + optDrtConfigGroup.getFleetSizeTimeBinSize();
 			
 				bw.write(String.valueOf(timeBin) + ";" + timeBinStart + ";" + timeBinEnd + ";" + sum / counter + ";" + maxWaitingTime );
 				bw.newLine();
