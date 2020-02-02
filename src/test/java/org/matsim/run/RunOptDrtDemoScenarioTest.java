@@ -12,18 +12,16 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.core.controler.Controler;
-import org.matsim.run.example.RunOptDrtDemoScenario;
+import org.matsim.run.berlin.RunOptDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
 
 /**
  *
- * @author ikaddoura
+ * @author zmeng
  *
  */
 public class RunOptDrtDemoScenarioTest {
@@ -32,60 +30,36 @@ public class RunOptDrtDemoScenarioTest {
     @Rule
     public MatsimTestUtils utils = new MatsimTestUtils();
 
-    @Ignore // TODO: Fixme!
-    @Test
-    public final void testPositiveFare() {
-        try {
-
-            String configFilename = "test/input/demo/optDrt-demo-fare-dummy.config.xml";
-            final String[] args = {configFilename,
-                    "--config:plans.inputPlansFile","plans-allDrt-demo.xml",
-                    "--config:strategy.fractionOfIterationsToDisableInnovation", "1.0",
-                    "--config:controler.runId", "testPositiveFare",
-                    "--config:controler.lastIteration", "0",
-                    "--config:transit.useTransit", "false",
-                    "--config:controler.outputDirectory", utils.getOutputDirectory()};
-
-            String drtVehiclesFile = "one_drt.xml";
-            String taxiVehicleFile = "two_taxi.xml";
-
-            Controler controler = new RunOptDrtDemoScenario().prepareControler(args, drtVehiclesFile, taxiVehicleFile);
-            controler.run();
-
-            // the score should be increased to almost 9999999.
-            Assert.assertEquals("Wrong scores in final iteation.", true, 9000000 < controler.getScoreStats().getScoreHistory().get(ScoreItem.average).get(0));
-
-            log.info("Done.");
-            log.info("");
-
-        } catch (Exception ee) {
-            ee.printStackTrace();
-            throw new RuntimeException(ee);
-        }
-    }
-    @Ignore // TODO: Fixme!
     @Test
     public final void testModalSplitStrategyTo100pct() {
         // in this test, the fareAdjustmentModalSplitThreshold is 1.2
+
         String configFilename = "test/input/demo/optDrt-demo-fare-modalSplit-100pct.config.xml";
         final String[] args = {configFilename,
-                "--config:plans.inputPlansFile", "plans-allDrt-demo.xml",
+                "--config:global.coordinateSystem","Atlantis",
+                "--config:network.inputNetworkFile","network_demo.xml",
+                "--config.plan.inputPlansFile","plans-mixedDrtTaxi-demo.xml",
                 "--config:strategy.fractionOfIterationsToDisableInnovation", "0.8",
+                "--config:strategy.strategysettings[strategyName=SubtourModeChoice].weight", "100",
+                "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
+                "--config:plans.inputPlansFile","plans-mixedDrtTaxi-demo.xml",
+                "--config:subtourModeChoice.modes","drt,drt2",
+                "--config:multiModeDrt.drt[mode=drt].vehiclesFile","one_drt.xml",
+                "--config:multiModeDrt.drt[mode=drt].operationalScheme","door2door",
+                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile","two_taxi.xml",
+                "--config:multiModeDrt.drt[mode=drt2].operationalScheme","door2door",
                 "--config:controler.runId", "testModalSplitStrategyTo100pct",
                 "--config:controler.lastIteration", "10",
                 "--config:transit.useTransit", "false",
                 "--config:controler.outputDirectory", utils.getOutputDirectory()};
 
-        String drtVehiclesFile = "one_drt.xml";
-        String taxiVehicleFile = "two_taxi.xml";
-
-        Controler controler = new RunOptDrtDemoScenario().prepareControler(args, drtVehiclesFile, taxiVehicleFile);
+        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args);
         controler.run();
 
         Map<String,String> it2DrtModeSplit = new HashMap<>();
 
         try {
-            String modeStatsFile = "test/output/org/matsim/run/RunOptDrtDemoScenarioTest/testModalSplitStrategyTo100pct/testModalSplitStrategyTo100pct.modestats.txt";
+            String modeStatsFile = utils.getOutputDirectory() + "testModalSplitStrategyTo100pct.modestats.txt";
             File filename = new File(modeStatsFile);
             FileReader fileReader = new FileReader(modeStatsFile);
             BufferedReader br = new BufferedReader(fileReader);
@@ -110,29 +84,37 @@ public class RunOptDrtDemoScenarioTest {
         log.info("");
 
     }
-    @Ignore // TODO: Fixme!
+
     @Test
     public final void testModalSplitStrategyTo0pct() {
-        // in this test, the fareAdjustmentModalSplitThreshold is 0.0
+        // in this test, the fareAdjustmentModalSplitThreshold is -0.1
+
         String configFilename = "test/input/demo/optDrt-demo-fare-modalSplit-0pct.config.xml";
         final String[] args = {configFilename,
-                "--config:plans.inputPlansFile", "plans-allDrt-demo.xml",
+                "--config:global.coordinateSystem","Atlantis",
+                "--config:network.inputNetworkFile","network_demo.xml",
+                "--config.plan.inputPlansFile","plans-mixedDrtTaxi-demo.xml",
                 "--config:strategy.fractionOfIterationsToDisableInnovation", "0.8",
+                "--config:strategy.strategysettings[strategyName=SubtourModeChoice].weight", "100",
+                "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
+                "--config:plans.inputPlansFile","plans-mixedDrtTaxi-demo.xml",
+                "--config:subtourModeChoice.modes","drt,drt2",
+                "--config:multiModeDrt.drt[mode=drt].vehiclesFile","one_drt.xml",
+                "--config:multiModeDrt.drt[mode=drt].operationalScheme","door2door",
+                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile","two_taxi.xml",
+                "--config:multiModeDrt.drt[mode=drt2].operationalScheme","door2door",
                 "--config:controler.runId", "testModalSplitStrategyTo0pct",
-                "--config:controler.lastIteration", "20",
+                "--config:controler.lastIteration", "10",
                 "--config:transit.useTransit", "false",
                 "--config:controler.outputDirectory", utils.getOutputDirectory()};
 
-        String drtVehiclesFile = "one_drt.xml";
-        String taxiVehicleFile = "two_taxi.xml";
-
-        Controler controler = new RunOptDrtDemoScenario().prepareControler(args, drtVehiclesFile, taxiVehicleFile);
+        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args);
         controler.run();
 
         Map<String,String> it2DrtModeSplit = new HashMap<>();
 
         try {
-            String modeStatsFile = "test/output/org/matsim/run/RunOptDrtDemoScenarioTest/testModalSplitStrategyTo0pct/testModalSplitStrategyTo0pct.modestats.txt";
+            String modeStatsFile = utils.getOutputDirectory() + "testModalSplitStrategyTo0pct.modestats.txt";
             File filename = new File(modeStatsFile);
             FileReader fileReader = new FileReader(modeStatsFile);
             BufferedReader br = new BufferedReader(fileReader);
@@ -151,7 +133,7 @@ public class RunOptDrtDemoScenarioTest {
             e.printStackTrace();
         }
 
-        Assert.assertEquals("Wrong modestats in final iteation.", "0.0", it2DrtModeSplit.get("10"));
+        Assert.assertEquals("Wrong modestats in final iteation.", true, it2DrtModeSplit.get("10").equals("0.0"));
 
         log.info("Done.");
         log.info("");

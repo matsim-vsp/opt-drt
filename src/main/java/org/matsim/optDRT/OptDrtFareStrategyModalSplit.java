@@ -11,6 +11,7 @@ import org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
+import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEvent;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author zmeng
@@ -45,8 +47,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     private Boolean updateFare;
 
-    private MainModeIdentifier mainModeIdentifier;
-
     private List<String> mainTransportModes = new LinkedList<>();
 
     private Set<Id<Person>> personList;
@@ -60,10 +60,13 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     EventsManager events;
 
     @Inject
-    private Scenario scenario;
+    Scenario scenario;
 
     @Inject
-    DrtFareConfigGroup drtFareConfigGroup;
+    MainModeIdentifier mainModeIdentifier;
+
+    @Inject
+    DrtFaresConfigGroup drtFaresConfigGroup;
 
     @Override
     public void handleEvent(PersonArrivalEvent event) {
@@ -90,6 +93,8 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             }
             // update the price, and make sure the new price will not be lower than the minFare in drtFareConfig.
             double fare = e.getUnsharedRideDistance() * timeBinDistanceFare;
+            DrtFareConfigGroup drtFareConfigGroup = drtFaresConfigGroup.getDrtFareConfigGroups().stream().filter(drtFareConfigGroup1 -> drtFareConfigGroup1.getMode().equals("drt")).collect(Collectors.toList()).get(0);
+
             double oldFare = Math.max(e.getUnsharedRideDistance() * drtFareConfigGroup.getDistanceFare_m(), drtFareConfigGroup.getMinFarePerTrip());
             if (oldFare + fare < drtFareConfigGroup.getMinFarePerTrip()) {
                 events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), ((-drtFareConfigGroup.getMinFarePerTrip())) + oldFare));
@@ -174,6 +179,8 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
             // negative price should not be allowed.However, considering that the updated price is based on the original price.
             // Lower than the price defined in the drt-fare module should be taken into account.
+            DrtFareConfigGroup drtFareConfigGroup = drtFaresConfigGroup.getDrtFareConfigGroups().stream().filter(drtFareConfigGroup1 -> drtFareConfigGroup1.getMode().equals("drt")).collect(Collectors.toList()).get(0);
+
             if (updatedDistanceFare < (0 - drtFareConfigGroup.getDistanceFare_m()))
                 updatedDistanceFare = 0 - drtFareConfigGroup.getDistanceFare_m();
 

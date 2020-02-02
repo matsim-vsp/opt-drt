@@ -70,7 +70,7 @@ public class ModeAnalyzer implements PersonDepartureEventHandler, PersonEntersVe
 			}
 		}
 
-		if (event.getLegMode().equals(TransportMode.taxi)) {
+		if (event.getLegMode().equals("drt2")) {
 			taxiPassengers.add(event.getPersonId());
 		} else {
 			if (taxiPassengers.contains(event.getPersonId())) {
