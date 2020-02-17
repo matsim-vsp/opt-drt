@@ -41,6 +41,7 @@ import org.matsim.core.controler.listener.IterationEndsListener;
 import org.matsim.core.controler.listener.IterationStartsListener;
 import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.replanning.GenericPlanStrategy;
+import org.matsim.core.replanning.GenericStrategyManager;
 import org.matsim.core.replanning.PlanStrategy;
 import org.matsim.core.replanning.ReplanningUtils;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
@@ -75,6 +76,8 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 	
 	@Inject
 	private Map<StrategyConfigGroup.StrategySettings, PlanStrategy> planStrategies;
+
+
 	
 	private int nextDisableInnovativeStrategiesIteration = -1;
 	private int nextEnableInnovativeStrategiesIteration = -1;

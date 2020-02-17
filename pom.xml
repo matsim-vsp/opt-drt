@@ -95,6 +95,11 @@
     	    <artifactId>guava</artifactId>
     	    <version>28.0-jre</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.10</version>
+        </dependency>
 
     </dependencies>
 

@@ -40,6 +40,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String WAITING_TIME_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentWaitingTimeThreshold";
 	private static final String MODAL_SPLIT_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentModalSplitThreshold";
 	private static final String FARE_TIME_BIN_SIZE = "fareTimeBinSize";
+	private static final String FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND = "costPerVehiclePerSecondFareAdjustment";
 
 	private static final String FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustment";
 	private static final String FLEETSIZE_ADJUSTMENT_APPROACH = "fleetSizeAdjustmentApproach";
@@ -83,6 +84,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private double profitThresholdForFleetSizeAdjustment = 0.;
 	private double costPerVehPerDayForFleetAdjustment = 5.3;
 	private double costPerVehPerMeterForFleetAdjustment = 0.35 / 1000.;
+	private double costPerVehiclePerSecondFareAdjustment = 1. /3600. ;
 	// waiting time approach
 	private double fleetSizeTimeBinSize = 900.;
 	private double waitingTimeThresholdForFleetSizeAdjustment = 600.;
@@ -108,6 +110,11 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	public enum FleetSizeAdjustmentApproach {
 		Disabled, ProfitThreshold, AverageWaitingTimeThreshold
 	}
+
+	@StringGetter(FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND)
+	public double getCostPerVehiclePerSecondFareAdjustment() {return  costPerVehiclePerSecondFareAdjustment;}
+	@StringSetter(FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND)
+	public void setCostPerVehiclePerSecondFareAdjustment(double costPerVehiclePerSecondFareAdjustment){this.costPerVehiclePerSecondFareAdjustment = costPerVehiclePerSecondFareAdjustment;}
 
 	@StringGetter( DEMAND_THRESHOLD_FOR_SERVICE_AREA_ADJUSTMENT )
 	public int getDemandThresholdForServiceAreaAdjustment() {

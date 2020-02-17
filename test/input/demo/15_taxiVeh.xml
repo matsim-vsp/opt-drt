@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<!DOCTYPE vehicles SYSTEM "http://matsim.org/files/dtd/dvrp_vehicles_v1.dtd">
+
+<vehicles>
+	<vehicle id="taxi_1_1" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_2" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_3" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_4" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_5" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_6" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_7" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_8" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_9" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_10" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_11" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_12" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_13" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_14" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_15" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+</vehicles>

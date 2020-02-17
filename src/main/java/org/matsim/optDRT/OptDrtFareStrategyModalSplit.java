@@ -211,8 +211,12 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
         if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 
         int num = currentIteration;
-
-        String fileName = runOutputDirectory + "ITERS/it." + num + "/" + this.scenario.getConfig().controler().getRunId() + "." + num + ".info_" + this.getClass().getName() + ".csv";
+        String path = runOutputDirectory +  "drtFare/";
+        File dir = new File(path);
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        String fileName = path + this.scenario.getConfig().controler().getRunId() + "." + num + ".info_" + this.getClass().getName() + ".csv";
         File file = new File(fileName);
 
         try {
@@ -226,9 +230,11 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
                 double timeBinStart = timeBin * optDrtConfigGroup.getFareTimeBinSize();
                 double timeBinEnd = timeBin * optDrtConfigGroup.getFareTimeBinSize() + optDrtConfigGroup.getFareTimeBinSize();
 
+                DrtFareConfigGroup drtFareConfigGroup = drtFaresConfigGroup.getDrtFareConfigGroups().stream().filter(drtFareConfigGroup1 -> drtFareConfigGroup1.getMode().equals("drt")).collect(Collectors.toList()).get(0);
+
                 double fare = 0.;
                 if (this.timeBin2distanceFarePerMeter.get(timeBin) != null)
-                    fare = this.timeBin2distanceFarePerMeter.get(timeBin);
+                    fare = drtFareConfigGroup.getDistanceFare_m() + this.timeBin2distanceFarePerMeter.get(timeBin);
 
                 bw.write(String.valueOf(timeBin) + ";" + timeBinStart + ";" + timeBinEnd + ";" + this.timeBin2totalTrips.get(timeBin) + ";" + this.timeBin2drtTrips.get(timeBin) + ";" + this.timeBin2DrtModalStats.get(timeBin) + ";" + String.valueOf(fare));
                 bw.newLine();
