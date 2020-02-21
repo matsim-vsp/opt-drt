@@ -1,8 +1,8 @@
 package org.matsim.optDRT.util;
 
 import com.google.inject.Inject;
-import lombok.*;
 import org.apache.commons.math3.analysis.function.Cos;
+import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.events.*;
@@ -17,29 +17,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@NoArgsConstructor
 public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHandler, ActivityEndEventHandler, ActivityStartEventHandler, PersonDepartureEventHandler {
+
+    private static final Logger log = Logger.getLogger(ProfitUtility.class);
     @Inject
     OptDrtConfigGroup optDrtConfigGroup;
     @Inject
     Scenario scenario;
 
-    private Map<Integer, Double> timeBin2Profit = new HashMap<>();
-    private Map<Integer, Double> timeBin2Revenues = new HashMap<>();
-    private Map<Integer, Double> timeBin2VariableCost = new HashMap<>();
-    private Map<Integer, Double> timeBin2DrtStayTime = new HashMap<>();
-    private Map<Integer, Double> timeBin2DrtMeters = new HashMap<>();
-
-    @Getter
     private Map<Integer, Map<Integer, Double>> it2timeBin2Revenues = new HashMap<>();
-    @Getter
     private Map<Integer, Map<Integer, Double>> it2timeBin2VariableCost = new HashMap<>();
-    @Getter
-    private Map<Integer, Map<Integer, Double>> it2timeBin2DrtStayTime = new HashMap<>();
-    @Getter
-    private Map<Integer, Map<Integer, Double>> it2timeBin2DrtMeters = new HashMap<>();
-    @Getter
     private Map<Integer, Map<Integer, Map<CostType, Double>>> it2timeBin2CostType2Cost = new HashMap<>();
+    private int currentIteration;
 
     private Map<Id<Person>, Set<DrtStayBehavior>> personId2DrtStayBehavior = new HashMap<>();
     private VariableCostCalculator variableCostCalculator;
@@ -49,21 +38,20 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
     @Override
     public void reset(int iteration) {
         this.variableCostCalculator = new VariableCostCalculator();
+        drtUsers2DepartureTimeBin.clear();
+        this.currentIteration = iteration;
+
+        this.it2timeBin2Revenues.put(iteration, new HashMap<>());
+        this.it2timeBin2VariableCost.put(iteration, this.variableCostCalculator.getTimeBin2VariableCost());
+        this.it2timeBin2CostType2Cost.put(iteration, this.variableCostCalculator.getTimeBin2Type2Cost());
 
         int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime());
         for (int tem = 0; tem <= timeBinSize; tem++) {
-            timeBin2VariableCost.put(tem, 0.);
-            timeBin2Profit.put(tem, 0.);
-            timeBin2Revenues.put(tem, 0.);
-            timeBin2DrtStayTime.put(tem, 0.);
-            timeBin2DrtMeters.put(tem, 0.);
+            this.it2timeBin2Revenues.get(iteration).put(tem,0.);
         }
 
-        this.it2timeBin2Revenues.put(iteration, timeBin2Revenues);
-        this.it2timeBin2DrtStayTime.put(iteration, timeBin2DrtStayTime);
-        this.it2timeBin2VariableCost.put(iteration, this.variableCostCalculator.getTimeBin2VariableCost());
-        this.it2timeBin2CostType2Cost.put(iteration, this.variableCostCalculator.getTimeBin2Type2Cost());
-        this.it2timeBin2DrtMeters.put(iteration, timeBin2DrtMeters);
+
+
 
     }
 
@@ -72,7 +60,7 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
         if (linkLeaveEvent.getVehicleId().toString().contains("drt")) {
             // this is a drt vehicle
             int timeBin = this.getTimeBin(linkLeaveEvent.getTime());
-            this.variableCostCalculator.addCost(CostType.TRAVEL_DISTANCE, timeBin, this.timeBin2DrtMeters.get(timeBin) + scenario.getNetwork().getLinks().get(linkLeaveEvent.getLinkId()).getLength());
+            this.variableCostCalculator.addCost(CostType.TRAVEL_DISTANCE, timeBin, scenario.getNetwork().getLinks().get(linkLeaveEvent.getLinkId()).getLength());
         }
 
     }
@@ -81,7 +69,9 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
     public void handleEvent(PersonMoneyEvent personMoneyEvent) {
         if (this.drtUsers2DepartureTimeBin.containsKey(personMoneyEvent.getPersonId())) {
             int timeBin = this.drtUsers2DepartureTimeBin.get(personMoneyEvent.getPersonId());
-            this.timeBin2Revenues.put(timeBin, this.timeBin2Revenues.get(timeBin) + (-personMoneyEvent.getAmount()));
+            double currentRevenues = this.it2timeBin2Revenues.get(currentIteration).get(timeBin);
+            this.it2timeBin2Revenues.get(currentIteration).put(timeBin, currentRevenues + (-personMoneyEvent.getAmount()));
+            this.drtUsers2DepartureTimeBin.remove(personMoneyEvent.getPersonId());
         }
 
     }
@@ -226,21 +216,36 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
         }
     }
 
-
-    @RequiredArgsConstructor
-    @Setter
-    @Getter
-    private static class DrtStayBehavior {
-        @NonNull
-        private double startTime;
-        private double endTime;
-        @NonNull
-        private Id<Person> personId;
-        private boolean completeCreate = false;
+    public Map<Integer, Map<Integer, Double>> getIt2timeBin2Revenues() {
+        return it2timeBin2Revenues;
     }
 
-    @Getter
-    @Setter
+    public Map<Integer, Map<Integer, Double>> getIt2timeBin2VariableCost() {
+        return it2timeBin2VariableCost;
+    }
+
+    private static class DrtStayBehavior {
+        private double startTime;
+        private double endTime;
+        private Id<Person> personId;
+        private boolean completeCreate = false;
+
+        public DrtStayBehavior(double startTime, Id<Person> personId) {
+            this.startTime = startTime;
+            this.personId = personId;
+        }
+
+        public double getStartTime() { return startTime; }
+        public void setStartTime(double startTime) { this.startTime = startTime; }
+        public double getEndTime() { return endTime; }
+        public void setEndTime(double endTime) { this.endTime = endTime; }
+        public Id<Person> getPersonId() { return personId; }
+        public void setPersonId(Id<Person> personId) { this.personId = personId;}
+        public boolean isCompleteCreate() { return completeCreate; }
+        public void setCompleteCreate(boolean completeCreate) { this.completeCreate = completeCreate;}
+    }
+
+
     private class VariableCostCalculator {
         private Map<Integer, Map<CostType, Double>> timeBin2Type2Cost = new HashMap<>();
         private Map<Integer, Double> timeBin2VariableCost = new HashMap<>();
@@ -269,5 +274,14 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
             }
             this.timeBin2VariableCost.put(timeBin, this.timeBin2VariableCost.get(timeBin) + cost);
         }
+
+        public Map<Integer, Map<CostType, Double>> getTimeBin2Type2Cost() {
+            return timeBin2Type2Cost;
+        }
+
+        public Map<Integer, Double> getTimeBin2VariableCost() {
+            return timeBin2VariableCost;
+        }
+
     }
 }

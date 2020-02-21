@@ -1,8 +1,6 @@
 package org.matsim.optDRT;
 
 import com.google.inject.Inject;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;
@@ -113,9 +111,7 @@ public class optDrtFareStrategyProfit implements PersonArrivalEventHandler, OptD
 
     }
 
-    @RequiredArgsConstructor
     class drtProfitStatsInTimeBin{
-        @NonNull
         int timeBin;
         Map<Integer,Double> it2Profit = new HashMap<>();
         Map<Integer,Double> it2Revenues = new HashMap<>();

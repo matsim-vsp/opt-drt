@@ -50,6 +50,7 @@ public class ProfitUtilityTest {
                 "--config:global.coordinateSystem", "Atlantis",
                 "--config:network.inputNetworkFile", "network_demo.xml",
                 "--config:plans.inputPlansFile", "plans-allTaxi-demo.xml",
+                "--config:controler.writeEventsInterval", "1",
                 "--config:strategy.fractionOfIterationsToDisableInnovation", "0.8",
                 "--config:strategy.strategysettings[strategyName=SubtourModeChoice].weight", "100",
                 "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
@@ -59,7 +60,7 @@ public class ProfitUtilityTest {
                 "--config:multiModeDrt.drt[mode=drt2].vehiclesFile", "15_taxiVeh.xml",
                 "--config:multiModeDrt.drt[mode=drt2].operationalScheme", "door2door",
                 "--config:controler.runId", "testProfitUtil",
-                "--config:controler.lastIteration", "1",
+                "--config:controler.lastIteration", "5",
                 "--config:transit.useTransit", "false",
                 "--config:controler.outputDirectory", utils.getOutputDirectory()};
 
