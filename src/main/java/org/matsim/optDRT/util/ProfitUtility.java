@@ -85,7 +85,6 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
     @Override
     public void handleEvent(PersonMoneyEvent personMoneyEvent) {
         if(this.drtUsers2DepartureTimeBin.keySet().contains(personMoneyEvent.getPersonId())){
-            System.out.println(personMoneyEvent.getPersonId().toString());
             int timeBin = this.drtUsers2DepartureTimeBin.get(personMoneyEvent.getPersonId());
             this.timeBin2Revenues.put(timeBin,this.timeBin2Revenues.get(timeBin)+ (-personMoneyEvent.getAmount()));
         }
