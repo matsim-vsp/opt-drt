@@ -167,6 +167,44 @@ public class RunOptDrtOpenBerlinScenarioTest {
 	}
 	
 	@Test
+	public final void testStrategySettings() {
+		try {
+			
+			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-strategySettings.xml";
+			final String[] args = {configFilename,
+					"--config:global.numberOfThreads", "1",
+					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.7",
+					"--config:controler.runId", "testStrategySettings",
+					"--config:controler.lastIteration", "10",
+					"--config:plans.inputPlansFile", "several-drt-agents-inside-berlin.xml",
+					"--config:transit.useTransit", "false",
+					"--config:transit.usingTransitInMobsim", "false",
+					"--config:controler.outputDirectory", utils.getOutputDirectory()};
+			
+	        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args);
+	        
+	        ModeAnalyzer modeAnalyzer = new ModeAnalyzer();
+	        
+	        controler.addOverridingModule(new AbstractModule() {
+				
+				@Override
+				public void install() {
+					this.addEventHandlerBinding().toInstance(modeAnalyzer);
+				}
+			});
+	        
+	        controler.run() ;
+
+			log.info( "Done."  );
+			log.info("") ;
+			
+		} catch ( Exception ee ) {
+			ee.printStackTrace();
+			throw new RuntimeException(ee) ;
+		}
+	}
+	
+	@Test
 	public final void testAreaStrategy1() {
 		try {
 			
