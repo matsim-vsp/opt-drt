@@ -41,9 +41,10 @@ import org.matsim.core.controler.listener.IterationEndsListener;
 import org.matsim.core.controler.listener.IterationStartsListener;
 import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.replanning.GenericPlanStrategy;
-import org.matsim.core.replanning.GenericStrategyManager;
 import org.matsim.core.replanning.PlanStrategy;
+import org.matsim.core.replanning.PlanStrategyImpl;
 import org.matsim.core.replanning.ReplanningUtils;
+import org.matsim.core.replanning.StrategyManager;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
 import com.google.inject.Inject;
@@ -76,8 +77,9 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 	
 	@Inject
 	private Map<StrategyConfigGroup.StrategySettings, PlanStrategy> planStrategies;
-
-
+	
+	@Inject
+	private StrategyManager strategyManager;
 	
 	private int nextDisableInnovativeStrategiesIteration = -1;
 	private int nextEnableInnovativeStrategiesIteration = -1;
@@ -138,8 +140,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 			
 			Set<String> subpopulations = new HashSet<>();		
 			for (StrategySettings setting : this.scenario.getConfig().strategy().getStrategySettings()) {
-				String subpop = setting.getSubpopulation();
-				if (!subpopulations.contains(subpop)) subpopulations.add(subpop);
+				subpopulations.add(setting.getSubpopulation());
 				if (subpopulations.size() == 0) subpopulations.add(null);
 			}
 			
@@ -147,27 +148,47 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 				
 				this.nextDisableInnovativeStrategiesIteration = (int) (this.scenario.getConfig().strategy().getFractionOfIterationsToDisableInnovation() * optDrtConfigGroup.getUpdateInterval());
 				log.info("next disable innovative strategies iteration: " + this.nextDisableInnovativeStrategiesIteration);
-
+				
 				if (this.nextDisableInnovativeStrategiesIteration != 0) {
 					this.nextEnableInnovativeStrategiesIteration = (int) (optDrtConfigGroup.getUpdateInterval() + 1);
 					log.info("next enable innovative strategies iteration: " + this.nextEnableInnovativeStrategiesIteration);
 				}
 
+				// set weight to zero
+				log.info("*** Disable all innovative strategies in iteration " + this.nextDisableInnovativeStrategiesIteration);
+				log.info("*** Enable all innovative strategies in iteration " + this.nextEnableInnovativeStrategiesIteration);
+
+				for (String subpopulation : subpopulations) {
+					for (GenericPlanStrategy<Plan, Person> planStrategy : strategyManager.getStrategies(subpopulation)) {
+						PlanStrategyImpl planStrategyImpl = (PlanStrategyImpl) planStrategy;
+						if (isInnovativeStrategy(planStrategyImpl)) {
+							log.info("Setting weight for " + planStrategyImpl.toString() + " (subpopulation " + subpopulation + ") to 0.");
+							strategyManager.addChangeRequest(this.nextDisableInnovativeStrategiesIteration, planStrategyImpl, subpopulation, 0.);
+							
+							// try to get the original strategy settings
+							double originalWeight = Double.MIN_VALUE;
+							for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
+								PlanStrategy strategy = entry.getValue();
+								StrategyConfigGroup.StrategySettings settings = entry.getKey();
+								
+								if (subpopulation.equals(settings.getSubpopulation()) && planStrategyImpl.toString().equals(strategy.toString())) {
+									originalWeight = settings.getWeight();
+								}
+							}
+							
+							if (originalWeight < 0.) {
+								throw new RuntimeException("Can't set the innovative strategy's weight back to original value at the end of the inner iteration loop. Aborting...");
+							}
+							
+							log.info("Setting weight for " + planStrategyImpl.toString() + " (subpopuation " + subpopulation + ") back to original value: " + originalWeight);
+							strategyManager.addChangeRequest(this.nextEnableInnovativeStrategiesIteration, planStrategyImpl, subpopulation, originalWeight);		
+						}
+					}
+				}
+
 			} else {
 				
 				if (event.getIteration() == this.nextDisableInnovativeStrategiesIteration) {
-					// set weight to zero
-					log.info("*** Disable all innovative strategies in iteration " + event.getIteration());
-
-					for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
-						PlanStrategy strategy = entry.getValue();
-						StrategyConfigGroup.StrategySettings settings = entry.getKey();
-						
-						if (isInnovativeStrategy(strategy)) {
-							log.info("Setting weight for " + strategy.toString() + " (subpopulation " + settings.getSubpopulation() + ") to 0.");
-							event.getServices().getStrategyManager().changeWeightOfStrategy(strategy, settings.getSubpopulation(), 0.0);
-						}
-					}
 					
 					this.nextDisableInnovativeStrategiesIteration += optDrtConfigGroup.getUpdateInterval();
 					log.info("next disable innovative strategies iteration: " + this.nextDisableInnovativeStrategiesIteration);
@@ -178,18 +199,6 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 						log.info("Strategies are switched off by global settings. Do not set back the strategy parameters to original values...");
 					
 					} else {
-						
-						log.info("*** Enable all innovative strategies in iteration " + event.getIteration());
-						
-						for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
-							PlanStrategy strategy = entry.getValue();
-							StrategyConfigGroup.StrategySettings settings = entry.getKey();
-							
-							if (isInnovativeStrategy(strategy)) {
-								log.info("Setting weight for " + strategy.toString() + " (subpopuation " + settings.getSubpopulation() + ") back to original value: " + settings.getWeight());
-								event.getServices().getStrategyManager().changeWeightOfStrategy(strategy, settings.getSubpopulation(), settings.getWeight());
-							}
-						}
 								
 						this.nextEnableInnovativeStrategiesIteration += optDrtConfigGroup.getUpdateInterval();
 						log.info("next enable innovative strategies iteration: " + this.nextEnableInnovativeStrategiesIteration);
