@@ -1,42 +1,27 @@
 package org.matsim.optDRT.util;
 
-import com.google.inject.binder.ScopedBindingBuilder;
+import java.util.Random;
+
 import org.apache.log4j.Logger;
-import org.jfree.data.json.JSONUtils;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
-import org.matsim.api.core.v01.population.*;
-import org.matsim.contrib.accessibility.utils.NetworkUtil;
-import org.matsim.core.api.experimental.events.EventsManager;
-import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigGroup;
+import org.matsim.api.core.v01.population.Activity;
+import org.matsim.api.core.v01.population.Leg;
+import org.matsim.api.core.v01.population.Person;
+import org.matsim.api.core.v01.population.Plan;
+import org.matsim.api.core.v01.population.Population;
+import org.matsim.api.core.v01.population.PopulationWriter;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
-import org.matsim.core.events.EventsUtils;
-import org.matsim.core.events.MatsimEventsReader;
 import org.matsim.core.network.NetworkUtils;
-import org.matsim.core.population.PersonUtils;
 import org.matsim.core.scenario.ScenarioUtils;
-import org.matsim.optDRT.OptDrt;
-import org.matsim.optDRT.OptDrtConfigGroup;
 import org.matsim.run.RunOptDrtDemoScenarioTest;
 import org.matsim.run.berlin.RunOptDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
-import playground.vsp.analysis.modules.emissionsAnalyzer.EmissionsAnalyzer;
-import scala.util.parsing.combinator.testing.Str;
-
-import javax.xml.stream.events.Attribute;
-import java.io.*;
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 public class ProfitUtilityTest {
     private static final Logger log = Logger.getLogger(RunOptDrtDemoScenarioTest.class);
