@@ -111,7 +111,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
     public void notifyIterationEnds(IterationEndsEvent event) {
         if (optDrtConfigGroup.getUpdateInterval() != 0
                 && event.getIteration() != this.scenario.getConfig().controler().getLastIteration()
-                && event.getIteration() < scenario.getConfig().strategy().getFractionOfIterationsToDisableInnovation() * this.scenario.getConfig().controler().getLastIteration()
+                && event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
                 && event.getIteration() % optDrtConfigGroup.getUpdateInterval() == 0.) {
 
             log.info("Iteration " + event.getIteration() + ". Applying DRT strategies...");
@@ -128,7 +128,6 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                 && event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
 
             this.optDrtFareStrategy.writeInfo();
-            ;
             this.optDrtFleetStrategy.writeInfo();
             this.optDrtServiceAreaStrategy.writeInfo();
         }
@@ -147,7 +146,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
             if (event.getIteration() == this.scenario.getConfig().controler().getFirstIteration()) {
 
-                this.nextDisableInnovativeStrategiesIteration = (int) (optDrtConfigGroup.getUpdateEndFractionIteration() * optDrtConfigGroup.getUpdateInterval());
+                this.nextDisableInnovativeStrategiesIteration = (int) (this.scenario.getConfig().strategy().getFractionOfIterationsToDisableInnovation() * optDrtConfigGroup.getUpdateInterval());
                 log.info("next disable innovative strategies iteration: " + this.nextDisableInnovativeStrategiesIteration);
 
                 if (this.nextDisableInnovativeStrategiesIteration != 0) {
@@ -181,23 +180,25 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                     } else {
                         for (String subpopulation : subpopulations) {
                             for (GenericPlanStrategy<Plan, Person> planStrategy : strategyManager.getStrategies(subpopulation)) {
-                                PlanStrategyImpl planStrategyImpl = (PlanStrategyImpl) planStrategy;
-                                double originalWeight = Double.MIN_VALUE;
-                                for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
-                                    PlanStrategy strategy = entry.getValue();
-                                    StrategyConfigGroup.StrategySettings settings = entry.getKey();
+                            	if (isInnovativeStrategy(planStrategy)) {
+                            		PlanStrategyImpl planStrategyImpl = (PlanStrategyImpl) planStrategy;
+                                    double originalWeight = Double.MIN_VALUE;
+                                    for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
+                                        PlanStrategy strategy = entry.getValue();
+                                        StrategyConfigGroup.StrategySettings settings = entry.getKey();
 
-                                    if (subpopulation.equals(settings.getSubpopulation()) && planStrategyImpl.toString().equals(strategy.toString())) {
-                                        originalWeight = settings.getWeight();
+                                        if (subpopulation.equals(settings.getSubpopulation()) && planStrategyImpl.toString().equals(strategy.toString())) {
+                                            originalWeight = settings.getWeight();
+                                        }
                                     }
-                                }
 
-                                if (originalWeight < 0.) {
-                                    throw new RuntimeException("Can't set the innovative strategy's weight back to original value at the end of the inner iteration loop. Aborting...");
-                                }
+                                    if (originalWeight < 0.) {
+                                        throw new RuntimeException("Can't set the innovative strategy's weight back to original value at the end of the inner iteration loop. Aborting...");
+                                    }
 
-                                log.info("Setting weight for " + planStrategyImpl.toString() + " (subpopuation " + subpopulation + ") back to original value: " + originalWeight);
-                                strategyManager.addChangeRequest(this.nextEnableInnovativeStrategiesIteration, planStrategyImpl, subpopulation, originalWeight);
+                                    log.info("Setting weight for " + planStrategyImpl.toString() + " (subpopuation " + subpopulation + ") back to original value: " + originalWeight);
+                                    strategyManager.addChangeRequest(this.nextEnableInnovativeStrategiesIteration, planStrategyImpl, subpopulation, originalWeight);
+                            	}
                             }
                         }
                         this.nextEnableInnovativeStrategiesIteration += optDrtConfigGroup.getUpdateInterval();

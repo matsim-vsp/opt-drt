@@ -175,7 +175,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 					"--config:global.numberOfThreads", "1",
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.7",
 					"--config:controler.runId", "testStrategySettings",
-					"--config:controler.lastIteration", "10",
+					"--config:controler.lastIteration", "20",
 					"--config:plans.inputPlansFile", "several-drt-agents-inside-berlin.xml",
 					"--config:transit.useTransit", "false",
 					"--config:transit.usingTransitInMobsim", "false",
