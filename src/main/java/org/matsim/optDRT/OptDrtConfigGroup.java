@@ -34,6 +34,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String UPDATE_INTERVAL = "optDrtUpdateInterval";
 	private static final String UPDATE_END_FRACTION_ITERATION = "optDrtUpdateEndFractionIteration";
 	private static final String WRITE_INFO_INTERVAL = "optDrtWriteInfoInterval";
+	private static final String FLUCTUATING_PERCENTAGE = "fluctuatingPercentage";
 
 	private static final String FARE_ADJUSTMENT = "fareAdjustment";
 	private static final String FARE_ADJUSTMENT_APPROACH = "fareAdjustmentApproach";
@@ -67,7 +68,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private int updateInterval = 1;
 	private double updateEndFractionIteration = 0.8;
 	private int writeInfoInterval = 1;
-
+	private double fluctuatingPercentage = 0.05;
 
 	// waitingTime approach
 	private FareAdjustmentApproach fareAdjustmentApproach = FareAdjustmentApproach.AverageWaitingTimeThreshold;
@@ -110,7 +111,10 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	public enum FleetSizeAdjustmentApproach {
 		Disabled, ProfitThreshold, AverageWaitingTimeThreshold
 	}
-
+	@StringGetter(FLUCTUATING_PERCENTAGE)
+	public double getFluctuatingPercentage() { return fluctuatingPercentage; }
+	@StringSetter(FLUCTUATING_PERCENTAGE)
+	public void setFluctuatingPercentage(double fluctuatingPercentage) { this.fluctuatingPercentage = fluctuatingPercentage; }
 	@StringGetter(FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND)
 	public double getCostPerVehiclePerSecondFareAdjustment() {return  costPerVehiclePerSecondFareAdjustment;}
 	@StringSetter(FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND)

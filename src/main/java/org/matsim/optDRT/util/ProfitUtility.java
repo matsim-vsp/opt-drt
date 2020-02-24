@@ -33,12 +33,14 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
     private Map<Id<Person>, Set<DrtStayBehavior>> personId2DrtStayBehavior = new HashMap<>();
     private VariableCostCalculator variableCostCalculator;
     private Map<Id<Person>, Integer> drtUsers2DepartureTimeBin = new HashMap<>();
+    private Map<Id<Person>, Set<PersonMoneyEvent>> personId2PersonMoneyEvents = new HashMap<>();
 
 
     @Override
     public void reset(int iteration) {
         this.variableCostCalculator = new VariableCostCalculator();
         drtUsers2DepartureTimeBin.clear();
+        personId2PersonMoneyEvents.clear();
         this.currentIteration = iteration;
 
         this.it2timeBin2Revenues.put(iteration, new HashMap<>());
@@ -68,10 +70,7 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
     @Override
     public void handleEvent(PersonMoneyEvent personMoneyEvent) {
         if (this.drtUsers2DepartureTimeBin.containsKey(personMoneyEvent.getPersonId())) {
-            int timeBin = this.drtUsers2DepartureTimeBin.get(personMoneyEvent.getPersonId());
-            double currentRevenues = this.it2timeBin2Revenues.get(currentIteration).get(timeBin);
-            this.it2timeBin2Revenues.get(currentIteration).put(timeBin, currentRevenues + (-personMoneyEvent.getAmount()));
-            this.drtUsers2DepartureTimeBin.remove(personMoneyEvent.getPersonId());
+            this.personId2PersonMoneyEvents.get(personMoneyEvent.getPersonId()).add(personMoneyEvent);
         }
 
     }
@@ -80,6 +79,7 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
     public void handleEvent(PersonDepartureEvent personDepartureEvent) {
         if (personDepartureEvent.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
             this.drtUsers2DepartureTimeBin.put(personDepartureEvent.getPersonId(), getTimeBin(personDepartureEvent.getTime()));
+            this.personId2PersonMoneyEvents.put(personDepartureEvent.getPersonId(),new HashSet<>());
         }
 
     }
@@ -132,6 +132,13 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
             DrtStayBehavior drtStayBehavior = new DrtStayBehavior(activityStartEvent.getTime(), activityStartEvent.getPersonId());
             this.personId2DrtStayBehavior.get(activityStartEvent.getPersonId()).add(drtStayBehavior);
 
+        } else if ((!activityStartEvent.getActType().contains("drt interaction")) && this.personId2PersonMoneyEvents.containsKey(activityStartEvent.getPersonId())) {
+            int timeBin = this.drtUsers2DepartureTimeBin.get(activityStartEvent.getPersonId());
+            double currentRevenues = this.it2timeBin2Revenues.get(currentIteration).get(timeBin);
+            double temAmount = this.personId2PersonMoneyEvents.get(activityStartEvent.getPersonId()).stream().mapToDouble(personMoneyEvent -> - personMoneyEvent.getAmount()).sum();
+            this.it2timeBin2Revenues.get(currentIteration).put(timeBin, currentRevenues + temAmount);
+            this.drtUsers2DepartureTimeBin.remove(activityStartEvent.getPersonId());
+            this.personId2PersonMoneyEvents.remove(activityStartEvent.getPersonId());
         }
 
     }

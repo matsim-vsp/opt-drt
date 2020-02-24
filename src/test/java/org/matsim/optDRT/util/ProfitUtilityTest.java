@@ -40,9 +40,9 @@ public class ProfitUtilityTest {
                 "--config:strategy.strategysettings[strategyName=SubtourModeChoice].weight", "100",
                 "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
                 "--config:subtourModeChoice.modes", "drt,drt2",
-                "--config:multiModeDrt.drt[mode=drt].vehiclesFile", "10_drtVeh.xml",
+                "--config:multiModeDrt.drt[mode=drt].vehiclesFile", "20_drtVeh.xml",
                 "--config:multiModeDrt.drt[mode=drt].operationalScheme", "door2door",
-                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile", "15_taxiVeh.xml",
+                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile", "30_taxiVeh.xml",
                 "--config:multiModeDrt.drt[mode=drt2].operationalScheme", "door2door",
                 "--config:controler.runId", "testProfitUtil",
                 "--config:controler.lastIteration", "5",
@@ -75,12 +75,12 @@ public class ProfitUtilityTest {
                 "--config:strategy.strategysettings[strategyName=SubtourModeChoice].weight", "100",
                 "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
                 "--config:subtourModeChoice.modes", "drt,drt2",
-                "--config:multiModeDrt.drt[mode=drt].vehiclesFile", "10_drtVeh.xml",
+                "--config:multiModeDrt.drt[mode=drt].vehiclesFile", "20_drtVeh.xml",
                 "--config:multiModeDrt.drt[mode=drt].operationalScheme", "door2door",
-                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile", "15_taxiVeh.xml",
+                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile", "30_taxiVeh.xml",
                 "--config:multiModeDrt.drt[mode=drt2].operationalScheme", "door2door",
                 "--config:controler.runId", "testProfitUtil",
-                "--config:controler.lastIteration", "20",
+                "--config:controler.lastIteration", "50",
                 "--config:transit.useTransit", "false",
                 "--config:controler.outputDirectory", utils.getOutputDirectory()};
 
@@ -97,6 +97,11 @@ public class ProfitUtilityTest {
         profitUtility.writeInfo();
 
     }
+
+
+
+
+
     public static void main(String[] args) {
         demoPlansFileWriter(100,"/Users/zhuoxiaomeng/IdeaProjects/opt-drt/test/input/demo/network_demo.xml");
     }

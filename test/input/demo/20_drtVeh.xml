@@ -12,5 +12,16 @@
 	<vehicle id="drt_veh_1_8" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
 	<vehicle id="drt_veh_1_9" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
 	<vehicle id="drt_veh_1_10" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_11" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_12" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_13" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_14" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_15" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_16" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_17" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_18" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_19" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+	<vehicle id="drt_veh_1_20" start_link="1" t_0="21600" t_1="104400" capacity="4"/>
+
 
 </vehicles>

@@ -15,7 +15,9 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.api.core.v01.TransportMode;
+import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
+import org.matsim.optDRT.util.ProfitUtility;
 import org.matsim.run.berlin.RunOptDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
 
@@ -138,5 +140,72 @@ public class RunOptDrtDemoScenarioTest {
         log.info("Done.");
         log.info("");
 
+    }
+
+    @Test
+    public final void testModalSplitStrategyTo75pct() {
+        // in this test, the fareAdjustmentModalSplitThreshold is 0.5
+
+        String configFilename = "test/input/demo/optDrt-planUtil_ModalSplitTest.config.xml";
+        final String[] args = {configFilename,
+                "--config:global.coordinateSystem", "Atlantis",
+                "--config:network.inputNetworkFile", "network_demo.xml",
+                "--config:plans.inputPlansFile", "demo.output_plans.xml.gz",
+                "--config:strategy.fractionOfIterationsToDisableInnovation", "0.9",
+                "--config:strategy.strategysettings[strategyName=SubtourModeChoice].weight", "100",
+                "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
+                "--config:subtourModeChoice.modes", "drt,drt2",
+                "--config:multiModeDrt.drt[mode=drt].vehiclesFile", "20_drtVeh.xml",
+                "--config:multiModeDrt.drt[mode=drt].operationalScheme", "door2door",
+                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile", "30_taxiVeh.xml",
+                "--config:multiModeDrt.drt[mode=drt2].operationalScheme", "door2door",
+                "--config:controler.runId", "testModalSplitStrategyTo75pct",
+                "--config:controler.lastIteration", "100",
+                "--config:transit.useTransit", "false",
+                "--config:controler.outputDirectory", utils.getOutputDirectory()};
+
+        ProfitUtility profitUtility = new ProfitUtility();
+
+        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args);
+        controler.addOverridingModule(new AbstractModule() {
+            @Override
+            public void install() {
+                this.addEventHandlerBinding().toInstance(profitUtility);
+            }
+        });
+        controler.run();
+        profitUtility.writeInfo();
+    }
+
+    @Test
+    public final void testAllDisabledStrategy() {
+        // without any optDrtStrategy
+        String configFilename = "test/input/demo/optDrt-demo-noOptStrategy.config.xml";
+        final String[] args = {configFilename,
+                "--config:global.coordinateSystem", "Atlantis",
+                "--config:network.inputNetworkFile", "network_demo.xml",
+                "--config:plans.inputPlansFile", "demo-100-plans.xml",
+                "--config:strategy.fractionOfIterationsToDisableInnovation", "0.8",
+                "--config:subtourModeChoice.modes", "drt,drt2",
+                "--config:multiModeDrt.drt[mode=drt].vehiclesFile", "20_drtVeh.xml",
+                "--config:multiModeDrt.drt[mode=drt].operationalScheme", "door2door",
+                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile", "30_taxiVeh.xml",
+                "--config:multiModeDrt.drt[mode=drt2].operationalScheme", "door2door",
+                "--config:controler.runId", "testModalSplitStrategy",
+                "--config:controler.lastIteration", "50",
+                "--config:transit.useTransit", "false",
+                "--config:controler.outputDirectory", utils.getOutputDirectory()};
+
+        ProfitUtility profitUtility = new ProfitUtility();
+
+        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args);
+        controler.addOverridingModule(new AbstractModule() {
+            @Override
+            public void install() {
+                this.addEventHandlerBinding().toInstance(profitUtility);
+            }
+        });
+        controler.run();
+        profitUtility.writeInfo();
     }
 }

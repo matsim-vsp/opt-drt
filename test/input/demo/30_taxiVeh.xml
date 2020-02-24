@@ -17,4 +17,20 @@
 	<vehicle id="taxi_1_13" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
 	<vehicle id="taxi_1_14" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
 	<vehicle id="taxi_1_15" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_16" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_17" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_18" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_19" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_20" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_21" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_22" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_23" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_24" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_25" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_26" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_27" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_28" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_29" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+	<vehicle id="taxi_1_30" start_link="1" t_0="21600" t_1="104400" capacity="1"/>
+
 </vehicles>

@@ -171,11 +171,11 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             }
 
             double updatedDistanceFare = 0.;
-            if (drtModeStats > optDrtConfigGroup.getModalSplitThresholdForFareAdjustment()) {
+            if (drtModeStats > optDrtConfigGroup.getModalSplitThresholdForFareAdjustment() * (1. + optDrtConfigGroup.getFluctuatingPercentage()))
                 updatedDistanceFare = oldDistanceFare + optDrtConfigGroup.getFareAdjustment();
-            } else if (drtModeStats < optDrtConfigGroup.getModalSplitThresholdForFareAdjustment()) {
+            else if (drtModeStats < optDrtConfigGroup.getModalSplitThresholdForFareAdjustment() * (1. - optDrtConfigGroup.getFluctuatingPercentage()))
                 updatedDistanceFare = oldDistanceFare - optDrtConfigGroup.getFareAdjustment();
-            }
+            else updatedDistanceFare = oldDistanceFare;
 
             // negative price should not be allowed.However, considering that the updated price is based on the original price.
             // Lower than the price defined in the drt-fare module should be taken into account.
@@ -204,48 +204,46 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
                 }
                 log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2DrtModalStats.get(i));
             }
-        }
+        } else {
+            String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
+            if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 
-
-        String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
-        if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
-
-        int num = currentIteration;
-        String path = runOutputDirectory +  "drtFare/";
-        File dir = new File(path);
-        if(!dir.exists()){
-            dir.mkdirs();
-        }
-        String fileName = path + this.scenario.getConfig().controler().getRunId() + "." + num + ".info_" + this.getClass().getName() + ".csv";
-        File file = new File(fileName);
-
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-
-            bw.write("time bin;time bin start time [sec];time bin end time [sec];totalTrips ;drtTrips ; drtModeStats ;fare [monetary units / meter]");
-            bw.newLine();
-
-            for (Integer timeBin : this.timeBin2DrtModalStats.keySet()) {
-
-                double timeBinStart = timeBin * optDrtConfigGroup.getFareTimeBinSize();
-                double timeBinEnd = timeBin * optDrtConfigGroup.getFareTimeBinSize() + optDrtConfigGroup.getFareTimeBinSize();
-
-                DrtFareConfigGroup drtFareConfigGroup = drtFaresConfigGroup.getDrtFareConfigGroups().stream().filter(drtFareConfigGroup1 -> drtFareConfigGroup1.getMode().equals("drt")).collect(Collectors.toList()).get(0);
-
-                double fare = 0.;
-                if (this.timeBin2distanceFarePerMeter.get(timeBin) != null)
-                    fare = drtFareConfigGroup.getDistanceFare_m() + this.timeBin2distanceFarePerMeter.get(timeBin);
-
-                bw.write(String.valueOf(timeBin) + ";" + timeBinStart + ";" + timeBinEnd + ";" + this.timeBin2totalTrips.get(timeBin) + ";" + this.timeBin2drtTrips.get(timeBin) + ";" + this.timeBin2DrtModalStats.get(timeBin) + ";" + String.valueOf(fare));
-                bw.newLine();
+            int num = currentIteration;
+            String path = runOutputDirectory +  "drtFare/";
+            File dir = new File(path);
+            if(!dir.exists()){
+                dir.mkdirs();
             }
-            log.info("Output written to " + fileName);
-            bw.close();
+            String fileName = path + this.scenario.getConfig().controler().getRunId() + "." + num + ".info_" + this.getClass().getName() + ".csv";
+            File file = new File(fileName);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+                bw.write("time bin;time bin start time [sec];time bin end time [sec];totalTrips ;drtTrips ; drtModeStats ;fare [monetary units / meter]");
+                bw.newLine();
+
+                for (Integer timeBin : this.timeBin2DrtModalStats.keySet()) {
+
+                    double timeBinStart = timeBin * optDrtConfigGroup.getFareTimeBinSize();
+                    double timeBinEnd = timeBin * optDrtConfigGroup.getFareTimeBinSize() + optDrtConfigGroup.getFareTimeBinSize();
+
+                    DrtFareConfigGroup drtFareConfigGroup = drtFaresConfigGroup.getDrtFareConfigGroups().stream().filter(drtFareConfigGroup1 -> drtFareConfigGroup1.getMode().equals("drt")).collect(Collectors.toList()).get(0);
+
+                    double fare = 0.;
+                    if (this.timeBin2distanceFarePerMeter.get(timeBin) != null)
+                        fare = drtFareConfigGroup.getDistanceFare_m() + this.timeBin2distanceFarePerMeter.get(timeBin);
+
+                    bw.write(String.valueOf(timeBin) + ";" + timeBinStart + ";" + timeBinEnd + ";" + this.timeBin2totalTrips.get(timeBin) + ";" + this.timeBin2drtTrips.get(timeBin) + ";" + this.timeBin2DrtModalStats.get(timeBin) + ";" + String.valueOf(fare));
+                    bw.newLine();
+                }
+                log.info("Output written to " + fileName);
+                bw.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     @Override
