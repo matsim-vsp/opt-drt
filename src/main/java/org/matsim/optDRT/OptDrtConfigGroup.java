@@ -38,6 +38,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 
 	private static final String FARE_ADJUSTMENT = "fareAdjustment";
 	private static final String FARE_ADJUSTMENT_APPROACH = "fareAdjustmentApproach";
+	private static final String FARE_UPDATE_APPROACH = "fareUpdateApproach";
 	private static final String WAITING_TIME_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentWaitingTimeThreshold";
 	private static final String MODAL_SPLIT_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentModalSplitThreshold";
 	private static final String FARE_TIME_BIN_SIZE = "fareTimeBinSize";
@@ -72,6 +73,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 
 	// waitingTime approach
 	private FareAdjustmentApproach fareAdjustmentApproach = FareAdjustmentApproach.AverageWaitingTimeThreshold;
+	private FareUpdateApproach fareUpdateApproach = FareUpdateApproach.BangBang;
 	private double fareAdjustment = 0.5;
 	private double fareTimeBinSize = 900.;
 	private double waitingTimeThresholdForFareAdjustment = 600.;
@@ -102,6 +104,10 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 
 	public enum FareAdjustmentApproach {
 		Disabled, AverageWaitingTimeThreshold,Dummy,ModeSplitThreshold
+	}
+	
+	public enum FareUpdateApproach {
+		BangBang, Proportional, ProportionalWithMSA
 	}
 
 	public enum ServiceAreaAdjustmentApproach {
@@ -357,8 +363,16 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	public void setWriteInfoInterval(int writeInfoInterval) {
 		this.writeInfoInterval = writeInfoInterval;
 	}
-
 	
+	@StringGetter( FARE_UPDATE_APPROACH )
+	public FareUpdateApproach getFareUpdateApproach() {
+		return fareUpdateApproach;
+	}
+	
+	@StringSetter( FARE_UPDATE_APPROACH )
+	public void setFareUpdateApproach(FareUpdateApproach fareUpdateApproach) {
+		this.fareUpdateApproach = fareUpdateApproach;
+	}
 			
 }
 

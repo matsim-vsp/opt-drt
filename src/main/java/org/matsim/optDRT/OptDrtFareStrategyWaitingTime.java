@@ -45,6 +45,7 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEvent;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
+import org.matsim.optDRT.OptDrtConfigGroup.FareUpdateApproach;
 
 import com.google.inject.Inject;
 
@@ -66,6 +67,7 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
     private Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
     
     private int currentIteration;
+    private int priceUpdateCounter;
     	
 	@Inject
 	private OptDrtConfigGroup optDrtConfigGroup ;
@@ -86,7 +88,6 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
     	this.currentIteration = iteration;
     	
     	// do not reset the fares from one iteration to the next one
-
     }
 
     @Override
@@ -102,8 +103,7 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 				timeBinDistanceFare = this.timeBin2distanceFarePerMeter.get(timeBin);
 			}
 			double fare = e.getUnsharedRideDistance() * timeBinDistanceFare;
-			
-            events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare));
+            events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare, "opt-drt-fare", "drt-operator"));
         
 			this.drtUserDepartureTime.remove(event.getPersonId());
         }
@@ -117,6 +117,8 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 
 	@Override
 	public void updateFares() {
+		
+		priceUpdateCounter++;
 
 		// Compute the average waiting time and increase or decrease the price accordingly
 		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin ++) {
@@ -138,18 +140,25 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 			if (timeBin2distanceFarePerMeter.get(timeBin) != null) {
 				oldDistanceFare = timeBin2distanceFarePerMeter.get(timeBin);
 			}
-			
+
 			double updatedDistanceFare = 0.;
-			if (averageWaitingTime > optDrtConfigGroup.getWaitingTimeThresholdForFareAdjustment()) {
-				updatedDistanceFare = oldDistanceFare + optDrtConfigGroup.getFareAdjustment();
-			} else {
-				updatedDistanceFare = oldDistanceFare - optDrtConfigGroup.getFareAdjustment();
-			}
 			
+			if (optDrtConfigGroup.getFareUpdateApproach() == FareUpdateApproach.BangBang) {
+				if (averageWaitingTime > optDrtConfigGroup.getWaitingTimeThresholdForFareAdjustment()) {
+					updatedDistanceFare = oldDistanceFare + optDrtConfigGroup.getFareAdjustment();
+				} else {
+					updatedDistanceFare = oldDistanceFare - optDrtConfigGroup.getFareAdjustment();
+				}
+				
+			} else if (optDrtConfigGroup.getFareUpdateApproach() == FareUpdateApproach.Proportional) {
+				updatedDistanceFare = averageWaitingTime * optDrtConfigGroup.getFareAdjustment();
+			
+			} else if (optDrtConfigGroup.getFareUpdateApproach() == FareUpdateApproach.ProportionalWithMSA) {
+				updatedDistanceFare = oldDistanceFare + (1 / (double) priceUpdateCounter) * averageWaitingTime * optDrtConfigGroup.getFareAdjustment();
+			}
+
 			// do not allow for negative fares
 			if (updatedDistanceFare < 0.) updatedDistanceFare = 0.;
-			
-			// TODO: Look at the dynamics: Maybe do not decrease the fare at all or apply some blend factor, MSA, ...
 			
 			log.info("Fare in time bin " + timeBin + " changed from " + oldDistanceFare + " to " + updatedDistanceFare);
 			
