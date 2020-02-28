@@ -151,10 +151,21 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 				}
 				
 			} else if (optDrtConfigGroup.getFareUpdateApproach() == FareUpdateApproach.Proportional) {
-				updatedDistanceFare = averageWaitingTime * optDrtConfigGroup.getFareAdjustment();
+				if (averageWaitingTime > optDrtConfigGroup.getWaitingTimeThresholdForFareAdjustment()) {
+					updatedDistanceFare = (averageWaitingTime - optDrtConfigGroup.getWaitingTimeThresholdForFareAdjustment()) * optDrtConfigGroup.getFareAdjustment();
+				} else {
+					updatedDistanceFare = 0.;
+				}
 			
 			} else if (optDrtConfigGroup.getFareUpdateApproach() == FareUpdateApproach.ProportionalWithMSA) {
-				updatedDistanceFare = oldDistanceFare + (1 / (double) priceUpdateCounter) * averageWaitingTime * optDrtConfigGroup.getFareAdjustment();
+				
+				double blendFactor = (1 / (double) priceUpdateCounter);
+				
+				if (averageWaitingTime > optDrtConfigGroup.getWaitingTimeThresholdForFareAdjustment()) {
+					updatedDistanceFare = (1 - blendFactor) * oldDistanceFare + blendFactor * (averageWaitingTime - optDrtConfigGroup.getWaitingTimeThresholdForFareAdjustment()) * optDrtConfigGroup.getFareAdjustment();
+				} else {
+					updatedDistanceFare = (1 - blendFactor) * oldDistanceFare;
+				}				
 			}
 
 			// do not allow for negative fares
