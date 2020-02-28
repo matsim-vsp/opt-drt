@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class optDrtFareStrategyProfit implements PersonArrivalEventHandler, OptDrtFareStrategy, PersonDepartureEventHandler, DrtRequestSubmittedEventHandler {
+public class OptDrtFareStrategyProfit implements PersonArrivalEventHandler, OptDrtFareStrategy, PersonDepartureEventHandler, DrtRequestSubmittedEventHandler {
 
-    private final Logger logger = Logger.getLogger(optDrtFareStrategyProfit.class);
+    private final Logger logger = Logger.getLogger(OptDrtFareStrategyProfit.class);
     @Inject
     ProfitUtility profitUtility;
     @Inject
