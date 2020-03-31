@@ -1,6 +1,17 @@
 package org.matsim.optDRT;
 
-import com.google.inject.Inject;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
@@ -18,12 +29,7 @@ import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.router.MainModeIdentifier;
 import org.matsim.core.router.TripStructureUtils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.inject.Inject;
 
 /**
  * @author zmeng
@@ -114,7 +120,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void reset(int iteration) {
-        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime());
+        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
         for (int timeBin = 0; timeBin <= timeBinSize; timeBin++) {
             this.timeBin2DrtModalStats.put(timeBin, 0.);
             this.timeBin2totalTrips.put(timeBin, 0.);
@@ -162,7 +168,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             }
             log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2DrtModalStats.get(i));
         }
-        for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin++) {
+        for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin++) {
             double drtModeStats = timeBin2DrtModalStats.get(timeBin);
 
             double oldDistanceFare = 0.;

@@ -121,7 +121,7 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 		priceUpdateCounter++;
 
 		// Compute the average waiting time and increase or decrease the price accordingly
-		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin ++) {
+		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin ++) {
 			
 			double averageWaitingTime = 0.;
 			if (timeBin2waitingTimes.get(timeBin) != null) {

@@ -1,21 +1,32 @@
 package org.matsim.optDRT.util;
 
-import com.google.inject.Inject;
-import org.apache.commons.math3.analysis.function.Cos;
-import org.apache.log4j.Logger;
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.api.core.v01.events.*;
-import org.matsim.api.core.v01.events.handler.*;
-import org.matsim.api.core.v01.population.Person;
-import org.matsim.optDRT.OptDrtConfigGroup;
-
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.log4j.Logger;
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.events.ActivityEndEvent;
+import org.matsim.api.core.v01.events.ActivityStartEvent;
+import org.matsim.api.core.v01.events.LinkLeaveEvent;
+import org.matsim.api.core.v01.events.PersonDepartureEvent;
+import org.matsim.api.core.v01.events.PersonMoneyEvent;
+import org.matsim.api.core.v01.events.handler.ActivityEndEventHandler;
+import org.matsim.api.core.v01.events.handler.ActivityStartEventHandler;
+import org.matsim.api.core.v01.events.handler.LinkLeaveEventHandler;
+import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
+import org.matsim.api.core.v01.events.handler.PersonMoneyEventHandler;
+import org.matsim.api.core.v01.population.Person;
+import org.matsim.optDRT.OptDrtConfigGroup;
+
+import com.google.inject.Inject;
 
 public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHandler, ActivityEndEventHandler, ActivityStartEventHandler, PersonDepartureEventHandler {
 
@@ -47,7 +58,7 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
         this.it2timeBin2VariableCost.put(iteration, this.variableCostCalculator.getTimeBin2VariableCost());
         this.it2timeBin2CostType2Cost.put(iteration, this.variableCostCalculator.getTimeBin2Type2Cost());
 
-        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime());
+        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
         for (int tem = 0; tem <= timeBinSize; tem++) {
             this.it2timeBin2Revenues.get(iteration).put(tem,0.);
         }
@@ -157,7 +168,7 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
 
     public Map<Integer, Double> getProfit(int iteration) {
         Map<Integer, Double> timeBin2Profit = new HashMap<>();
-        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime());
+        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
         for (int tem = 0; tem <= timeBinSize; tem++) {
             timeBin2Profit.put(tem, getProfit(iteration, tem));
         }
@@ -258,7 +269,7 @@ public class ProfitUtility implements PersonMoneyEventHandler, LinkLeaveEventHan
         private Map<Integer, Double> timeBin2VariableCost = new HashMap<>();
 
         public VariableCostCalculator() {
-            int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime());
+            int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
             for (int tem = 0; tem <= timeBinSize; tem++) {
                 Map<CostType, Double> type2cost = new HashMap<>();
                 type2cost.put(CostType.STAY_TIME, 0.);
