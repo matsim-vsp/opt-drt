@@ -103,11 +103,11 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 
 
 	public enum FareAdjustmentApproach {
-		Disabled, AverageWaitingTimeThreshold,Dummy,ModeSplitThreshold
+		Disabled, AverageWaitingTimeThreshold, Dummy, ModeSplitThreshold
 	}
 	
 	public enum FareUpdateApproach {
-		BangBang, Proportional, ProportionalWithMSA
+		BangBang, Proportional, ProportionalWithMSA, SimpleOffset
 	}
 
 	public enum ServiceAreaAdjustmentApproach {
