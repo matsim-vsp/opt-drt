@@ -75,6 +75,10 @@ public class OptDrtModule extends AbstractModule {
 	 		// addControlerListenerBinding().to(modalKey(OptDrtControlerListener.class));
 			
 		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.AverageWaitingTimeThreshold) {
+			this.bind(OptDrtFleetStrategyAvgWaitingTime.class).asEagerSingleton();
+			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyAvgWaitingTime.class);
+			this.addEventHandlerBinding().to(OptDrtFleetStrategyAvgWaitingTime.class);
+		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.WaitingTimeThreshold) {
 			this.bind(OptDrtFleetStrategyWaitingTime.class).asEagerSingleton();
 			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyWaitingTime.class);
 			this.addEventHandlerBinding().to(OptDrtFleetStrategyWaitingTime.class);

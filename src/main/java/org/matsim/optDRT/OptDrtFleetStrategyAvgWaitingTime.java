@@ -53,8 +53,8 @@ import com.google.inject.Inject;
 * @author ikaddoura
 */
 
-class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler, PersonArrivalEventHandler {
-	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyWaitingTime.class);
+class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler, PersonArrivalEventHandler {
+	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyAvgWaitingTime.class);
 	
     private int currentIteration;
 
@@ -73,12 +73,12 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 	private int vehicleCounter = 0;
 	
     private Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
-    private List<Double> waitingTimes = new ArrayList<>();
+    private Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
 	
 	@Override
 	public void reset(int iteration) {		
 		drtUserDepartureTime.clear();
-    	waitingTimes.clear();
+    	timeBin2waitingTimes.clear();
     	
     	this.currentIteration = iteration;
     	
@@ -88,33 +88,26 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 	@Override
 	public void updateFleet() {
 		
-		if (checkIfFleetNeedsToBeIncreased()) {
+		if (computeMaximumOfAvgWaitingTimePerTimeBin() >= optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment()) {
 			increaseFleet();
 		} else {
 			decreaseFleet();
 		}
 	}
 
-	private boolean checkIfFleetNeedsToBeIncreased() {
-		double waitingTimeThreshold = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
-		int cntAboveThreshold = 0;
-		int cntBelowOrEqualsThreshold = 0;
-		
-		for (Double waitingTime : this.waitingTimes) {
-			if (waitingTime > waitingTimeThreshold) {
-				cntAboveThreshold++;
-			} else {
-				cntBelowOrEqualsThreshold++;
+	private double computeMaximumOfAvgWaitingTimePerTimeBin() {
+		double maximumPerTimeBin = 0.;
+		for (Integer timeBin : this.timeBin2waitingTimes.keySet()) {
+			int counter = 0;
+			double sum = 0.;
+			for (Double waitingTime : timeBin2waitingTimes.get(timeBin)) {
+				sum = sum + waitingTime;
+				counter++;				
 			}
+			double avgWaitingTimePerTimeBin = sum / counter;
+			if (avgWaitingTimePerTimeBin > maximumPerTimeBin) maximumPerTimeBin = avgWaitingTimePerTimeBin;
 		}
-		
-		double shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
-		
-		if (shareOfTripsAboveWaitingTimeThreshold > optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) {
-			return true;
-		} else {
-			return false;
-		}
+		return maximumPerTimeBin;
 	}
 
 	private void decreaseFleet() {
@@ -185,10 +178,21 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 	}
 	
 	@Override
-	public void handleEvent(PersonEntersVehicleEvent event) {	
-		if (this.drtUserDepartureTime.get(event.getPersonId()) != null) {	
+	public void handleEvent(PersonEntersVehicleEvent event) {
+		
+		if (this.drtUserDepartureTime.get(event.getPersonId()) != null) {
+			
 			double waitingTime = event.getTime() - this.drtUserDepartureTime.get(event.getPersonId());
-			waitingTimes.add(waitingTime);	
+			int timeBin = getTimeBin(event.getTime());
+			
+			if (this.timeBin2waitingTimes.get(timeBin) == null) {
+				List<Double> waitingTimes = new ArrayList<>();
+				waitingTimes.add(waitingTime);
+				this.timeBin2waitingTimes.put(timeBin, waitingTimes);
+			} else {
+				this.timeBin2waitingTimes.get(timeBin).add(waitingTime);
+			}
+			
 		}
 	}
 	
@@ -205,6 +209,11 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 			this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
 		}
 	}
+	
+	private int getTimeBin(double time) {
+		int timeBin = (int) (time / optDrtConfigGroup.getFleetSizeTimeBinSize());
+		return timeBin;
+	}
 
 	@Override
 	public void writeInfo() {
@@ -216,31 +225,27 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-			
-			double waitingTimeThreshold = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
-			int cntAboveThreshold = 0;
-			int cntBelowOrEqualsThreshold = 0;
-			
-			for (Double waitingTime : this.waitingTimes) {
-				if (waitingTime > waitingTimeThreshold) {
-					cntAboveThreshold++;
-				} else {
-					cntBelowOrEqualsThreshold++;
+
+			bw.write("time bin;time bin start time [sec];time bin end time [sec];average waiting time [sec];maximum waiting time[sec]");
+			bw.newLine();
+
+			for (Integer timeBin : this.timeBin2waitingTimes.keySet()) {
+				int counter = 0;
+				double sum = 0.;
+				double maxWaitingTime = 0.;
+				for (Double waitingTime : timeBin2waitingTimes.get(timeBin)) {
+					sum = sum + waitingTime;
+					counter++;
+					
+					if (waitingTime > maxWaitingTime) {
+						maxWaitingTime = waitingTime;
+					}
 				}
-			}
+				
+				double timeBinStart = timeBin * optDrtConfigGroup.getFleetSizeTimeBinSize();
+				double timeBinEnd = timeBin * optDrtConfigGroup.getFleetSizeTimeBinSize() + optDrtConfigGroup.getFleetSizeTimeBinSize();
 			
-			double shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
-			bw.write("share of trips above waiting time threshold;" + shareOfTripsAboveWaitingTimeThreshold);
-			bw.newLine();
-			bw.write("trips above waiting time threshold;" + cntAboveThreshold);
-			bw.newLine();
-			bw.write("trips below or equals waiting time threshold;" + cntBelowOrEqualsThreshold);
-			bw.newLine();
-			bw.write("------------------------------------------------");
-			bw.newLine();
-			
-			for (Double waitingTime : this.waitingTimes) {	
-				bw.write(String.valueOf(waitingTime));
+				bw.write(String.valueOf(timeBin) + ";" + timeBinStart + ";" + timeBinEnd + ";" + sum / counter + ";" + maxWaitingTime );
 				bw.newLine();
 			}
 			log.info("Output written to " + fileName);

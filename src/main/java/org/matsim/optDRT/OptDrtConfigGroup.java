@@ -34,7 +34,6 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String UPDATE_INTERVAL = "optDrtUpdateInterval";
 	private static final String UPDATE_END_FRACTION_ITERATION = "optDrtUpdateEndFractionIteration";
 	private static final String WRITE_INFO_INTERVAL = "optDrtWriteInfoInterval";
-	private static final String FLUCTUATING_PERCENTAGE = "fluctuatingPercentage";
 
 	private static final String FARE_ADJUSTMENT = "fareAdjustment";
 	private static final String FARE_ADJUSTMENT_APPROACH = "fareAdjustmentApproach";
@@ -43,6 +42,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String MODAL_SPLIT_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentModalSplitThreshold";
 	private static final String FARE_TIME_BIN_SIZE = "fareTimeBinSize";
 	private static final String FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND = "costPerVehiclePerSecondFareAdjustment";
+	private static final String FLUCTUATING_PERCENTAGE = "fluctuatingPercentage";
 
 	private static final String FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustment";
 	private static final String FLEETSIZE_ADJUSTMENT_APPROACH = "fleetSizeAdjustmentApproach";
@@ -51,7 +51,8 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String COST_PER_VEHICLE_PER_METER_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentCostPerVehPerMeter";
 	private static final String WAITING_TIME_THRESHOLD_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentWaitingTimeThreshold";
 	private static final String FlEETSIZE_TIME_BIN_SIZE = "fleetSizeTimeBinSize";
-
+	private static final String TRIP_SHARE_FOR_FLEET_SIZE_ADJUSTMENT = "tripShareThresholdForFleetSizeAdjustment";
+	
 	private static final String SERVICE_AREA_ADJUSTMENT_EXPAND = "serviceAreaAdjustmentExpand";
 	private static final String SERVICE_AREA_ADJUSTMENT_REDUCE = "serviceAreaAdjustmentReduce";
 	private static final String SERVICE_AREA_ADJUSTMENT_APPROACH = "serviceAreaAdjustmentApproach";
@@ -69,18 +70,19 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private int updateInterval = 1;
 	private double updateEndFractionIteration = 0.8;
 	private int writeInfoInterval = 1;
-	private double fluctuatingPercentage = 0.05;
 
-	// waitingTime approach
+	// fare
 	private FareAdjustmentApproach fareAdjustmentApproach = FareAdjustmentApproach.AverageWaitingTimeThreshold;
 	private FareUpdateApproach fareUpdateApproach = FareUpdateApproach.BangBang;
 	private double fareAdjustment = 0.5;
 	private double fareTimeBinSize = 900.;
+	// waitingTime approach
 	private double waitingTimeThresholdForFareAdjustment = 600.;
-
 	// modeSplit approach
 	private double 	modeSplitThresholdForFareAdjustment = 0.2;
+	private double fluctuatingPercentage = 0.05;
 
+	// fleet size
 	private FleetSizeAdjustmentApproach fleetSizeAdjustmentApproach = FleetSizeAdjustmentApproach.AverageWaitingTimeThreshold;
 	private int fleetSizeAdjustment = 1;
 	// profit approach
@@ -91,7 +93,9 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	// waiting time approach
 	private double fleetSizeTimeBinSize = 900.;
 	private double waitingTimeThresholdForFleetSizeAdjustment = 600.;
+	private double tripShareThresholdForFleetSizeAdjustment = 0.90;
 
+	// service area
 	private ServiceAreaAdjustmentApproach serviceAreaAdjustmentApproach = ServiceAreaAdjustmentApproach.Disabled;
 	private String inputShapeFileForServiceAreaAdjustment = null;
 	private String inputShapeFileForServiceAreaAdjustmentCrs = null;
@@ -100,7 +104,6 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private int serviceAreaAdjustmentExpand = 1;
 	private int serviceAreaAdjustmentReduce = 1;
 	private int demandThresholdForServiceAreaAdjustment = 1;
-
 
 	public enum FareAdjustmentApproach {
 		Disabled, AverageWaitingTimeThreshold, Dummy, ModeSplitThreshold
@@ -115,8 +118,9 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	}
 
 	public enum FleetSizeAdjustmentApproach {
-		Disabled, ProfitThreshold, AverageWaitingTimeThreshold
+		Disabled, ProfitThreshold, AverageWaitingTimeThreshold, WaitingTimeThreshold
 	}
+	
 	@StringGetter(FLUCTUATING_PERCENTAGE)
 	public double getFluctuatingPercentage() { return fluctuatingPercentage; }
 	@StringSetter(FLUCTUATING_PERCENTAGE)
@@ -372,6 +376,14 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter( FARE_UPDATE_APPROACH )
 	public void setFareUpdateApproach(FareUpdateApproach fareUpdateApproach) {
 		this.fareUpdateApproach = fareUpdateApproach;
+	}
+	@StringGetter( TRIP_SHARE_FOR_FLEET_SIZE_ADJUSTMENT )
+	public double getTripShareThresholdForFleetSizeAdjustment() {
+		return tripShareThresholdForFleetSizeAdjustment;
+	}
+	@StringSetter( TRIP_SHARE_FOR_FLEET_SIZE_ADJUSTMENT )
+	public void setTripShareThresholdForFleetSizeAdjustment(double tripShareThresholdForFleetSizeAdjustment) {
+		this.tripShareThresholdForFleetSizeAdjustment = tripShareThresholdForFleetSizeAdjustment;
 	}
 			
 }
