@@ -42,7 +42,6 @@ import org.matsim.core.controler.listener.IterationStartsListener;
 import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.replanning.GenericPlanStrategy;
 import org.matsim.core.replanning.PlanStrategy;
-import org.matsim.core.replanning.PlanStrategyImpl;
 import org.matsim.core.replanning.ReplanningUtils;
 import org.matsim.core.replanning.StrategyManager;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
@@ -160,11 +159,11 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                 if (event.getIteration() == this.nextDisableInnovativeStrategiesIteration) {
 
                     for (String subpopulation : subpopulations) {
-                        for (GenericPlanStrategy<Plan, Person> planStrategy : strategyManager.getStrategies(subpopulation)) {
-                            PlanStrategyImpl planStrategyImpl = (PlanStrategyImpl) planStrategy;
-                            if (isInnovativeStrategy(planStrategyImpl)) {
-                                log.info("Setting weight for " + planStrategyImpl.toString() + " (subpopulation " + subpopulation + ") to 0.");
-                                strategyManager.addChangeRequest(this.nextDisableInnovativeStrategiesIteration, planStrategyImpl, subpopulation, 0.);
+                        for (GenericPlanStrategy<Plan, Person> genericPlanStrategy : strategyManager.getStrategies(subpopulation)) {
+                            PlanStrategy planStrategy = (PlanStrategy) genericPlanStrategy;
+                            if (isInnovativeStrategy(planStrategy)) {
+                                log.info("Setting weight for " + planStrategy.toString() + " (subpopulation " + subpopulation + ") to 0.");
+                                strategyManager.addChangeRequest(this.nextDisableInnovativeStrategiesIteration, planStrategy, subpopulation, 0.);
                             }
                         }
                     }
@@ -179,15 +178,15 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
                     } else {
                         for (String subpopulation : subpopulations) {
-                            for (GenericPlanStrategy<Plan, Person> planStrategy : strategyManager.getStrategies(subpopulation)) {
-                            	if (isInnovativeStrategy(planStrategy)) {
-                            		PlanStrategyImpl planStrategyImpl = (PlanStrategyImpl) planStrategy;
+                            for (GenericPlanStrategy<Plan, Person> genericPlanStrategy : strategyManager.getStrategies(subpopulation)) {
+                            	if (isInnovativeStrategy(genericPlanStrategy)) {
+                            		PlanStrategy planStrategy = (PlanStrategy) genericPlanStrategy;
                                     double originalWeight = Double.MIN_VALUE;
                                     for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
                                         PlanStrategy strategy = entry.getValue();
                                         StrategyConfigGroup.StrategySettings settings = entry.getKey();
 
-                                        if (subpopulation.equals(settings.getSubpopulation()) && planStrategyImpl.toString().equals(strategy.toString())) {
+                                        if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.toString().equals(strategy.toString())) {
                                             originalWeight = settings.getWeight();
                                         }
                                     }
@@ -196,8 +195,8 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                                         throw new RuntimeException("Can't set the innovative strategy's weight back to original value at the end of the inner iteration loop. Aborting...");
                                     }
 
-                                    log.info("Setting weight for " + planStrategyImpl.toString() + " (subpopuation " + subpopulation + ") back to original value: " + originalWeight);
-                                    strategyManager.addChangeRequest(this.nextEnableInnovativeStrategiesIteration, planStrategyImpl, subpopulation, originalWeight);
+                                    log.info("Setting weight for " + planStrategy.toString() + " (subpopuation " + subpopulation + ") back to original value: " + originalWeight);
+                                    strategyManager.addChangeRequest(this.nextEnableInnovativeStrategiesIteration, planStrategy, subpopulation, originalWeight);
                             	}
                             }
                         }
