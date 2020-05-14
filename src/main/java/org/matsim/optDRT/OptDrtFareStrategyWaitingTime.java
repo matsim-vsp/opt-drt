@@ -103,7 +103,7 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 				timeBinDistanceFare = this.timeBin2distanceFarePerMeter.get(timeBin);
 			}
 			double fare = e.getUnsharedRideDistance() * timeBinDistanceFare;
-            events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare, "opt-drt-fare", "drt-operator"));
+            events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare));
         
 			this.drtUserDepartureTime.remove(event.getPersonId());
         }
@@ -121,7 +121,7 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 		priceUpdateCounter++;
 
 		// Compute the average waiting time and increase or decrease the price accordingly
-		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin ++) {
+		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin ++) {
 			
 			double averageWaitingTime = 0.;
 			if (timeBin2waitingTimes.get(timeBin) != null) {

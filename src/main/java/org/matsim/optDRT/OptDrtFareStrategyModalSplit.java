@@ -120,7 +120,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void reset(int iteration) {
-        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
+        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime());
         for (int timeBin = 0; timeBin <= timeBinSize; timeBin++) {
             this.timeBin2DrtModalStats.put(timeBin, 0.);
             this.timeBin2totalTrips.put(timeBin, 0.);
@@ -168,7 +168,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             }
             log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2DrtModalStats.get(i));
         }
-        for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin++) {
+        for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin++) {
             double drtModeStats = timeBin2DrtModalStats.get(timeBin);
 
             double oldDistanceFare = 0.;
