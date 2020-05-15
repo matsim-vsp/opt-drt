@@ -110,7 +110,7 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 		
 		double shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
 		
-		if (shareOfTripsAboveWaitingTimeThreshold > optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) {
+		if (shareOfTripsAboveWaitingTimeThreshold > (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) ) {
 			return true;
 		} else {
 			return false;
