@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.ikaddoura</groupId>
 	<artifactId>optDRT</artifactId>
-	<version>v2.2</version>
+	<version>avoev-backport-SNAPSHOT</version>
 
 	<name>OptDRT Project</name>
 	<description>OptDRT Project</description>
