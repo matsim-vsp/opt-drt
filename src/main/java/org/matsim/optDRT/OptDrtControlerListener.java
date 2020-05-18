@@ -198,7 +198,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                                         log.info("	strategy class: " + strategy.getClass().toString());
                                         log.info("	subpopulation: " + settings.getSubpopulation());
 
-                                        if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.toString().equals(strategy.toString())) {
+                                        if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.getClass().getName().equals(strategy.getClass().getName())) {
                                             originalWeight = settings.getWeight();
                                             log.info("Matching strategy found. Original weight: " + originalWeight);
                                             break;
