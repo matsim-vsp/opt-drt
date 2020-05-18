@@ -108,7 +108,13 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 			}
 		}
 		
-		double shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
+		double shareOfTripsAboveWaitingTimeThreshold = 0.;
+		if ((cntAboveThreshold + cntBelowOrEqualsThreshold) > 0) {
+			shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
+		} else {
+			log.warn("No drt trips in iteration " + this.currentIteration);
+			shareOfTripsAboveWaitingTimeThreshold = 0.;
+		}
 		
 		if (shareOfTripsAboveWaitingTimeThreshold > (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) ) {
 			return true;
