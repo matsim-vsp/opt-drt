@@ -184,6 +184,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                                     
                                     log.info("strategy: " + planStrategy.toString());
                                     log.info("strategy class: " + planStrategy.getClass().toString());
+                                    log.info("strategy class name: " + planStrategy.getClass().getName());
                                     log.info("subpopulation: " + subpopulation);
                                     log.info("Trying to identify the original weight...");
                                     log.info("------------------------------------------");
@@ -196,6 +197,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                                         log.info("...");
                                         log.info("	strategy: " + strategy.toString());
                                         log.info("	strategy class: " + strategy.getClass().toString());
+                                        log.info("	strategy class name: " + strategy.getClass().getName());
                                         log.info("	subpopulation: " + settings.getSubpopulation());
 
                                         if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.getClass().getName().equals(strategy.getClass().getName())) {
