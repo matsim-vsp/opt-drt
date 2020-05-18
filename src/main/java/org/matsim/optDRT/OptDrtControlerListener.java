@@ -183,6 +183,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                             		PlanStrategy planStrategy = (PlanStrategy) genericPlanStrategy;
                                     
                                     log.info("strategy: " + planStrategy.toString());
+                                    log.info("strategy class: " + planStrategy.getClass().toString());
                                     log.info("subpopulation: " + subpopulation);
                                     log.info("Trying to identify the original weight...");
                                     log.info("------------------------------------------");
@@ -192,8 +193,10 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                                         PlanStrategy strategy = entry.getValue();
                                         StrategyConfigGroup.StrategySettings settings = entry.getKey();
                                         
-                                        log.info("strategy: " + strategy.toString());
-                                        log.info("subpopulation: " + settings.getSubpopulation());
+                                        log.info("...");
+                                        log.info("	strategy: " + strategy.toString());
+                                        log.info("	strategy class: " + strategy.getClass().toString());
+                                        log.info("	subpopulation: " + settings.getSubpopulation());
 
                                         if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.toString().equals(strategy.toString())) {
                                             originalWeight = settings.getWeight();
