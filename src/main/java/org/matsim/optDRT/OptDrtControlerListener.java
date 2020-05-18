@@ -181,13 +181,24 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                             for (GenericPlanStrategy<Plan, Person> genericPlanStrategy : strategyManager.getStrategies(subpopulation)) {
                             	if (isInnovativeStrategy(genericPlanStrategy)) {
                             		PlanStrategy planStrategy = (PlanStrategy) genericPlanStrategy;
-                                    double originalWeight = Double.MIN_VALUE;
+                                    
+                                    log.info("strategy: " + planStrategy.toString());
+                                    log.info("subpopulation: " + subpopulation);
+                                    log.info("Trying to identify the original weight...");
+                                    log.info("------------------------------------------");
+
+                            		double originalWeight = -1.;
                                     for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
                                         PlanStrategy strategy = entry.getValue();
                                         StrategyConfigGroup.StrategySettings settings = entry.getKey();
+                                        
+                                        log.info("strategy: " + strategy.toString());
+                                        log.info("subpopulation: " + settings.getSubpopulation());
 
                                         if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.toString().equals(strategy.toString())) {
                                             originalWeight = settings.getWeight();
+                                            log.info("Matching strategy found. Original weight: " + originalWeight);
+                                            break;
                                         }
                                     }
 
