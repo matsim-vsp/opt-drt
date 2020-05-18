@@ -182,23 +182,17 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                             	if (isInnovativeStrategy(genericPlanStrategy)) {
                             		PlanStrategy planStrategy = (PlanStrategy) genericPlanStrategy;
                                     
-                                    log.info("strategy: " + planStrategy.toString());
-                                    log.info("strategy class: " + planStrategy.getClass().toString());
-                                    log.info("strategy class name: " + planStrategy.getClass().getName());
-                                    log.info("subpopulation: " + subpopulation);
-                                    log.info("Trying to identify the original weight...");
                                     log.info("------------------------------------------");
+                                    log.info("Trying to identify the original weight for subpopulation " + subpopulation + " and strategy " + planStrategy.getClass().getName() + " ...");
 
                             		double originalWeight = -1.;
                                     for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
                                         PlanStrategy strategy = entry.getValue();
                                         StrategyConfigGroup.StrategySettings settings = entry.getKey();
                                         
-                                        log.info("...");
-                                        log.info("	strategy: " + strategy.toString());
-                                        log.info("	strategy class: " + strategy.getClass().toString());
-                                        log.info("	strategy class name: " + strategy.getClass().getName());
-                                        log.info("	subpopulation: " + settings.getSubpopulation());
+                                        log.info("---");
+                                        log.info(" strategy: " + strategy.getClass().getName());
+                                        log.info(" subpopulation: " + settings.getSubpopulation());
 
                                         if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.getClass().getName().equals(strategy.getClass().getName())) {
                                             originalWeight = settings.getWeight();
@@ -211,7 +205,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                                         throw new RuntimeException("Can't set the innovative strategy's weight back to original value at the end of the inner iteration loop. Aborting...");
                                     }
 
-                                    log.info("Setting weight for " + planStrategy.toString() + " (subpopuation " + subpopulation + ") back to original value: " + originalWeight);
+                                    log.info("Setting weight for " + planStrategy.getClass().getName() + " (subpopuation " + subpopulation + ") back to original value: " + originalWeight);
                                     strategyManager.addChangeRequest(this.nextEnableInnovativeStrategiesIteration, planStrategy, subpopulation, originalWeight);
                             	}
                             }
