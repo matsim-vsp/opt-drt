@@ -177,17 +177,27 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
                         log.info("Strategies are switched off by global settings. Do not set back the strategy parameters to original values...");
 
                     } else {
-                        for (String subpopulation : subpopulations) {
+                        for (String subpopulation : subpopulations) {                        	
                             for (GenericPlanStrategy<Plan, Person> genericPlanStrategy : strategyManager.getStrategies(subpopulation)) {
                             	if (isInnovativeStrategy(genericPlanStrategy)) {
                             		PlanStrategy planStrategy = (PlanStrategy) genericPlanStrategy;
-                                    double originalWeight = Double.MIN_VALUE;
+                            		
+                            		log.info("------------------------------------------");
+                                    log.info("Trying to identify the original weight for subpopulation " + subpopulation + " and strategy " + planStrategy.getClass().getName() + " ...");
+
+                            		double originalWeight = -1.;
                                     for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
                                         PlanStrategy strategy = entry.getValue();
                                         StrategyConfigGroup.StrategySettings settings = entry.getKey();
+                                        
+                                        log.info("---");
+                                        log.info(" strategy: " + strategy.getClass().getName());
+                                        log.info(" subpopulation: " + settings.getSubpopulation());
 
-                                        if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.toString().equals(strategy.toString())) {
+                                        if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.getClass().getName().equals(strategy.getClass().getName())) {
                                             originalWeight = settings.getWeight();
+                                            log.info("Matching strategy found. Original weight: " + originalWeight);
+                                            break;
                                         }
                                     }
 
