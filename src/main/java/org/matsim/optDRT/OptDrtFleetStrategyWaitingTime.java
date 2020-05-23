@@ -25,10 +25,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
@@ -126,18 +124,29 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 	private void decreaseFleet() {
 		
 		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();
+		
+		int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+		int vehiclesToRemoveFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
+		int vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
+		
+		log.info("Removing " + vehiclesToRemove + " vehicles...");
 
-		Set<Id<DvrpVehicle>> dvrpVehiclesToRemove = new HashSet<>();
-		int counter = 0;
+		List<Id<DvrpVehicle>> dvrpVehiclesBefore = new ArrayList<>();
 		for (DvrpVehicleSpecification specification : fleetSpecification.getVehicleSpecifications().values()) {
-			if (counter < optDrtConfigGroup.getFleetSizeAdjustment()) {
-				dvrpVehiclesToRemove.add(specification.getId());
-				counter++;
+			dvrpVehiclesBefore.add(specification.getId());
+		}
+
+		List<Id<DvrpVehicle>> dvrpVehiclesToRemove = new ArrayList<>();		
+		for (int v = 0; v <= vehiclesToRemove; v++) {
+			if (dvrpVehiclesBefore.size() > 0) {
+				final int randomVehicleNr = (int) (dvrpVehiclesBefore.size() * MatsimRandom.getLocalInstance().nextDouble());
+				dvrpVehiclesToRemove.add(dvrpVehiclesBefore.remove(randomVehicleNr));
 			}
 		}
 		
 		for (Id<DvrpVehicle> id : dvrpVehiclesToRemove) {
 			if (fleetSpecification.getVehicleSpecifications().size() > 1) {
+				// always keep one drt 'mother' vehicle
 				fleetSpecification.removeVehicleSpecification(id);
 				log.info("Removing dvrp vehicle " + id); 
 			}
@@ -150,25 +159,23 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 
 	private void increaseFleet() {
 		
-		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();
+		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();		
 		
-		// select a random fleet specification to be cloned.
-		DvrpVehicleSpecification dvrpVehicleSpecficationToBeCloned = null;
-		final int randomVehicleNr = (int) (fleetSpecification.getVehicleSpecifications().size() * MatsimRandom.getLocalInstance().nextDouble());
-
-		int counter = 0;
-		for (DvrpVehicleSpecification specification : fleetSpecification.getVehicleSpecifications().values()) {
-			if (counter == randomVehicleNr) {
-				dvrpVehicleSpecficationToBeCloned = specification;
+		int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+		int vehiclesToAddFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
+		int vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
+		
+		log.info("Adding " + vehiclesToAdd + " vehicles...");
+		
+		for (int i = 0; i < vehiclesToAdd; i++) {
+			
+			// select a random fleet specification to be cloned.
+			DvrpVehicleSpecification dvrpVehicleSpecficationToBeCloned = getRandomVehicleSpecification();
+			
+			if (dvrpVehicleSpecficationToBeCloned == null) {
+				throw new RuntimeException("No dvrp vehicle found to be cloned. Maybe create some default dvrp vehicle which is specified somewhere. Aborting...");
 			}
-			counter++;
-		}
-		
-		if (dvrpVehicleSpecficationToBeCloned == null) {
-			throw new RuntimeException("No dvrp vehicle found to be cloned. Maybe create some default dvrp vehicle which is specified somewhere. Aborting...");
-		}
-
-		for (int i = 0; i < optDrtConfigGroup.getFleetSizeAdjustment(); i++) {
+			
 			Id<DvrpVehicle> id = Id.create("optDrt_" + vehicleCounter + "_cloneOf_" + dvrpVehicleSpecficationToBeCloned.getId(), DvrpVehicle.class);		
 			DvrpVehicleSpecification newSpecification = ImmutableDvrpVehicleSpecification.newBuilder()
 					.id(id)
@@ -190,6 +197,20 @@ class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEnter
 
 	}
 	
+	private DvrpVehicleSpecification getRandomVehicleSpecification() {
+		DvrpVehicleSpecification dvrpVehicleSpecficationToBeCloned = null;
+		final int randomVehicleNr = (int) (fleetSpecification.getVehicleSpecifications().size() * MatsimRandom.getLocalInstance().nextDouble());
+
+		int counter = 0;
+		for (DvrpVehicleSpecification specification : fleetSpecification.getVehicleSpecifications().values()) {
+			if (counter == randomVehicleNr) {
+				dvrpVehicleSpecficationToBeCloned = specification;
+			}
+			counter++;
+		}
+		return dvrpVehicleSpecficationToBeCloned;
+	}
+
 	@Override
 	public void handleEvent(PersonEntersVehicleEvent event) {	
 		if (this.drtUserDepartureTime.get(event.getPersonId()) != null) {	

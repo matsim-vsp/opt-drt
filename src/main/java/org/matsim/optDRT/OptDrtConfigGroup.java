@@ -45,6 +45,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String FLUCTUATING_PERCENTAGE = "fluctuatingPercentage";
 
 	private static final String FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustment";
+	private static final String FLEETSIZE_ADJUSTMENT_PERCENTAGE = "fleetSizeAdjustmentPercentage";
 	private static final String FLEETSIZE_ADJUSTMENT_APPROACH = "fleetSizeAdjustmentApproach";
 	private static final String PROFIT_THRESHOLD_FOR_FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustmentProfitThreshold";
 	private static final String COST_PER_VEHICLE_PER_DAY_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentCostPerVehPerDay";
@@ -85,6 +86,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	// fleet size
 	private FleetSizeAdjustmentApproach fleetSizeAdjustmentApproach = FleetSizeAdjustmentApproach.AverageWaitingTimeThreshold;
 	private int fleetSizeAdjustment = 1;
+	private double fleetSizeAdjustmentPercentage = 0.;
 	// profit approach
 	private double profitThresholdForFleetSizeAdjustment = 0.;
 	private double costPerVehPerDayForFleetAdjustment = 5.3;
@@ -384,6 +386,14 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter( TRIP_SHARE_FOR_FLEET_SIZE_ADJUSTMENT )
 	public void setTripShareThresholdForFleetSizeAdjustment(double tripShareThresholdForFleetSizeAdjustment) {
 		this.tripShareThresholdForFleetSizeAdjustment = tripShareThresholdForFleetSizeAdjustment;
+	}
+	@StringGetter( FLEETSIZE_ADJUSTMENT_PERCENTAGE )
+	public double getFleetSizeAdjustmentPercentage() {
+		return fleetSizeAdjustmentPercentage;
+	}
+	@StringSetter( FLEETSIZE_ADJUSTMENT_PERCENTAGE )
+	public void setFleetSizeAdjustmentPercentage(double fleetSizeAdjustmentPercentage) {
+		this.fleetSizeAdjustmentPercentage = fleetSizeAdjustmentPercentage;
 	}
 			
 }
