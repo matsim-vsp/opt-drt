@@ -41,6 +41,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private static final String WAITING_TIME_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentWaitingTimeThreshold";
 	private static final String MODAL_SPLIT_THRESHOLD_FOR_FARE_ADJUSTMENT = "fareAdjustmentModalSplitThreshold";
 	private static final String FARE_TIME_BIN_SIZE = "fareTimeBinSize";
+	private static final String TRIP_SHARE_FOR_FARE_ADJUSTMENT = "tripShareThresholdForFareAdjustment";
 	private static final String FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND = "costPerVehiclePerSecondFareAdjustment";
 	private static final String FLUCTUATING_PERCENTAGE = "fluctuatingPercentage";
 
@@ -79,6 +80,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private double fareTimeBinSize = 900.;
 	// waitingTime approach
 	private double waitingTimeThresholdForFareAdjustment = 600.;
+	private double tripShareThresholdForFareAdjustment = 0.90;
 	// modeSplit approach
 	private double 	modeSplitThresholdForFareAdjustment = 0.2;
 	private double fluctuatingPercentage = 0.05;
@@ -108,7 +110,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private int demandThresholdForServiceAreaAdjustment = 1;
 
 	public enum FareAdjustmentApproach {
-		Disabled, AverageWaitingTimeThreshold, Dummy, ModeSplitThreshold
+		Disabled, AverageWaitingTimeThreshold, WaitingTimePercentileThreshold, Dummy, ModeSplitThreshold
 	}
 	
 	public enum FareUpdateApproach {
@@ -394,6 +396,14 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter( FLEETSIZE_ADJUSTMENT_PERCENTAGE )
 	public void setFleetSizeAdjustmentPercentage(double fleetSizeAdjustmentPercentage) {
 		this.fleetSizeAdjustmentPercentage = fleetSizeAdjustmentPercentage;
+	}
+	@StringGetter( TRIP_SHARE_FOR_FARE_ADJUSTMENT )
+	public double getTripShareThresholdForFareAdjustment() {
+		return tripShareThresholdForFareAdjustment;
+	}
+	@StringSetter( TRIP_SHARE_FOR_FARE_ADJUSTMENT )
+	public void setTripShareThresholdForFareAdjustment(double tripShareThresholdForFareAdjustment) {
+		this.tripShareThresholdForFareAdjustment = tripShareThresholdForFareAdjustment;
 	}
 			
 }
