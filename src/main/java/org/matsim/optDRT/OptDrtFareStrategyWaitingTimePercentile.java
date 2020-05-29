@@ -67,6 +67,7 @@ class OptDrtFareStrategyWaitingTimePercentile implements PersonDepartureEventHan
     private Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
     
     private int currentIteration;
+    private int priceUpdateCounter;
     	
 	@Inject
 	private OptDrtConfigGroup optDrtConfigGroup ;
@@ -116,6 +117,8 @@ class OptDrtFareStrategyWaitingTimePercentile implements PersonDepartureEventHan
 
 	@Override
 	public void updateFares() {
+		
+		priceUpdateCounter++;
 						
 		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin ++) {
 			
@@ -160,6 +163,17 @@ class OptDrtFareStrategyWaitingTimePercentile implements PersonDepartureEventHan
 				} else {
 					updatedDistanceFare = oldDistanceFare - optDrtConfigGroup.getFareAdjustment();
 				}
+				
+			} else if (optDrtConfigGroup.getFareUpdateApproach() == FareUpdateApproach.BangBangWithMSA) {
+				
+				if (increaseFare) {
+					updatedDistanceFare = oldDistanceFare + optDrtConfigGroup.getFareAdjustment();
+				} else {
+					updatedDistanceFare = oldDistanceFare - optDrtConfigGroup.getFareAdjustment();
+				}
+				
+				double blendFactor = (1 / (double) priceUpdateCounter);
+				updatedDistanceFare = (1 - blendFactor) * oldDistanceFare + blendFactor * updatedDistanceFare;
 				
 			} else if (optDrtConfigGroup.getFareUpdateApproach() == FareUpdateApproach.Proportional) {
 				throw new RuntimeException("Not implemented. Aborting...");

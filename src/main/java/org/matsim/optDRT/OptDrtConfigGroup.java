@@ -114,7 +114,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	}
 	
 	public enum FareUpdateApproach {
-		BangBang, Proportional, ProportionalWithMSA, SimpleOffset
+		BangBang, Proportional, ProportionalWithMSA, SimpleOffset, BangBangWithMSA
 	}
 
 	public enum ServiceAreaAdjustmentApproach {
