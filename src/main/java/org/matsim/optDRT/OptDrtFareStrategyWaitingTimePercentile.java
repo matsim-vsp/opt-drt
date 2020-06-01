@@ -245,16 +245,18 @@ class OptDrtFareStrategyWaitingTimePercentile implements PersonDepartureEventHan
 			bw.write("time bin;time bin start time [sec];time bin end time [sec];average waiting time [sec];maximum waiting time[sec];fare [monetary units / meter]");
 			bw.newLine();
 
-			for (Integer timeBin : this.timeBin2waitingTimes.keySet()) {
+			for (Integer timeBin : this.timeBin2distanceFarePerMeter.keySet()) {
 				int counter = 0;
 				double sum = 0.;
 				double maxWaitingTime = 0.;
-				for (Double waitingTime : timeBin2waitingTimes.get(timeBin)) {
-					sum = sum + waitingTime;
-					counter++;
-					
-					if (waitingTime > maxWaitingTime) {
-						maxWaitingTime = waitingTime;
+				if (timeBin2waitingTimes.get(timeBin) != null) {
+					for (Double waitingTime : timeBin2waitingTimes.get(timeBin)) {
+						sum = sum + waitingTime;
+						counter++;
+						
+						if (waitingTime > maxWaitingTime) {
+							maxWaitingTime = waitingTime;
+						}
 					}
 				}
 				
