@@ -83,9 +83,9 @@ public class OptDrtModule extends AbstractModule {
 			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyAvgWaitingTime.class);
 			this.addEventHandlerBinding().to(OptDrtFleetStrategyAvgWaitingTime.class);
 		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.WaitingTimeThreshold) {
-			this.bind(OptDrtFleetStrategyWaitingTime.class).asEagerSingleton();
-			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyWaitingTime.class);
-			this.addEventHandlerBinding().to(OptDrtFleetStrategyWaitingTime.class);
+			this.bind(OptDrtFleetStrategyWaitingTimePercentile.class).asEagerSingleton();
+			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyWaitingTimePercentile.class);
+			this.addEventHandlerBinding().to(OptDrtFleetStrategyWaitingTimePercentile.class);
 		} else {
 			throw new RuntimeException("Unknown fleet size adjustment approach. Aborting...");
 		}

@@ -51,8 +51,8 @@ import com.google.inject.Inject;
 * @author ikaddoura
 */
 
-class OptDrtFleetStrategyWaitingTime implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler, PersonArrivalEventHandler {
-	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyWaitingTime.class);
+class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler, PersonArrivalEventHandler {
+	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyWaitingTimePercentile.class);
 	
     private int currentIteration;
 
