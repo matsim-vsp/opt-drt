@@ -3,7 +3,7 @@
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2017 by the members listed in the COPYING,        *
+ * copyright       : (C) 2020 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -19,35 +19,37 @@
 
 package org.matsim.optDRT;
 
-import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
-import org.matsim.contrib.dvrp.run.AbstractDvrpModeQSimModule;
-import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
+import java.util.Collection;
+
+import javax.validation.Valid;
+
+import org.matsim.contrib.dvrp.run.MultiModal;
+import org.matsim.core.config.ConfigGroup;
+import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
 * @author ikaddoura
 */
 
-public class OptDrtQSimModule extends AbstractDvrpModeQSimModule {
+public final class MultiModeOptDrtConfigGroup extends ReflectiveConfigGroup implements MultiModal<OptDrtConfigGroup>{
+	public static final String GROUP_NAME = "multiModeOptDrt";
 
-	private final OptDrtConfigGroup optDrtConfigGroup;
-
-	public OptDrtQSimModule(OptDrtConfigGroup optDrtConfigGroup) {
-		super(optDrtConfigGroup.getMode());
-		this.optDrtConfigGroup = optDrtConfigGroup;
+	public MultiModeOptDrtConfigGroup() {
+		super(GROUP_NAME);
 	}
 
 	@Override
-	protected void configureQSim() {
-		
-		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.Disabled) {
-			// disabled
-			
-		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {				
-			this.bindModal(PassengerRequestValidator.class).to(OptDrtServiceAreaStrategyDemand.class);
-			
-		} else {
-			throw new RuntimeException("Unknown service area adjustment approach. Aborting...");
+	@SuppressWarnings("unchecked")
+	public Collection<@Valid OptDrtConfigGroup> getModalElements() {
+		return (Collection<OptDrtConfigGroup>)getParameterSets(OptDrtConfigGroup.GROUP_NAME);
+	}
+	
+	@Override
+	public ConfigGroup createParameterSet(String type) {
+		if (type.equals(OptDrtConfigGroup.GROUP_NAME)) {
+			return new OptDrtConfigGroup();
 		}
+		throw new IllegalArgumentException(type);
 	}
 
 }

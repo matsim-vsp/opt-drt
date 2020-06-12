@@ -175,7 +175,7 @@ class OptDrtFleetStrategyProfit implements OptDrtFleetStrategy, PersonMoneyEvent
 
 	@Override
 	public void handleEvent(PersonDepartureEvent event) {
-		if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+		if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.departedDrtUsers.add(event.getPersonId());
 		} else {
 			if (this.departedDrtUsers.contains(event.getPersonId())) this.departedDrtUsers.remove(event.getPersonId());
@@ -189,7 +189,7 @@ class OptDrtFleetStrategyProfit implements OptDrtFleetStrategy, PersonMoneyEvent
 
 	@Override
 	public void handleEvent(PassengerRequestScheduledEvent event) {
-		if (event.getMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+		if (event.getMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtVehicleIds.add(event.getVehicleId());
 		}
 	}

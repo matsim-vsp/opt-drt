@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;
 import org.matsim.api.core.v01.events.PersonDepartureEvent;
 import org.matsim.api.core.v01.events.PersonEntersVehicleEvent;
@@ -42,10 +41,8 @@ import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicleSpecification;
 import org.matsim.contrib.dvrp.fleet.FleetSpecification;
 import org.matsim.contrib.dvrp.fleet.ImmutableDvrpVehicleSpecification;
-import org.matsim.contrib.dvrp.run.DvrpMode;
+import org.matsim.core.config.Config;
 import org.matsim.core.gbl.MatsimRandom;
-
-import com.google.inject.Inject;
 
 /**
 * @author ikaddoura
@@ -54,25 +51,25 @@ import com.google.inject.Inject;
 class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler, PersonArrivalEventHandler {
 	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyWaitingTimePercentile.class);
 	
-    private int currentIteration;
+	private final FleetSpecification fleetSpecification;
 
-	@Inject
-	@DvrpMode("drt")
-	private FleetSpecification fleetSpecification;
-	// Right now, OptDrtModule only works for a single mode specified in OptDrtConfigGroup. Makes everything much nicer and easier. 
-	// At some point we might think about a modal binding and extend AbstractDvrpModeModule instead of AbstractModule... Ihab June '19	
+	private final OptDrtConfigGroup optDrtConfigGroup;
 	
-	@Inject
-	private OptDrtConfigGroup optDrtConfigGroup;
+    private final Config config;
 	
-	@Inject
-    private Scenario scenario;
-	
+    private int currentIteration;
+    
 	private int vehicleCounter = 0;
 	
     private Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
     private List<Double> waitingTimes = new ArrayList<>();
 	
+	public OptDrtFleetStrategyWaitingTimePercentile(FleetSpecification fleetSpecification, Config config, OptDrtConfigGroup optDrtConfigGroup) {
+		this.fleetSpecification = fleetSpecification;
+		this.config = config;
+		this.optDrtConfigGroup = optDrtConfigGroup;
+	}
+
 	@Override
 	public void reset(int iteration) {		
 		drtUserDepartureTime.clear();
@@ -221,24 +218,24 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	
 	@Override
     public void handleEvent(PersonArrivalEvent event) {  	
-        if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+        if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtUserDepartureTime.remove(event.getPersonId());
         }
     }
 	
 	@Override
 	public void handleEvent(PersonDepartureEvent event) {
-		if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+		if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
 		}
 	}
 
 	@Override
 	public void writeInfo() {
-		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
+		String runOutputDirectory = this.config.controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 		
-		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig().controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
+		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.config.controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
 		File file = new File(fileName);			
 
 		try {

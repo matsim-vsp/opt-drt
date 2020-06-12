@@ -3,7 +3,7 @@
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2017 by the members listed in the COPYING,        *
+ * copyright       : (C) 2019 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -19,34 +19,24 @@
 
 package org.matsim.optDRT;
 
-import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
-import org.matsim.contrib.dvrp.run.AbstractDvrpModeQSimModule;
-import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
+import org.matsim.core.controler.AbstractModule;
+
+import com.google.inject.Inject;
 
 /**
 * @author ikaddoura
 */
 
-public class OptDrtQSimModule extends AbstractDvrpModeQSimModule {
+public class MultiModeOptDrtModule extends AbstractModule {
 
-	private final OptDrtConfigGroup optDrtConfigGroup;
-
-	public OptDrtQSimModule(OptDrtConfigGroup optDrtConfigGroup) {
-		super(optDrtConfigGroup.getMode());
-		this.optDrtConfigGroup = optDrtConfigGroup;
-	}
+	@Inject
+	private MultiModeOptDrtConfigGroup multiModeOptDrtConfigGroup;
 
 	@Override
-	protected void configureQSim() {
+	public void install() {	
 		
-		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.Disabled) {
-			// disabled
-			
-		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {				
-			this.bindModal(PassengerRequestValidator.class).to(OptDrtServiceAreaStrategyDemand.class);
-			
-		} else {
-			throw new RuntimeException("Unknown service area adjustment approach. Aborting...");
+		for (OptDrtConfigGroup optDrtConfigGroup : multiModeOptDrtConfigGroup.getModalElements()) {
+			install(new OptDrtModule(optDrtConfigGroup));
 		}
 	}
 

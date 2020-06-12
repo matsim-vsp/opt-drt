@@ -19,6 +19,7 @@
 
 package org.matsim.optDRT;
 
+import org.matsim.contrib.dvrp.run.Modal;
 import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
@@ -26,7 +27,7 @@ import org.matsim.core.config.ReflectiveConfigGroup;
  * @author ikaddoura
  */
 
-public class OptDrtConfigGroup extends ReflectiveConfigGroup {
+public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	public static final String GROUP_NAME = "optDrt" ;
 
 	private static final String OPT_DRT_MODE = "optDrtMode";
@@ -170,11 +171,6 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter( SERVICE_AREA_ADJUSTMENT_REDUCE )
 	public void setServiceAreaAdjustmentReduce(int serviceAreaAdjustment) {
 		this.serviceAreaAdjustmentReduce = serviceAreaAdjustment;
-	}
-	
-	@StringGetter( OPT_DRT_MODE )
-	public String getOptDrtMode() {
-		return optDrtMode;
 	}
 
 	@StringSetter( OPT_DRT_MODE )
@@ -404,6 +400,11 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter( TRIP_SHARE_FOR_FARE_ADJUSTMENT )
 	public void setTripShareThresholdForFareAdjustment(double tripShareThresholdForFareAdjustment) {
 		this.tripShareThresholdForFareAdjustment = tripShareThresholdForFareAdjustment;
+	}
+	@Override
+	@StringGetter(OPT_DRT_MODE)
+	public String getMode() {
+		return optDrtMode;
 	}
 			
 }

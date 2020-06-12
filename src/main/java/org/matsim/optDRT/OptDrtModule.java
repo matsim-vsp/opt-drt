@@ -19,24 +19,28 @@
 
 package org.matsim.optDRT;
 
-import org.matsim.core.controler.AbstractModule;
+import org.matsim.contrib.dvrp.fleet.FleetSpecification;
+import org.matsim.contrib.dvrp.run.AbstractDvrpModeModule;
+import org.matsim.core.controler.MatsimServices;
 import org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
-
-import com.google.inject.Inject;
 
 /**
 * @author ikaddoura
 */
 
-public class OptDrtModule extends AbstractModule {
+public class OptDrtModule extends AbstractDvrpModeModule {
 
-	@Inject
-	private OptDrtConfigGroup optDrtConfigGroup;
+	private final OptDrtConfigGroup optDrtConfigGroup;
+	
+	public OptDrtModule(OptDrtConfigGroup optDrtConfigGroup) {
+		super(optDrtConfigGroup.getMode());
+		this.optDrtConfigGroup = optDrtConfigGroup;
+	}
 
 	@Override
-	public void install() {		
+	public void install() {	
 		
 		// dynamic fare strategy
 		if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.Disabled) {
@@ -79,9 +83,12 @@ public class OptDrtModule extends AbstractModule {
 			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyAvgWaitingTime.class);
 			this.addEventHandlerBinding().to(OptDrtFleetStrategyAvgWaitingTime.class);
 		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.WaitingTimeThreshold) {
-			this.bind(OptDrtFleetStrategyWaitingTimePercentile.class).asEagerSingleton();
-			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyWaitingTimePercentile.class);
-			this.addEventHandlerBinding().to(OptDrtFleetStrategyWaitingTimePercentile.class);
+//			this.bind(OptDrtFleetStrategyWaitingTimePercentile.class).asEagerSingleton();
+//			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyWaitingTimePercentile.class);
+//			this.addEventHandlerBinding().to(OptDrtFleetStrategyWaitingTimePercentile.class);
+			bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(getter ->
+	        new OptDrtFleetStrategyWaitingTimePercentile(getter.getModal(FleetSpecification.class), getter.get(MatsimServices.class).getConfig(), optDrtConfigGroup))).asEagerSingleton();
+	        
 		} else {
 			throw new RuntimeException("Unknown fleet size adjustment approach. Aborting...");
 		}
@@ -97,8 +104,9 @@ public class OptDrtModule extends AbstractModule {
 		} else {
 			throw new RuntimeException("Unknown service area adjustment approach. Aborting...");
 		}
+	
+		addControlerListenerBinding().toInstance(new OptDrtControlerListener(optDrtConfigGroup));
 				
-		addControlerListenerBinding().to(OptDrtControlerListener.class);	
 	}
 
 }

@@ -59,8 +59,7 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
     private static final Logger log = Logger.getLogger(OptDrtControlerListener.class);
 
-    @Inject
-    private OptDrtConfigGroup optDrtConfigGroup;
+    private final OptDrtConfigGroup optDrtConfigGroup;
 
     @Inject
     private OptDrtFareStrategy optDrtFareStrategy;
@@ -83,15 +82,13 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
     private int nextDisableInnovativeStrategiesIteration = -1;
     private int nextEnableInnovativeStrategiesIteration = -1;
 
-    @Override
+    public OptDrtControlerListener(OptDrtConfigGroup optDrtConfigGroup) {
+    	this.optDrtConfigGroup = optDrtConfigGroup;
+    }
+
+	@Override
     public void notifyStartup(StartupEvent event) {
         log.info("optDrt settings: " + optDrtConfigGroup.toString());
-
-        if (!optDrtConfigGroup.getOptDrtMode().equals("drt")) {
-            throw new RuntimeException("Currently, a mode different from 'drt' is not allowed."
-                    + " Only works for a single mode specified in OptDrtConfigGroup. At some point we might think about a modal binding."
-                    + " Aborting... ");
-        }
 
         if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
             if (optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == null || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("") || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("null")) {

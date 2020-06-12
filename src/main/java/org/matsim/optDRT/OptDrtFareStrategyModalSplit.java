@@ -86,7 +86,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             this.personDepartureInfo.remove(personId2Legmode);
         }
 
-        if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+        if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 
             DrtRequestSubmittedEvent e = this.lastRequestSubmission.get(event.getPersonId());
 
@@ -152,7 +152,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void handleEvent(DrtRequestSubmittedEvent event) {
-        if (optDrtConfigGroup.getOptDrtMode().equals(event.getMode())) {
+        if (optDrtConfigGroup.getMode().equals(event.getMode())) {
             this.lastRequestSubmission.put(event.getPersonId(), event);
         }
     }
@@ -254,7 +254,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void handleEvent(PersonDepartureEvent event) {
-        if (optDrtConfigGroup.getOptDrtMode().equals(event.getLegMode())) {
+        if (optDrtConfigGroup.getMode().equals(event.getLegMode())) {
             this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
         }
 

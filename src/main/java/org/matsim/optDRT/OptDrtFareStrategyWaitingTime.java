@@ -93,7 +93,7 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
     @Override
     public void handleEvent(PersonArrivalEvent event) {
     	
-        if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+        if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
         	
             DrtRequestSubmittedEvent e = this.lastRequestSubmission.get(event.getPersonId());
 
@@ -186,14 +186,14 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 
 	@Override
 	public void handleEvent(DrtRequestSubmittedEvent event) {
-		 if (optDrtConfigGroup.getOptDrtMode().equals(event.getMode())) {
+		 if (optDrtConfigGroup.getMode().equals(event.getMode())) {
 			 this.lastRequestSubmission.put(event.getPersonId(), event);
 	     }
 	}
 
 	@Override
 	public void handleEvent(PersonDepartureEvent event) {
-		if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+		if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
 		}
 	}

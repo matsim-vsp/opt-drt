@@ -235,7 +235,7 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 
 	@Override
 	public void handleEvent(PersonArrivalEvent event) {
-		if (event.getLegMode().equals(this.optDrtCfg.getOptDrtMode())) {
+		if (event.getLegMode().equals(this.optDrtCfg.getMode())) {
 			Link link = scenario.getNetwork().getLinks().get(event.getLinkId());
 			Integer key = isLinkInCurrentServiceArea(link);
 			if (isLinkInCurrentServiceArea(link) != null) {
@@ -247,7 +247,7 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 
 	@Override
 	public void handleEvent(PersonDepartureEvent event) {
-		if (event.getLegMode().equals(this.optDrtCfg.getOptDrtMode())) {
+		if (event.getLegMode().equals(this.optDrtCfg.getMode())) {
 			Link link = scenario.getNetwork().getLinks().get(event.getLinkId());
 			Integer key = isLinkInCurrentServiceArea(link);
 			if (isLinkInCurrentServiceArea(link) != null) {

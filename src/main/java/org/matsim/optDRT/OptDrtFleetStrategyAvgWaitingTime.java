@@ -198,14 +198,14 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 	
 	@Override
     public void handleEvent(PersonArrivalEvent event) {  	
-        if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+        if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtUserDepartureTime.remove(event.getPersonId());
         }
     }
 	
 	@Override
 	public void handleEvent(PersonDepartureEvent event) {
-		if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+		if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
 		}
 	}

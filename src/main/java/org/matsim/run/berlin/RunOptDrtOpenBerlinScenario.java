@@ -4,10 +4,9 @@ import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
-import org.matsim.optDRT.OptDrt;
-import org.matsim.optDRT.OptDrtConfigGroup;
+import org.matsim.optDRT.MultiModeOptDrtConfigGroup;
+import org.matsim.optDRT.MultiModeOptDrtModule;
 import org.matsim.run.RunBerlinScenario;
 import org.matsim.run.drt.RunDrtOpenBerlinScenario;
 
@@ -35,7 +34,7 @@ public class RunOptDrtOpenBerlinScenario {
 
     public Controler prepareControler(String[] args) {
     	
-    	Config config = RunDrtOpenBerlinScenario.prepareConfig(args, new OptDrtConfigGroup());
+    	Config config = RunDrtOpenBerlinScenario.prepareConfig(args, new MultiModeOptDrtConfigGroup());
     	
     	Scenario scenario = RunDrtOpenBerlinScenario.prepareScenario(config);
     	for( Person person : scenario.getPopulation().getPersons().values() ){
@@ -44,8 +43,10 @@ public class RunOptDrtOpenBerlinScenario {
     	
     	Controler controler = RunDrtOpenBerlinScenario.prepareControler(scenario);
     	
-        OptDrtConfigGroup optDrtConfigGroup = ConfigUtils.addOrGetModule(config, OptDrtConfigGroup.class);
-    	OptDrt.addAsOverridingModule(controler, optDrtConfigGroup);
+//      MultiModeOptDrtConfigGroup multiModeOptDrtConfigGroup = ConfigUtils.addOrGetModule(config, MultiModeOptDrtConfigGroup.class);
+//    	OptDrt.addAsOverridingModule(controler);
+    	
+		controler.addOverridingModule(new MultiModeOptDrtModule());
         
         return controler;
     }
