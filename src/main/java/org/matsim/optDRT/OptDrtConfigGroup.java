@@ -110,7 +110,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	private int demandThresholdForServiceAreaAdjustment = 1;
 
 	public enum FareAdjustmentApproach {
-		Disabled, AverageWaitingTimeThreshold, WaitingTimePercentileThreshold, Dummy, ModeSplitThreshold
+		Disabled, AverageWaitingTimeThreshold, WaitingTimePercentileThreshold, ModeSplitThreshold
 	}
 	
 	public enum FareUpdateApproach {

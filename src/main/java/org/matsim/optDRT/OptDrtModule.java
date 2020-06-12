@@ -49,10 +49,6 @@ public class OptDrtModule extends AbstractModule {
 			this.bind(OptDrtFareStrategyWaitingTimePercentile.class).asEagerSingleton();
 			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyWaitingTimePercentile.class);
 			this.addEventHandlerBinding().to(OptDrtFareStrategyWaitingTimePercentile.class);	
-		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.Dummy) {
-			this.bind(OptDrtFareStrategyDummy.class).asEagerSingleton();
-			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyDummy.class);
-			this.addEventHandlerBinding().to(OptDrtFareStrategyDummy.class);
 		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.ModeSplitThreshold) {
 			this.bind(OptDrtFareStrategyModalSplit.class).asEagerSingleton();
 			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyModalSplit.class);
