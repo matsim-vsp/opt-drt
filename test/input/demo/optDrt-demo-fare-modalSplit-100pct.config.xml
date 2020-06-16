@@ -346,41 +346,43 @@
                  Prohibit them to save computation time.
                  (RandomAccessEgressModeRaptorStopFinder will try again with walk, the other available access/egress mode)
                  maybe we should restrict even further, see comment below for InitialSearchRadius. -->
-            <param name="maxRadius" value="12000.0" />
-            <param name="mode" value="drt" />
-            <param name="searchExtensionRadius" value="1000.0" />
+            <param name="maxRadius" value="12000.0"/>
+            <param name="mode" value="drt"/>
+            <param name="searchExtensionRadius" value="1000.0"/>
             <!-- take care that this still corresponds to the attribute used for tagging these TransitStops in RunDrtOpenBerlinScenario -->
-            <param name="stopFilterAttribute" value="drtStopFilter" />
-            <param name="stopFilterValue" value="station_S/U/RE/RB_drtServiceArea" />
+            <param name="stopFilterAttribute" value="drtStopFilter"/>
+            <param name="stopFilterValue" value="station_S/U/RE/RB_drtServiceArea"/>
         </parameterset>
     </module>
-    <module name="optDrt" >
-        <param name="fareAdjustment" value="0.001" />
-        <!-- Possible values: Disabled, AverageWaitingTimeThreshold, Dummy, ModeSplitThreshold -->
-        <param name="fareAdjustmentApproach" value="ModeSplitThreshold" />
-        <param name="fareAdjustmentModalSplitThreshold" value="1.2" />
-        <param name="fareAdjustmentWaitingTimeThreshold" value="600.0" />
-        <param name="fareTimeBinSize" value="900.0" />
-        <param name="fleetSizeAdjustment" value="1" />
-        <!-- Possible values: Disabled, ProfitThreshold, AverageWaitingTimeThreshold -->
-        <param name="fleetSizeAdjustmentApproach" value="Disabled" />
-        <param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3" />
-        <param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4" />
-        <param name="fleetSizeAdjustmentProfitThreshold" value="0.0" />
-        <param name="fleetSizeAdjustmentWaitingTimeThreshold" value="600.0" />
-        <param name="fleetSizeTimeBinSize" value="900.0" />
-        <param name="optDrtMode" value="drt" />
-        <param name="optDrtUpdateEndFractionIteration" value="0.8" />
-        <param name="optDrtUpdateInterval" value="1" />
-        <param name="optDrtWriteInfoInterval" value="1" />
-        <!-- Possible values: Disabled, DemandThreshold -->
-        <param name="serviceAreaAdjustmentApproach" value="Disabled" />
-        <param name="serviceAreaAdjustmentDemandThreshold" value="1" />
-        <param name="serviceAreaAdjustmentExpand" value="1" />
-        <param name="serviceAreaAdjustmentInputShapeFile" value="null" />
-        <param name="serviceAreaAdjustmentInputShapeFileCRS" value="null" />
-        <param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="null" />
-        <param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="null" />
-        <param name="serviceAreaAdjustmentReduce" value="1" />
+    <module name="multiModeOptDrt">
+        <parameterset type="optDrt">
+            <param name="fareAdjustment" value="0.001"/>
+            <!-- Possible values: Disabled, AverageWaitingTimeThreshold, Dummy, ModeSplitThreshold -->
+            <param name="fareAdjustmentApproach" value="ModeSplitThreshold"/>
+            <param name="fareAdjustmentModalSplitThreshold" value="1.2"/>
+            <param name="fareAdjustmentWaitingTimeThreshold" value="600.0"/>
+            <param name="fareTimeBinSize" value="900.0"/>
+            <param name="fleetSizeAdjustment" value="1"/>
+            <!-- Possible values: Disabled, ProfitThreshold, AverageWaitingTimeThreshold -->
+            <param name="fleetSizeAdjustmentApproach" value="Disabled"/>
+            <param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3"/>
+            <param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4"/>
+            <param name="fleetSizeAdjustmentProfitThreshold" value="0.0"/>
+            <param name="fleetSizeAdjustmentWaitingTimeThreshold" value="600.0"/>
+            <param name="fleetSizeTimeBinSize" value="900.0"/>
+            <param name="optDrtMode" value="drt"/>
+            <param name="optDrtUpdateEndFractionIteration" value="0.8"/>
+            <param name="optDrtUpdateInterval" value="1"/>
+            <param name="optDrtWriteInfoInterval" value="1"/>
+            <!-- Possible values: Disabled, DemandThreshold -->
+            <param name="serviceAreaAdjustmentApproach" value="Disabled"/>
+            <param name="serviceAreaAdjustmentDemandThreshold" value="1"/>
+            <param name="serviceAreaAdjustmentExpand" value="1"/>
+            <param name="serviceAreaAdjustmentInputShapeFile" value="null"/>
+            <param name="serviceAreaAdjustmentInputShapeFileCRS" value="null"/>
+            <param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="null"/>
+            <param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="null"/>
+            <param name="serviceAreaAdjustmentReduce" value="1"/>
+        </parameterset>
     </module>
 </config>

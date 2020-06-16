@@ -177,44 +177,46 @@
 				<param name="activityType" value="home" />
 				<param name="closingTime" value="undefined" />
 				<param name="earliestEndTime" value="undefined" />
-				<param name="latestStartTime" value="undefined" />
-				<param name="minimalDuration" value="undefined" />
-				<param name="openingTime" value="undefined" />
-				<param name="priority" value="1.0" />
-				<param name="scoringThisActivityAtAll" value="true" />
-				<param name="typicalDuration" value="00:20:00" />
-				<param name="typicalDurationScoreComputation" value="relative" />
+				<param name="latestStartTime" value="undefined"/>
+				<param name="minimalDuration" value="undefined"/>
+				<param name="openingTime" value="undefined"/>
+				<param name="priority" value="1.0"/>
+				<param name="scoringThisActivityAtAll" value="true"/>
+				<param name="typicalDuration" value="00:20:00"/>
+				<param name="typicalDurationScoreComputation" value="relative"/>
 			</parameterset>
 		</parameterset>
 	</module>
-	<module name="optDrt" >
-		<param name="fareAdjustment" value="9999999" />
-		<!-- Possible values: Disabled, AverageWaitingTimeThreshold -->
-			<param name="fareAdjustmentApproach" value="Dummy" />
-		<param name="fareAdjustmentWaitingTimeThreshold" value="600.0" />
-		<param name="fareTimeBinSize" value="900.0" />
+	<module name="multiModeOptDrt">
+		<parameterset type="optDrt">
+			<param name="fareAdjustment" value="9999999"/>
+			<!-- Possible values: Disabled, AverageWaitingTimeThreshold -->
+			<param name="fareAdjustmentApproach" value="Dummy"/>
+			<param name="fareAdjustmentWaitingTimeThreshold" value="600.0"/>
+			<param name="fareTimeBinSize" value="900.0"/>
 
-		<param name="fleetSizeAdjustment" value="1" />
-		<!-- Possible values: Disabled, ProfitThreshold, AverageWaitingTimeThreshold -->
-		<param name="fleetSizeAdjustmentApproach" value="AverageWaitingTimeThreshold" />
-		<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3" />
-		<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4" />
-		<param name="fleetSizeAdjustmentProfitThreshold" value="0.0" />
-		<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="600.0" />
-		<param name="fleetSizeTimeBinSize" value="900.0" />
+			<param name="fleetSizeAdjustment" value="1"/>
+			<!-- Possible values: Disabled, ProfitThreshold, AverageWaitingTimeThreshold -->
+			<param name="fleetSizeAdjustmentApproach" value="AverageWaitingTimeThreshold"/>
+			<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3"/>
+			<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4"/>
+			<param name="fleetSizeAdjustmentProfitThreshold" value="0.0"/>
+			<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="600.0"/>
+			<param name="fleetSizeTimeBinSize" value="900.0"/>
 
-		<param name="optDrtMode" value="drt" />
-		<param name="optDrtUpdateEndFractionIteration" value="0.8" />
-		<param name="optDrtUpdateInterval" value="1" />
-		<param name="optDrtWriteInfoInterval" value="1" />
+			<param name="optDrtMode" value="drt"/>
+			<param name="optDrtUpdateEndFractionIteration" value="0.8"/>
+			<param name="optDrtUpdateInterval" value="1"/>
+			<param name="optDrtWriteInfoInterval" value="1"/>
 
-		<param name="serviceAreaAdjustment" value="1" />
-		<!-- Possible values: Disabled, DemandThreshold -->
-		<param name="serviceAreaAdjustmentApproach" value="Disabled" />
-		<param name="serviceAreaAdjustmentDemandThreshold" value="1" />
-		<param name="serviceAreaAdjustmentInputShapeFile" value="null" />
-		<param name="serviceAreaAdjustmentInputShapeFileCRS" value="null" />
-		<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="null" />
-		<param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="null" />
+			<param name="serviceAreaAdjustment" value="1"/>
+			<!-- Possible values: Disabled, DemandThreshold -->
+			<param name="serviceAreaAdjustmentApproach" value="Disabled"/>
+			<param name="serviceAreaAdjustmentDemandThreshold" value="1"/>
+			<param name="serviceAreaAdjustmentInputShapeFile" value="null"/>
+			<param name="serviceAreaAdjustmentInputShapeFileCRS" value="null"/>
+			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="null"/>
+			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="null"/>
+		</parameterset>
 	</module>
 </config>
