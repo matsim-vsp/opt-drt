@@ -44,8 +44,11 @@ public class MultiModeOptDrtModule extends AbstractModule {
 				.stream()
 				.collect(ImmutableMap.toImmutableMap(DrtFareConfigGroup::getMode, cfg -> cfg));
 		for (OptDrtConfigGroup optDrtConfigGroup : multiModeOptDrtConfigGroup.getModalElements()) {
-			install(new OptDrtModule(optDrtConfigGroup, drtFaresConfigs.get(optDrtConfigGroup.getMode())));
+			install(new OptDrtModule(multiModeOptDrtConfigGroup, optDrtConfigGroup, drtFaresConfigs.get(optDrtConfigGroup.getMode())));
 		}
+		
+		bind(InnovativeStrategiesEnableDisableControlerListener.class).asEagerSingleton();
+		addControlerListenerBinding().to(InnovativeStrategiesEnableDisableControlerListener.class);
 	}
 }
 

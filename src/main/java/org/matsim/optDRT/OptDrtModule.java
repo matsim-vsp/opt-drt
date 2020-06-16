@@ -19,13 +19,12 @@
 
 package org.matsim.optDRT;
 
-import static org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach;
-import static org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach.*;
+import static org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach.AverageWaitingTimeThreshold;
+import static org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach.ModeSplitThreshold;
+import static org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach.WaitingTimePercentileThreshold;
 import static org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach.ProfitThreshold;
 import static org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach.WaitingTimeThreshold;
 import static org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach.DemandThreshold;
-
-import java.util.Map;
 
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
@@ -33,15 +32,10 @@ import org.matsim.contrib.dvrp.fleet.FleetSpecification;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeModule;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.groups.StrategyConfigGroup;
-import org.matsim.core.replanning.PlanStrategy;
-import org.matsim.core.replanning.StrategyManager;
 import org.matsim.core.router.MainModeIdentifier;
+import org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
-
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 
 /**
  * @author ikaddoura
@@ -51,9 +45,11 @@ public class OptDrtModule extends AbstractDvrpModeModule {
 
 	private final OptDrtConfigGroup optDrtConfigGroup;
 	private final DrtFareConfigGroup drtFareConfigGroup;
+    private final MultiModeOptDrtConfigGroup multiModeOptDrtCfg;
 
-	public OptDrtModule(OptDrtConfigGroup optDrtConfigGroup, DrtFareConfigGroup drtFareConfigGroup) {
+	public OptDrtModule(MultiModeOptDrtConfigGroup multiModeOptDrtCfg, OptDrtConfigGroup optDrtConfigGroup, DrtFareConfigGroup drtFareConfigGroup) {
 		super(optDrtConfigGroup.getMode());
+		this.multiModeOptDrtCfg = multiModeOptDrtCfg;
 		this.optDrtConfigGroup = optDrtConfigGroup;
 		this.drtFareConfigGroup = drtFareConfigGroup;
 	}
@@ -116,12 +112,11 @@ public class OptDrtModule extends AbstractDvrpModeModule {
 		}
 		this.addEventHandlerBinding().to(modalKey(OptDrtServiceAreaStrategy.class));
 
+		// optDrtControlerListener
 		bindModal(OptDrtControlerListener.class).toProvider(modalProvider(
-				getter -> new OptDrtControlerListener(optDrtConfigGroup, getter.getModal(OptDrtFareStrategy.class),
+				getter -> new OptDrtControlerListener(this.multiModeOptDrtCfg, this.optDrtConfigGroup, getter.getModal(OptDrtFareStrategy.class),
 						getter.getModal(OptDrtFleetStrategy.class), getter.getModal(OptDrtServiceAreaStrategy.class),
-						getter.get(Scenario.class),
-						getter.get(Key.get(new TypeLiteral<Map<StrategyConfigGroup.StrategySettings, PlanStrategy>>() {
-						})), getter.get(StrategyManager.class)))).asEagerSingleton();
+						getter.get(Scenario.class)))).asEagerSingleton();
 		addControlerListenerBinding().to(modalKey(OptDrtControlerListener.class));
 
 	}

@@ -24,32 +24,20 @@
 
 package org.matsim.optDRT;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.api.core.v01.population.Person;
-import org.matsim.api.core.v01.population.Plan;
-import org.matsim.core.config.groups.StrategyConfigGroup;
-import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.controler.events.IterationEndsEvent;
-import org.matsim.core.controler.events.IterationStartsEvent;
 import org.matsim.core.controler.listener.IterationEndsListener;
-import org.matsim.core.controler.listener.IterationStartsListener;
-import org.matsim.core.replanning.GenericPlanStrategy;
-import org.matsim.core.replanning.PlanStrategy;
-import org.matsim.core.replanning.ReplanningUtils;
-import org.matsim.core.replanning.StrategyManager;
 
 /**
  * @author ikaddoura
  */
-public class OptDrtControlerListener implements IterationEndsListener, IterationStartsListener {
+public class OptDrtControlerListener implements IterationEndsListener {
 
     private static final Logger log = Logger.getLogger(OptDrtControlerListener.class);
 
+    private final MultiModeOptDrtConfigGroup multiModeOptDrtCfg;
+    
     private final OptDrtConfigGroup optDrtConfigGroup;
 
     private final OptDrtFareStrategy optDrtFareStrategy;
@@ -60,31 +48,23 @@ public class OptDrtControlerListener implements IterationEndsListener, Iteration
 
     private final Scenario scenario;
 
-    private final Map<StrategyConfigGroup.StrategySettings, PlanStrategy> planStrategies;
-
-    private final StrategyManager strategyManager;
-
-    private int nextDisableInnovativeStrategiesIteration = -1;
-    private int nextEnableInnovativeStrategiesIteration = -1;
-
-    public OptDrtControlerListener(OptDrtConfigGroup optDrtConfigGroup, OptDrtFareStrategy optDrtFareStrategy,
+    public OptDrtControlerListener(MultiModeOptDrtConfigGroup multiModeOptDrtCfg, OptDrtConfigGroup optDrtConfigGroup, OptDrtFareStrategy optDrtFareStrategy,
             OptDrtFleetStrategy optDrtFleetStrategy, OptDrtServiceAreaStrategy optDrtServiceAreaStrategy,
-            Scenario scenario, Map<StrategySettings, PlanStrategy> planStrategies, StrategyManager strategyManager) {
-        this.optDrtConfigGroup = optDrtConfigGroup;
+            Scenario scenario) {
+    	this.multiModeOptDrtCfg = multiModeOptDrtCfg;
+    	this.optDrtConfigGroup = optDrtConfigGroup;
         this.optDrtFareStrategy = optDrtFareStrategy;
         this.optDrtFleetStrategy = optDrtFleetStrategy;
         this.optDrtServiceAreaStrategy = optDrtServiceAreaStrategy;
         this.scenario = scenario;
-        this.planStrategies = planStrategies;
-        this.strategyManager = strategyManager;
     }
 
     @Override
     public void notifyIterationEnds(IterationEndsEvent event) {
-        if (optDrtConfigGroup.getUpdateInterval() != 0
+        if (multiModeOptDrtCfg.getUpdateInterval() != 0
                 && event.getIteration() != this.scenario.getConfig().controler().getLastIteration()
                 && event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
-                && event.getIteration() % optDrtConfigGroup.getUpdateInterval() == 0.) {
+                && event.getIteration() % multiModeOptDrtCfg.getUpdateInterval() == 0.) {
 
             log.info("Iteration " + event.getIteration() + ". Applying DRT strategies...");
 
@@ -105,94 +85,4 @@ public class OptDrtControlerListener implements IterationEndsListener, Iteration
         }
     }
 
-    @Override
-    public void notifyIterationStarts(IterationStartsEvent event) {
-
-        if (optDrtConfigGroup.getUpdateInterval() > 1) {
-
-            Set<String> subpopulations = new HashSet<>();
-            for (StrategySettings setting : this.scenario.getConfig().strategy().getStrategySettings()) {
-                subpopulations.add(setting.getSubpopulation());
-                if (subpopulations.size() == 0) subpopulations.add(null);
-            }
-
-            if (event.getIteration() == this.scenario.getConfig().controler().getFirstIteration()) {
-
-                this.nextDisableInnovativeStrategiesIteration = (int) (this.scenario.getConfig().strategy().getFractionOfIterationsToDisableInnovation() * optDrtConfigGroup.getUpdateInterval());
-                log.info("next disable innovative strategies iteration: " + this.nextDisableInnovativeStrategiesIteration);
-
-                if (this.nextDisableInnovativeStrategiesIteration != 0) {
-                    this.nextEnableInnovativeStrategiesIteration = (int) (optDrtConfigGroup.getUpdateInterval() + 1);
-                    log.info("next enable innovative strategies iteration: " + this.nextEnableInnovativeStrategiesIteration);
-                }
-
-
-            } else {
-
-                if (event.getIteration() == this.nextDisableInnovativeStrategiesIteration) {
-
-                    for (String subpopulation : subpopulations) {
-                        for (GenericPlanStrategy<Plan, Person> genericPlanStrategy : strategyManager.getStrategies(subpopulation)) {
-                            PlanStrategy planStrategy = (PlanStrategy) genericPlanStrategy;
-                            if (isInnovativeStrategy(planStrategy)) {
-                                log.info("Setting weight for " + planStrategy.toString() + " (subpopulation " + subpopulation + ") to 0.");
-                                strategyManager.addChangeRequest(this.nextDisableInnovativeStrategiesIteration, planStrategy, subpopulation, 0.);
-                            }
-                        }
-                    }
-
-                    this.nextDisableInnovativeStrategiesIteration += optDrtConfigGroup.getUpdateInterval();
-                    log.info("next disable innovative strategies iteration: " + this.nextDisableInnovativeStrategiesIteration);
-
-                } else if (event.getIteration() == this.nextEnableInnovativeStrategiesIteration) {
-
-                    if (event.getIteration() >= this.scenario.getConfig().strategy().getFractionOfIterationsToDisableInnovation() * (this.scenario.getConfig().controler().getLastIteration() - this.scenario.getConfig().controler().getFirstIteration())) {
-                        log.info("Strategies are switched off by global settings. Do not set back the strategy parameters to original values...");
-
-                    } else {
-                        for (String subpopulation : subpopulations) {
-                            for (GenericPlanStrategy<Plan, Person> genericPlanStrategy : strategyManager.getStrategies(subpopulation)) {
-                            	if (isInnovativeStrategy(genericPlanStrategy)) {
-                            		PlanStrategy planStrategy = (PlanStrategy) genericPlanStrategy;
-                                    
-                                    log.info("------------------------------------------");
-                                    log.info("Trying to identify the original weight for subpopulation " + subpopulation + " and strategy " + planStrategy.getClass().getName() + " ...");
-
-                            		double originalWeight = -1.;
-                                    for (Map.Entry<StrategyConfigGroup.StrategySettings, PlanStrategy> entry : planStrategies.entrySet()) {
-                                        PlanStrategy strategy = entry.getValue();
-                                        StrategyConfigGroup.StrategySettings settings = entry.getKey();
-                                        
-                                        log.info("---");
-                                        log.info(" strategy: " + strategy.getClass().getName());
-                                        log.info(" subpopulation: " + settings.getSubpopulation());
-
-                                        if (subpopulation.equals(settings.getSubpopulation()) && planStrategy.getClass().getName().equals(strategy.getClass().getName())) {
-                                            originalWeight = settings.getWeight();
-                                            log.info("Matching strategy found. Original weight: " + originalWeight);
-                                            break;
-                                        }
-                                    }
-
-                                    if (originalWeight < 0.) {
-                                        throw new RuntimeException("Can't set the innovative strategy's weight back to original value at the end of the inner iteration loop. Aborting...");
-                                    }
-
-                                    log.info("Setting weight for " + planStrategy.getClass().getName() + " (subpopuation " + subpopulation + ") back to original value: " + originalWeight);
-                                    strategyManager.addChangeRequest(this.nextEnableInnovativeStrategiesIteration, planStrategy, subpopulation, originalWeight);
-                            	}
-                            }
-                        }
-                        this.nextEnableInnovativeStrategiesIteration += optDrtConfigGroup.getUpdateInterval();
-                        log.info("next enable innovative strategies iteration: " + this.nextEnableInnovativeStrategiesIteration);
-                    }
-                }
-            }
-        }
-    }
-
-    private boolean isInnovativeStrategy(GenericPlanStrategy<Plan, Person> strategy) {
-        boolean innovative = !(ReplanningUtils.isOnlySelector(strategy));
-        return innovative;
-    }
 }

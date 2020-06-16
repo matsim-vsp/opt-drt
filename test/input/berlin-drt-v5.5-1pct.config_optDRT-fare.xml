@@ -2,6 +2,7 @@
 <!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
 <config>
 	<module name="multiModeOptDrt">
+		<param name="optDrtUpdateInterval" value="1"/>
 		<parameterset type="optDrt">
 			<param name="fareAdjustment" value="9999999"/>
 			<!-- Possible values: Disabled, AverageWaitingTimeThreshold -->
@@ -20,7 +21,6 @@
 
 			<param name="optDrtMode" value="drt"/>
 			<param name="optDrtUpdateEndFractionIteration" value="1.0"/>
-			<param name="optDrtUpdateInterval" value="1"/>
 			<param name="optDrtWriteInfoInterval" value="1"/>
 
 			<param name="serviceAreaAdjustmentExpand" value="1"/>
@@ -54,7 +54,7 @@
 		<param name="inputNetworkFile" value="https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/berlin-v5.5-10pct/input/berlin-v5.5-network.xml.gz" />
 	</module>
 	<module name="plans" >
-		<param name="inputPlansFile" value="https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/berlin-v5.5-1pct/input/berlin-v5.5-1pct.plans_uncalibrated.xml.gz" />
+		<param name="inputPlansFile" value="https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/berlin-v5.5-1pct/input/berlin-v5.5-1pct.plans.xml.gz" />
 		<param name="removingUnnecessaryPlanAttributes" value="false" />
 	</module>
 	<module name="vehicles" >

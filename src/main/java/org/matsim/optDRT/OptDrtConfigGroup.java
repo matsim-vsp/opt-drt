@@ -35,7 +35,6 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 
 	private static final String OPT_DRT_MODE = "optDrtMode";
 
-	private static final String UPDATE_INTERVAL = "optDrtUpdateInterval";
 	private static final String UPDATE_END_FRACTION_ITERATION = "optDrtUpdateEndFractionIteration";
 	private static final String WRITE_INFO_INTERVAL = "optDrtWriteInfoInterval";
 
@@ -73,7 +72,6 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	}
 	
 	private String optDrtMode = "drt";
-	private int updateInterval = 1;
 	private double updateEndFractionIteration = 0.8;
 	private int writeInfoInterval = 1;
 
@@ -223,16 +221,6 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	@StringSetter( FARE_ADJUSTMENT )
 	public void setFareAdjustment(double fareAdjustment) {
 		this.fareAdjustment = fareAdjustment;
-	}
-
-	@StringGetter( UPDATE_INTERVAL )
-	public int getUpdateInterval() {
-		return updateInterval;
-	}
-	
-	@StringSetter( UPDATE_INTERVAL )
-	public void setUpdateInterval(int uPDATE_INTERVAL) {
-		updateInterval = uPDATE_INTERVAL;
 	}
 
 	@StringGetter( UPDATE_END_FRACTION_ITERATION )

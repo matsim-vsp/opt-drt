@@ -1,7 +1,6 @@
 package org.matsim.run;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.api.core.v01.TransportMode;
-import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.run.berlin.RunOptDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
@@ -45,9 +43,9 @@ public class RunOptDrtDemoScenarioTest {
                 "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
                 "--config:plans.inputPlansFile","plans-mixedDrtTaxi-demo.xml",
                 "--config:subtourModeChoice.modes","drt,drt2",
-                "--config:multiModeDrt.drt[mode=drt].vehiclesFile","one_drt.xml",
+                "--config:multiModeDrt.drt[mode=drt].vehiclesFile","drt-vehicles.xml",
                 "--config:multiModeDrt.drt[mode=drt].operationalScheme","door2door",
-                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile","two_taxi.xml",
+                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile","drt2-vehicles.xml",
                 "--config:multiModeDrt.drt[mode=drt2].operationalScheme","door2door",
                 "--config:controler.runId", "testModalSplitStrategyTo100pct",
                 "--config:controler.lastIteration", "10",
@@ -61,7 +59,6 @@ public class RunOptDrtDemoScenarioTest {
 
         try {
             String modeStatsFile = utils.getOutputDirectory() + "testModalSplitStrategyTo100pct.modestats.txt";
-            File filename = new File(modeStatsFile);
             FileReader fileReader = new FileReader(modeStatsFile);
             BufferedReader br = new BufferedReader(fileReader);
 
@@ -73,6 +70,7 @@ public class RunOptDrtDemoScenarioTest {
                 List<String> modeArray = Arrays.asList(line.split("\t"));
                 it2DrtModeSplit.put(modeArray.get(0), modeArray.get(a));
             }
+            br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -100,9 +98,9 @@ public class RunOptDrtDemoScenarioTest {
                 "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
                 "--config:plans.inputPlansFile","plans-mixedDrtTaxi-demo.xml",
                 "--config:subtourModeChoice.modes","drt,drt2",
-                "--config:multiModeDrt.drt[mode=drt].vehiclesFile","one_drt.xml",
+                "--config:multiModeDrt.drt[mode=drt].vehiclesFile","drt-vehicles.xml",
                 "--config:multiModeDrt.drt[mode=drt].operationalScheme","door2door",
-                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile","two_taxi.xml",
+                "--config:multiModeDrt.drt[mode=drt2].vehiclesFile","drt2-vehicles.xml",
                 "--config:multiModeDrt.drt[mode=drt2].operationalScheme","door2door",
                 "--config:controler.runId", "testModalSplitStrategyTo0pct",
                 "--config:controler.lastIteration", "10",
@@ -116,7 +114,6 @@ public class RunOptDrtDemoScenarioTest {
 
         try {
             String modeStatsFile = utils.getOutputDirectory() + "testModalSplitStrategyTo0pct.modestats.txt";
-            File filename = new File(modeStatsFile);
             FileReader fileReader = new FileReader(modeStatsFile);
             BufferedReader br = new BufferedReader(fileReader);
 
@@ -128,6 +125,7 @@ public class RunOptDrtDemoScenarioTest {
                 List<String> modeArray = Arrays.asList(line.split("\t"));
                 it2DrtModeSplit.put(modeArray.get(0), modeArray.get(a));
             }
+            br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

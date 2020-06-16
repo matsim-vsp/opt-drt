@@ -23,7 +23,7 @@ public class RunOptMultiDrtDemoScenarioTest {
     public final void test0() {
         try {
 
-            String configFilename = "test/input/demo/demo-taxi-drt.config.xml";
+            String configFilename = "test/input/demo/demo-drt2-drt.config.xml";
             final String[] args = {configFilename,
                     "--config:global.coordinateSystem","Atlantis",
                     "--config:network.inputNetworkFile","network_demo.xml",
@@ -33,9 +33,9 @@ public class RunOptMultiDrtDemoScenarioTest {
                     "--config:strategy.strategysettings[strategyName=ChangeExpBeta].strategyName", "BestScore",
                     "--config:plans.inputPlansFile","plans-mixedDrtTaxi-demo.xml",
                     "--config:subtourModeChoice.modes","drt,drt2",
-                    "--config:multiModeDrt.drt[mode=drt].vehiclesFile","one_drt.xml",
+                    "--config:multiModeDrt.drt[mode=drt].vehiclesFile","drt-vehicles.xml",
                     "--config:multiModeDrt.drt[mode=drt].operationalScheme","door2door",
-                    "--config:multiModeDrt.drt[mode=drt2].vehiclesFile","two_taxi.xml",
+                    "--config:multiModeDrt.drt[mode=drt2].vehiclesFile","drt2-vehicles.xml",
                     "--config:multiModeDrt.drt[mode=drt2].operationalScheme","door2door",
                     "--config:controler.runId", "test0",
                     "--config:controler.lastIteration", "10",

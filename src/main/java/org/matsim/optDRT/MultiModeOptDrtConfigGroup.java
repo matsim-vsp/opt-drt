@@ -33,6 +33,9 @@ import org.matsim.core.config.ReflectiveConfigGroup;
 
 public final class MultiModeOptDrtConfigGroup extends ReflectiveConfigGroup implements MultiModal<OptDrtConfigGroup>{
 	public static final String GROUP_NAME = "multiModeOptDrt";
+	
+	private static final String UPDATE_INTERVAL = "optDrtUpdateInterval";
+	private int updateInterval = 1;
 
 	public MultiModeOptDrtConfigGroup() {
 		super(GROUP_NAME);
@@ -50,6 +53,16 @@ public final class MultiModeOptDrtConfigGroup extends ReflectiveConfigGroup impl
 			return new OptDrtConfigGroup();
 		}
 		throw new IllegalArgumentException(type);
+	}
+
+	@StringGetter( UPDATE_INTERVAL )
+	public int getUpdateInterval() {
+		return updateInterval;
+	}
+	
+	@StringSetter( UPDATE_INTERVAL )
+	public void setUpdateInterval(int uPDATE_INTERVAL) {
+		updateInterval = uPDATE_INTERVAL;
 	}
 
 }
