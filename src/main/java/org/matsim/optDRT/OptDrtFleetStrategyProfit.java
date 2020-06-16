@@ -38,45 +38,45 @@ import org.matsim.contrib.dvrp.fleet.FleetSpecification;
 import org.matsim.contrib.dvrp.fleet.ImmutableDvrpVehicleSpecification;
 import org.matsim.contrib.dvrp.passenger.PassengerRequestScheduledEvent;
 import org.matsim.contrib.dvrp.passenger.PassengerRequestScheduledEventHandler;
-import org.matsim.contrib.dvrp.run.DvrpMode;
 import org.matsim.core.gbl.MatsimRandom;
 
-import com.google.inject.Inject;
-
 /**
-* @author ikaddoura
-*/
+ * @author ikaddoura
+ */
 
-class OptDrtFleetStrategyProfit implements OptDrtFleetStrategy, PersonMoneyEventHandler, PersonDepartureEventHandler, LinkLeaveEventHandler, PassengerRequestScheduledEventHandler{
+class OptDrtFleetStrategyProfit
+		implements OptDrtFleetStrategy, PersonMoneyEventHandler, PersonDepartureEventHandler, LinkLeaveEventHandler,
+		PassengerRequestScheduledEventHandler {
 	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyProfit.class);
-	
-	@Inject
-	@DvrpMode("drt")
-	private FleetSpecification fleetSpecification;
-	// Right now, OptDrtModule only works for a single mode specified in OptDrtConfigGroup. Makes everything much nicer and easier. 
-	// At some point we might think about a modal binding and extend AbstractDvrpModeModule instead of AbstractModule... Ihab June '19	
-	
-	@Inject
-	private OptDrtConfigGroup optDrtConfigGroup;
-	
-	@Inject
-	private Scenario scenario;
-	
+
+	private final FleetSpecification fleetSpecification;
+
+	private final OptDrtConfigGroup optDrtConfigGroup;
+
+	private final Scenario scenario;
+
 	private int vehicleCounter = 0;
-	
-	private Set<Id<Person>> departedDrtUsers = new HashSet<>();
+
+	private final Set<Id<Person>> departedDrtUsers = new HashSet<>();
 	private double drtFareSum = 0.;
 	private double drtVehDistance_m = 0.;
-	private Set<Id<DvrpVehicle>> drtVehicleIds = new HashSet<>();
-	
+	private final Set<Id<DvrpVehicle>> drtVehicleIds = new HashSet<>();
+
+	public OptDrtFleetStrategyProfit(FleetSpecification fleetSpecification, OptDrtConfigGroup optDrtConfigGroup,
+			Scenario scenario) {
+		this.fleetSpecification = fleetSpecification;
+		this.optDrtConfigGroup = optDrtConfigGroup;
+		this.scenario = scenario;
+	}
+
 	@Override
 	public void reset(int iteration) {
 		this.departedDrtUsers.clear();
 		this.drtFareSum = 0.;
 		this.drtVehDistance_m = 0.;
 		this.drtVehicleIds.clear();
-		
-    	// do not reset vehicle counter
+
+		// do not reset vehicle counter
 	}
 
 	@Override

@@ -19,12 +19,15 @@
 
 package org.matsim.optDRT;
 
-/**
-* @author ikaddoura
-*/
+import org.matsim.core.events.handler.EventHandler;
 
-public interface OptDrtFleetStrategy {
+/**
+ * @author ikaddoura
+ */
+
+public interface OptDrtFleetStrategy extends EventHandler {
 	public void updateFleet();
+
 	public void writeInfo();
 }
 

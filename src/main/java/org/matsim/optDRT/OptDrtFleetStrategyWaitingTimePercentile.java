@@ -50,30 +50,31 @@ import org.matsim.core.gbl.MatsimRandom;
 
 class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler, PersonArrivalEventHandler {
 	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyWaitingTimePercentile.class);
-	
+
 	private final FleetSpecification fleetSpecification;
 
 	private final OptDrtConfigGroup optDrtConfigGroup;
-	
-    private final Config config;
-	
-    private int currentIteration;
-    
+
+	private final Config config;
+
+	private int currentIteration;
+
 	private int vehicleCounter = 0;
-	
-    private Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
-    private List<Double> waitingTimes = new ArrayList<>();
-	
-	public OptDrtFleetStrategyWaitingTimePercentile(FleetSpecification fleetSpecification, Config config, OptDrtConfigGroup optDrtConfigGroup) {
+
+	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
+	private final List<Double> waitingTimes = new ArrayList<>();
+
+	public OptDrtFleetStrategyWaitingTimePercentile(FleetSpecification fleetSpecification,
+			OptDrtConfigGroup optDrtConfigGroup, Config config) {
 		this.fleetSpecification = fleetSpecification;
-		this.config = config;
 		this.optDrtConfigGroup = optDrtConfigGroup;
+		this.config = config;
 	}
 
 	@Override
-	public void reset(int iteration) {		
+	public void reset(int iteration) {
 		drtUserDepartureTime.clear();
-    	waitingTimes.clear();
+		waitingTimes.clear();
     	
     	this.currentIteration = iteration;
     	

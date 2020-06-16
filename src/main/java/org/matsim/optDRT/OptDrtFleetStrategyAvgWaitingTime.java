@@ -44,50 +44,50 @@ import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicleSpecification;
 import org.matsim.contrib.dvrp.fleet.FleetSpecification;
 import org.matsim.contrib.dvrp.fleet.ImmutableDvrpVehicleSpecification;
-import org.matsim.contrib.dvrp.run.DvrpMode;
 import org.matsim.core.gbl.MatsimRandom;
 
-import com.google.inject.Inject;
-
 /**
-* @author ikaddoura
-*/
+ * @author ikaddoura
+ */
 
-class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler, PersonArrivalEventHandler {
+class OptDrtFleetStrategyAvgWaitingTime
+		implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler,
+		PersonArrivalEventHandler {
 	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyAvgWaitingTime.class);
-	
-    private int currentIteration;
 
-	@Inject
-	@DvrpMode("drt")
-	private FleetSpecification fleetSpecification;
-	// Right now, OptDrtModule only works for a single mode specified in OptDrtConfigGroup. Makes everything much nicer and easier. 
-	// At some point we might think about a modal binding and extend AbstractDvrpModeModule instead of AbstractModule... Ihab June '19	
-	
-	@Inject
-	private OptDrtConfigGroup optDrtConfigGroup;
-	
-	@Inject
-    private Scenario scenario;
-	
+	private int currentIteration;
+
+	private final FleetSpecification fleetSpecification;
+
+	private final OptDrtConfigGroup optDrtConfigGroup;
+
+	private final Scenario scenario;
+
 	private int vehicleCounter = 0;
-	
-    private Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
-    private Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
-	
+
+	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
+	private final Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
+
+	public OptDrtFleetStrategyAvgWaitingTime(FleetSpecification fleetSpecification, OptDrtConfigGroup optDrtConfigGroup,
+			Scenario scenario) {
+		this.fleetSpecification = fleetSpecification;
+		this.optDrtConfigGroup = optDrtConfigGroup;
+		this.scenario = scenario;
+	}
+
 	@Override
-	public void reset(int iteration) {		
+	public void reset(int iteration) {
 		drtUserDepartureTime.clear();
-    	timeBin2waitingTimes.clear();
-    	
-    	this.currentIteration = iteration;
-    	
-    	// do not reset vehicle counter
+		timeBin2waitingTimes.clear();
+
+		this.currentIteration = iteration;
+
+		// do not reset vehicle counter
 	}
 
 	@Override
 	public void updateFleet() {
-		
+
 		if (computeMaximumOfAvgWaitingTimePerTimeBin() >= optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment()) {
 			increaseFleet();
 		} else {
@@ -102,7 +102,7 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 			double sum = 0.;
 			for (Double waitingTime : timeBin2waitingTimes.get(timeBin)) {
 				sum = sum + waitingTime;
-				counter++;				
+				counter++;
 			}
 			double avgWaitingTimePerTimeBin = sum / counter;
 			if (avgWaitingTimePerTimeBin > maximumPerTimeBin) maximumPerTimeBin = avgWaitingTimePerTimeBin;
@@ -111,7 +111,7 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 	}
 
 	private void decreaseFleet() {
-		
+
 		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();
 
 		Set<Id<DvrpVehicle>> dvrpVehiclesToRemove = new HashSet<>();
@@ -122,23 +122,23 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 				counter++;
 			}
 		}
-		
+
 		for (Id<DvrpVehicle> id : dvrpVehiclesToRemove) {
 			if (fleetSpecification.getVehicleSpecifications().size() > 1) {
 				fleetSpecification.removeVehicleSpecification(id);
-				log.info("Removing dvrp vehicle " + id); 
+				log.info("Removing dvrp vehicle " + id);
 			}
 		}
-		
+
 		int vehiclesAfter = fleetSpecification.getVehicleSpecifications().size();
 
 		log.info("Dvrp vehicle fleet was decreased from " + vehiclesBefore + " to " + vehiclesAfter);
 	}
 
 	private void increaseFleet() {
-		
+
 		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();
-		
+
 		// select a random fleet specification to be cloned.
 		DvrpVehicleSpecification dvrpVehicleSpecficationToBeCloned = null;
 		final int randomVehicleNr = (int) (fleetSpecification.getVehicleSpecifications().size() * MatsimRandom.getLocalInstance().nextDouble());
@@ -150,13 +150,15 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 			}
 			counter++;
 		}
-		
+
 		if (dvrpVehicleSpecficationToBeCloned == null) {
 			throw new RuntimeException("No dvrp vehicle found to be cloned. Maybe create some default dvrp vehicle which is specified somewhere. Aborting...");
 		}
 
 		for (int i = 0; i < optDrtConfigGroup.getFleetSizeAdjustment(); i++) {
-			Id<DvrpVehicle> id = Id.create("optDrt_" + vehicleCounter + "_cloneOf_" + dvrpVehicleSpecficationToBeCloned.getId(), DvrpVehicle.class);		
+			Id<DvrpVehicle> id = Id.create(
+					"optDrt_" + vehicleCounter + "_cloneOf_" + dvrpVehicleSpecficationToBeCloned.getId(),
+					DvrpVehicle.class);
 			DvrpVehicleSpecification newSpecification = ImmutableDvrpVehicleSpecification.newBuilder()
 					.id(id)
 					.serviceBeginTime(dvrpVehicleSpecficationToBeCloned.getServiceBeginTime())
@@ -164,27 +166,27 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 					.startLinkId(dvrpVehicleSpecficationToBeCloned.getStartLinkId())
 					.capacity(dvrpVehicleSpecficationToBeCloned.getCapacity())
 					.build();
-			
+
 			fleetSpecification.addVehicleSpecification(newSpecification);
-			log.info("Adding dvrp vehicle " + id); 
-			
+			log.info("Adding dvrp vehicle " + id);
+
 			vehicleCounter++;
 		}
-		
+
 		int vehiclesAfter = fleetSpecification.getVehicleSpecifications().size();
-		
+
 		log.info("Dvrp vehicle fleet was increased from " + vehiclesBefore + " to " + vehiclesAfter);
 
 	}
-	
+
 	@Override
 	public void handleEvent(PersonEntersVehicleEvent event) {
-		
+
 		if (this.drtUserDepartureTime.get(event.getPersonId()) != null) {
-			
+
 			double waitingTime = event.getTime() - this.drtUserDepartureTime.get(event.getPersonId());
 			int timeBin = getTimeBin(event.getTime());
-			
+
 			if (this.timeBin2waitingTimes.get(timeBin) == null) {
 				List<Double> waitingTimes = new ArrayList<>();
 				waitingTimes.add(waitingTime);
@@ -192,24 +194,24 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 			} else {
 				this.timeBin2waitingTimes.get(timeBin).add(waitingTime);
 			}
-			
+
 		}
 	}
-	
+
 	@Override
-    public void handleEvent(PersonArrivalEvent event) {  	
-        if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
+	public void handleEvent(PersonArrivalEvent event) {
+		if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtUserDepartureTime.remove(event.getPersonId());
-        }
-    }
-	
+		}
+	}
+
 	@Override
 	public void handleEvent(PersonDepartureEvent event) {
 		if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
 		}
 	}
-	
+
 	private int getTimeBin(double time) {
 		int timeBin = (int) (time / optDrtConfigGroup.getFleetSizeTimeBinSize());
 		return timeBin;
@@ -218,15 +220,19 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 	@Override
 	public void writeInfo() {
 		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
-		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
-		
-		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig().controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
-		File file = new File(fileName);			
+		if (!runOutputDirectory.endsWith("/"))
+			runOutputDirectory = runOutputDirectory.concat("/");
+
+		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig()
+				.controler()
+				.getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
+		File file = new File(fileName);
 
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 
-			bw.write("time bin;time bin start time [sec];time bin end time [sec];average waiting time [sec];maximum waiting time[sec]");
+			bw.write(
+					"time bin;time bin start time [sec];time bin end time [sec];average waiting time [sec];maximum waiting time[sec]");
 			bw.newLine();
 
 			for (Integer timeBin : this.timeBin2waitingTimes.keySet()) {
@@ -236,25 +242,25 @@ class OptDrtFleetStrategyAvgWaitingTime implements OptDrtFleetStrategy, PersonEn
 				for (Double waitingTime : timeBin2waitingTimes.get(timeBin)) {
 					sum = sum + waitingTime;
 					counter++;
-					
+
 					if (waitingTime > maxWaitingTime) {
 						maxWaitingTime = waitingTime;
 					}
 				}
-				
+
 				double timeBinStart = timeBin * optDrtConfigGroup.getFleetSizeTimeBinSize();
 				double timeBinEnd = timeBin * optDrtConfigGroup.getFleetSizeTimeBinSize() + optDrtConfigGroup.getFleetSizeTimeBinSize();
-			
+
 				bw.write(String.valueOf(timeBin) + ";" + timeBinStart + ";" + timeBinEnd + ";" + sum / counter + ";" + maxWaitingTime );
 				bw.newLine();
 			}
 			log.info("Output written to " + fileName);
 			bw.close();
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }

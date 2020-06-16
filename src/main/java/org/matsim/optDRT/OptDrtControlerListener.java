@@ -46,9 +46,6 @@ import org.matsim.core.replanning.ReplanningUtils;
 import org.matsim.core.replanning.StrategyManager;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
-import com.google.inject.Inject;
-
-
 /**
  *
  * @author ikaddoura
@@ -61,43 +58,50 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
 
     private final OptDrtConfigGroup optDrtConfigGroup;
 
-    @Inject
-    private OptDrtFareStrategy optDrtFareStrategy;
+    private final OptDrtFareStrategy optDrtFareStrategy;
 
-    @Inject
-    private OptDrtFleetStrategy optDrtFleetStrategy;
+    private final OptDrtFleetStrategy optDrtFleetStrategy;
 
-    @Inject
-    private OptDrtServiceAreaStrategy optDrtServiceAreaStrategy;
+    private final OptDrtServiceAreaStrategy optDrtServiceAreaStrategy;
 
-    @Inject
-    private Scenario scenario;
+    private final Scenario scenario;
 
-    @Inject
-    private Map<StrategyConfigGroup.StrategySettings, PlanStrategy> planStrategies;
+    private final Map<StrategyConfigGroup.StrategySettings, PlanStrategy> planStrategies;
 
-    @Inject
-    private StrategyManager strategyManager;
+    private final StrategyManager strategyManager;
 
     private int nextDisableInnovativeStrategiesIteration = -1;
     private int nextEnableInnovativeStrategiesIteration = -1;
 
-    public OptDrtControlerListener(OptDrtConfigGroup optDrtConfigGroup) {
-    	this.optDrtConfigGroup = optDrtConfigGroup;
+    public OptDrtControlerListener(OptDrtConfigGroup optDrtConfigGroup, OptDrtFareStrategy optDrtFareStrategy,
+            OptDrtFleetStrategy optDrtFleetStrategy, OptDrtServiceAreaStrategy optDrtServiceAreaStrategy,
+            Scenario scenario, Map<StrategySettings, PlanStrategy> planStrategies, StrategyManager strategyManager) {
+        this.optDrtConfigGroup = optDrtConfigGroup;
+        this.optDrtFareStrategy = optDrtFareStrategy;
+        this.optDrtFleetStrategy = optDrtFleetStrategy;
+        this.optDrtServiceAreaStrategy = optDrtServiceAreaStrategy;
+        this.scenario = scenario;
+        this.planStrategies = planStrategies;
+        this.strategyManager = strategyManager;
     }
 
-	@Override
-    public void notifyStartup(StartupEvent event) {
+    @Override
+    public void notifyStartup(StartupEvent event) {//validation inside config group
         log.info("optDrt settings: " + optDrtConfigGroup.toString());
 
         if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
-            if (optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == null || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("") || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("null")) {
-                throw new RuntimeException("opt drt input shape file for service area adjustment is 'null'. Aborting...");
+            if (optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == null
+                    || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("")
+                    || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("null")) {
+                throw new RuntimeException(
+                        "opt drt input shape file for service area adjustment is 'null'. Aborting...");
             }
         }
 
         if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
-            if (optDrtConfigGroup.getInputShapeFileInitialServiceArea() == null || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("null") || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("")) {
+            if (optDrtConfigGroup.getInputShapeFileInitialServiceArea() == null
+                    || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("null")
+                    || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("")) {
                 log.info("opt drt input shape file for initial service area is empty. Starting without any restriction regarding the drt service area...");
             }
         }

@@ -58,13 +58,13 @@ import org.matsim.core.utils.gis.ShapeFileWriter;
 import org.matsim.core.utils.io.UncheckedIOException;
 import org.opengis.feature.simple.SimpleFeature;
 
-import com.google.inject.Inject;
-
 /**
 * @author ikaddoura
 */
 
-public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidator, OptDrtServiceAreaStrategy, PersonDepartureEventHandler, PersonArrivalEventHandler, StartupListener {
+public class OptDrtServiceAreaStrategyDemand
+		implements PassengerRequestValidator, OptDrtServiceAreaStrategy, PersonDepartureEventHandler,
+		PersonArrivalEventHandler, StartupListener {
 	private static final Logger log = Logger.getLogger(OptDrtServiceAreaStrategyDemand.class);
 
 	public static final String FROM_LINK_NOT_IN_SERVICE_AREA_CAUSE = "from_link_not_in_service_area";
@@ -72,23 +72,26 @@ public class OptDrtServiceAreaStrategyDemand implements PassengerRequestValidato
 
 	private final DefaultPassengerRequestValidator delegate = new DefaultPassengerRequestValidator();
 	private Map<Integer, SimpleFeature> features;
-	private Map<Integer, Integer> currentServiceAreaGeometryIds2Demand = new HashMap<>();
-    private int currentIteration;
+	private final Map<Integer, Integer> currentServiceAreaGeometryIds2Demand = new HashMap<>();
+	private int currentIteration;
 
-	@Inject
-	private OptDrtConfigGroup optDrtCfg;
-		
-	@Inject
-	private Scenario scenario;
-	
+	private final OptDrtConfigGroup optDrtCfg;
+
+	private final Scenario scenario;
+
+	public OptDrtServiceAreaStrategyDemand(OptDrtConfigGroup optDrtCfg, Scenario scenario) {
+		this.optDrtCfg = optDrtCfg;
+		this.scenario = scenario;
+	}
+
 	@Override
-	public void reset(int iteration) {		
-    	currentIteration = iteration;
-    	
-    	// do not clear the entries in the map, only set the demand levels to zero.
-    	for (Integer area : currentServiceAreaGeometryIds2Demand.keySet()) {
-    		this.currentServiceAreaGeometryIds2Demand.put(area, 0);
-    	}
+	public void reset(int iteration) {
+		currentIteration = iteration;
+
+		// do not clear the entries in the map, only set the demand levels to zero.
+		for (Integer area : currentServiceAreaGeometryIds2Demand.keySet()) {
+			this.currentServiceAreaGeometryIds2Demand.put(area, 0);
+		}
 	}
 
 	private boolean isGeometryInArea(SimpleFeature feature, Map<Integer, SimpleFeature> areaFeatures) {

@@ -19,94 +19,112 @@
 
 package org.matsim.optDRT;
 
+import static org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach;
+import static org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach.*;
+import static org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach.ProfitThreshold;
+import static org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach.WaitingTimeThreshold;
+import static org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach.DemandThreshold;
+
+import java.util.Map;
+
+import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
 import org.matsim.contrib.dvrp.fleet.FleetSpecification;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeModule;
-import org.matsim.core.controler.MatsimServices;
-import org.matsim.optDRT.OptDrtConfigGroup.FareAdjustmentApproach;
+import org.matsim.core.api.experimental.events.EventsManager;
+import org.matsim.core.config.Config;
+import org.matsim.core.config.groups.StrategyConfigGroup;
+import org.matsim.core.replanning.PlanStrategy;
+import org.matsim.core.replanning.StrategyManager;
+import org.matsim.core.router.MainModeIdentifier;
 import org.matsim.optDRT.OptDrtConfigGroup.FleetSizeAdjustmentApproach;
 import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
+
 /**
-* @author ikaddoura
-*/
+ * @author ikaddoura
+ */
 
 public class OptDrtModule extends AbstractDvrpModeModule {
 
 	private final OptDrtConfigGroup optDrtConfigGroup;
-	
-	public OptDrtModule(OptDrtConfigGroup optDrtConfigGroup) {
+	private final DrtFareConfigGroup drtFareConfigGroup;
+
+	public OptDrtModule(OptDrtConfigGroup optDrtConfigGroup, DrtFareConfigGroup drtFareConfigGroup) {
 		super(optDrtConfigGroup.getMode());
 		this.optDrtConfigGroup = optDrtConfigGroup;
+		this.drtFareConfigGroup = drtFareConfigGroup;
 	}
 
 	@Override
-	public void install() {	
-		
+	public void install() {
+
 		// dynamic fare strategy
 		if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.Disabled) {
-			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyDisabled.class);
-		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.AverageWaitingTimeThreshold) {
-			this.bind(OptDrtFareStrategyWaitingTime.class).asEagerSingleton();
-			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyWaitingTime.class);
-			this.addEventHandlerBinding().to(OptDrtFareStrategyWaitingTime.class);
-		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.WaitingTimePercentileThreshold) {
-			this.bind(OptDrtFareStrategyWaitingTimePercentile.class).asEagerSingleton();
-			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyWaitingTimePercentile.class);
-			this.addEventHandlerBinding().to(OptDrtFareStrategyWaitingTimePercentile.class);	
-		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == FareAdjustmentApproach.ModeSplitThreshold) {
-			this.bind(OptDrtFareStrategyModalSplit.class).asEagerSingleton();
-			this.bind(OptDrtFareStrategy.class).to(OptDrtFareStrategyModalSplit.class);
-			this.addEventHandlerBinding().to(OptDrtFareStrategyModalSplit.class);
+			bindModal(OptDrtFareStrategy.class).to(OptDrtFareStrategyDisabled.class);
+		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == AverageWaitingTimeThreshold) {
+			bindModal(OptDrtFareStrategy.class).toProvider(modalProvider(
+					getter -> new OptDrtFareStrategyWaitingTime(optDrtConfigGroup, getter.get(EventsManager.class),
+							getter.get(Scenario.class)))).asEagerSingleton();
+		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == WaitingTimePercentileThreshold) {
+			bindModal(OptDrtFareStrategy.class).toProvider(modalProvider(
+					getter -> new OptDrtFareStrategyWaitingTimePercentile(optDrtConfigGroup,
+							getter.get(EventsManager.class), getter.get(Scenario.class)))).asEagerSingleton();
+		} else if (optDrtConfigGroup.getFareAdjustmentApproach() == ModeSplitThreshold) {
+			bindModal(OptDrtFareStrategy.class).toProvider(modalProvider(
+					getter -> new OptDrtFareStrategyModalSplit(optDrtConfigGroup, getter.get(EventsManager.class),
+							getter.get(Scenario.class), getter.get(MainModeIdentifier.class), drtFareConfigGroup)))
+					.asEagerSingleton();
 		} else {
 			throw new RuntimeException("Unknown fare adjustment approach. Aborting...");
 		}
-		
+		addEventHandlerBinding().to(modalKey(OptDrtFareStrategy.class));
+
 		// fleet size strategy
 		if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.Disabled) {
-			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyDisabled.class);
-		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.ProfitThreshold) {
-			this.bind(OptDrtFleetStrategyProfit.class).asEagerSingleton();
-			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyProfit.class);
-			this.addEventHandlerBinding().to(OptDrtFleetStrategyProfit.class);
-			
-			// Right now, this module only works for a single mode specified in OptDrtConfigGroup. Makes everything much nicer and easier. 
-			// At some point we might think about a modal binding and extend AbstractDvrpModeModule instead of AbstractModule...
-			// ... and do approximately the following.   ihab June '19	
-			//
-	        // bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(getter ->
-	        // new OptDrtFleetStrategyAddRemove(getter.getModal(FleetSpecification.class), getMode(), this.optDrtCfg))).asEagerSingleton();
-	        // bindModal(OptDrtControlerListener.class).toProvider(modalProvider(t->new OptDrtControlerListener(t.getModal(OptDrtFleetStrategy.class), t.get(Scenario.class)))).asEagerSingleton();
-	 		// addControlerListenerBinding().to(modalKey(OptDrtControlerListener.class));
-			
-		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.AverageWaitingTimeThreshold) {
-			this.bind(OptDrtFleetStrategyAvgWaitingTime.class).asEagerSingleton();
-			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyAvgWaitingTime.class);
-			this.addEventHandlerBinding().to(OptDrtFleetStrategyAvgWaitingTime.class);
-		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.WaitingTimeThreshold) {
-//			this.bind(OptDrtFleetStrategyWaitingTimePercentile.class).asEagerSingleton();
-//			this.bind(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyWaitingTimePercentile.class);
-//			this.addEventHandlerBinding().to(OptDrtFleetStrategyWaitingTimePercentile.class);
-			bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(getter ->
-	        new OptDrtFleetStrategyWaitingTimePercentile(getter.getModal(FleetSpecification.class), getter.get(MatsimServices.class).getConfig(), optDrtConfigGroup))).asEagerSingleton();
-	        
+			bindModal(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyDisabled.class);
+		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == ProfitThreshold) {
+			bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(
+					getter -> new OptDrtFleetStrategyProfit(getter.getModal(FleetSpecification.class),
+							optDrtConfigGroup, getter.get(Scenario.class)))).asEagerSingleton();
+		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach()
+				== FleetSizeAdjustmentApproach.AverageWaitingTimeThreshold) {
+			bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(
+					getter -> new OptDrtFleetStrategyAvgWaitingTime(getter.getModal(FleetSpecification.class),
+							optDrtConfigGroup, getter.get(Scenario.class)))).asEagerSingleton();
+		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == WaitingTimeThreshold) {
+			bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(
+					getter -> new OptDrtFleetStrategyWaitingTimePercentile(getter.getModal(FleetSpecification.class),
+							optDrtConfigGroup, getter.get(Config.class)))).asEagerSingleton();
 		} else {
 			throw new RuntimeException("Unknown fleet size adjustment approach. Aborting...");
 		}
-		
+		addEventHandlerBinding().to(modalKey(OptDrtFleetStrategy.class));
+
 		// service area strategy
 		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.Disabled) {
-			this.bind(OptDrtServiceAreaStrategy.class).to(OptDrtServiceAreaStrategyDisabled.class);
-		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {				
-			this.bind(OptDrtServiceAreaStrategyDemand.class).asEagerSingleton();
-			this.bind(OptDrtServiceAreaStrategy.class).to(OptDrtServiceAreaStrategyDemand.class);
-			this.addEventHandlerBinding().to(OptDrtServiceAreaStrategyDemand.class);
-			this.addControlerListenerBinding().to(OptDrtServiceAreaStrategyDemand.class);		
+			bindModal(OptDrtServiceAreaStrategy.class).to(OptDrtServiceAreaStrategyDisabled.class);
+		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == DemandThreshold) {
+			bindModal(OptDrtServiceAreaStrategyDemand.class).toProvider(modalProvider(
+					getter -> (new OptDrtServiceAreaStrategyDemand(optDrtConfigGroup, getter.get(Scenario.class)))))
+					.asEagerSingleton();
+			bindModal(OptDrtServiceAreaStrategy.class).to(modalKey(OptDrtServiceAreaStrategyDemand.class));
+			this.addControlerListenerBinding().to(modalKey(OptDrtServiceAreaStrategyDemand.class));
 		} else {
 			throw new RuntimeException("Unknown service area adjustment approach. Aborting...");
 		}
-	
-		addControlerListenerBinding().toInstance(new OptDrtControlerListener(optDrtConfigGroup));
-				
+		this.addEventHandlerBinding().to(modalKey(OptDrtServiceAreaStrategy.class));
+
+		bindModal(OptDrtControlerListener.class).toProvider(modalProvider(
+				getter -> new OptDrtControlerListener(optDrtConfigGroup, getter.getModal(OptDrtFareStrategy.class),
+						getter.getModal(OptDrtFleetStrategy.class), getter.getModal(OptDrtServiceAreaStrategy.class),
+						getter.get(Scenario.class),
+						getter.get(Key.get(new TypeLiteral<Map<StrategyConfigGroup.StrategySettings, PlanStrategy>>() {
+						})), getter.get(StrategyManager.class)))).asEagerSingleton();
+		addControlerListenerBinding().to(modalKey(OptDrtControlerListener.class));
+
 	}
 
 }

@@ -19,13 +19,15 @@
 
 package org.matsim.optDRT;
 
+import static org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach.DemandThreshold;
+import static org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach.Disabled;
+
 import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
 import org.matsim.contrib.dvrp.run.AbstractDvrpModeQSimModule;
-import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
 /**
-* @author ikaddoura
-*/
+ * @author ikaddoura
+ */
 
 public class OptDrtQSimModule extends AbstractDvrpModeQSimModule {
 
@@ -38,17 +40,14 @@ public class OptDrtQSimModule extends AbstractDvrpModeQSimModule {
 
 	@Override
 	protected void configureQSim() {
-		
-		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.Disabled) {
+
+		if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == Disabled) {
 			// disabled
-			
-		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == ServiceAreaAdjustmentApproach.DemandThreshold) {				
-			this.bindModal(PassengerRequestValidator.class).to(OptDrtServiceAreaStrategyDemand.class);
-			
+		} else if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() == DemandThreshold) {
+			bindModal(PassengerRequestValidator.class).to(modalKey(OptDrtServiceAreaStrategyDemand.class));
 		} else {
 			throw new RuntimeException("Unknown service area adjustment approach. Aborting...");
 		}
 	}
-
 }
 
