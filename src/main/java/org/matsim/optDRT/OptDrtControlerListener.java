@@ -36,23 +36,17 @@ import org.matsim.core.config.groups.StrategyConfigGroup;
 import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.controler.events.IterationEndsEvent;
 import org.matsim.core.controler.events.IterationStartsEvent;
-import org.matsim.core.controler.events.StartupEvent;
 import org.matsim.core.controler.listener.IterationEndsListener;
 import org.matsim.core.controler.listener.IterationStartsListener;
-import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.replanning.GenericPlanStrategy;
 import org.matsim.core.replanning.PlanStrategy;
 import org.matsim.core.replanning.ReplanningUtils;
 import org.matsim.core.replanning.StrategyManager;
-import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
 
 /**
- *
  * @author ikaddoura
- *
  */
-
-public class OptDrtControlerListener implements StartupListener, IterationEndsListener, IterationStartsListener {
+public class OptDrtControlerListener implements IterationEndsListener, IterationStartsListener {
 
     private static final Logger log = Logger.getLogger(OptDrtControlerListener.class);
 
@@ -83,28 +77,6 @@ public class OptDrtControlerListener implements StartupListener, IterationEndsLi
         this.scenario = scenario;
         this.planStrategies = planStrategies;
         this.strategyManager = strategyManager;
-    }
-
-    @Override
-    public void notifyStartup(StartupEvent event) {//validation inside config group
-        log.info("optDrt settings: " + optDrtConfigGroup.toString());
-
-        if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
-            if (optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == null
-                    || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("")
-                    || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("null")) {
-                throw new RuntimeException(
-                        "opt drt input shape file for service area adjustment is 'null'. Aborting...");
-            }
-        }
-
-        if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
-            if (optDrtConfigGroup.getInputShapeFileInitialServiceArea() == null
-                    || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("null")
-                    || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("")) {
-                log.info("opt drt input shape file for initial service area is empty. Starting without any restriction regarding the drt service area...");
-            }
-        }
     }
 
     @Override
