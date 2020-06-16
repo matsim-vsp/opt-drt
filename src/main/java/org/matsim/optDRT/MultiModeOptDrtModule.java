@@ -45,7 +45,6 @@ public class MultiModeOptDrtModule extends AbstractModule {
 				.collect(ImmutableMap.toImmutableMap(DrtFareConfigGroup::getMode, cfg -> cfg));
 		for (OptDrtConfigGroup optDrtConfigGroup : multiModeOptDrtConfigGroup.getModalElements()) {
 			install(new OptDrtModule(optDrtConfigGroup, drtFaresConfigs.get(optDrtConfigGroup.getMode())));
-			install(new OptDrtQSimModule(optDrtConfigGroup));
 		}
 	}
 }
