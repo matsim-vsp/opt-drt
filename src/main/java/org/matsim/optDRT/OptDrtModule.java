@@ -111,7 +111,6 @@ public class OptDrtModule extends AbstractDvrpModeModule {
 					getter -> (new OptDrtServiceAreaStrategyDemand(optDrtConfigGroup, getter.get(Scenario.class)))))
 					.asEagerSingleton();
 			bindModal(OptDrtServiceAreaStrategy.class).to(modalKey(OptDrtServiceAreaStrategyDemand.class));
-			this.addControlerListenerBinding().to(modalKey(OptDrtServiceAreaStrategyDemand.class));
 		} else {
 			throw new RuntimeException("Unknown service area adjustment approach. Aborting...");
 		}

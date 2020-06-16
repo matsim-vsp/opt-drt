@@ -48,8 +48,6 @@ import org.matsim.api.core.v01.network.Link;
 import org.matsim.contrib.dvrp.passenger.DefaultPassengerRequestValidator;
 import org.matsim.contrib.dvrp.passenger.PassengerRequest;
 import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
-import org.matsim.core.controler.events.StartupEvent;
-import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.gbl.MatsimRandom;
 import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.gis.PolygonFeatureFactory;
@@ -59,19 +57,19 @@ import org.matsim.core.utils.io.UncheckedIOException;
 import org.opengis.feature.simple.SimpleFeature;
 
 /**
-* @author ikaddoura
-*/
+ * @author ikaddoura
+ */
 
 public class OptDrtServiceAreaStrategyDemand
 		implements PassengerRequestValidator, OptDrtServiceAreaStrategy, PersonDepartureEventHandler,
-		PersonArrivalEventHandler, StartupListener {
+		PersonArrivalEventHandler {
 	private static final Logger log = Logger.getLogger(OptDrtServiceAreaStrategyDemand.class);
 
 	public static final String FROM_LINK_NOT_IN_SERVICE_AREA_CAUSE = "from_link_not_in_service_area";
 	public static final String TO_LINK_NOT_IN_SERVICE_AREA_CAUSE = "to_link_not_in_service_area";
 
 	private final DefaultPassengerRequestValidator delegate = new DefaultPassengerRequestValidator();
-	private Map<Integer, SimpleFeature> features;
+	private final Map<Integer, SimpleFeature> features;
 	private final Map<Integer, Integer> currentServiceAreaGeometryIds2Demand = new HashMap<>();
 	private int currentIteration;
 
@@ -82,6 +80,7 @@ public class OptDrtServiceAreaStrategyDemand
 	public OptDrtServiceAreaStrategyDemand(OptDrtConfigGroup optDrtCfg, Scenario scenario) {
 		this.optDrtCfg = optDrtCfg;
 		this.scenario = scenario;
+		features = initFeatures();
 	}
 
 	@Override
@@ -280,20 +279,20 @@ public class OptDrtServiceAreaStrategyDemand
 			}
 			log.info("Output written to " + fileName);
 			bw.close();
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	@Override
-	public void notifyStartup(StartupEvent event) {
+	private Map<Integer, SimpleFeature> initFeatures() {
 		log.info("Loading service area geometries...");
-		
-		features = loadShapeFile(optDrtCfg.getInputShapeFileForServiceAreaAdjustment());
-		
+
+		Map<Integer, SimpleFeature> features = loadShapeFile(optDrtCfg.getInputShapeFileForServiceAreaAdjustment());
+
 		Map<Integer, SimpleFeature> geometriesInitialServiceArea = null;
-		if (optDrtCfg.getInputShapeFileInitialServiceArea() != null && !optDrtCfg.getInputShapeFileInitialServiceArea().equals("") && !optDrtCfg.getInputShapeFileInitialServiceArea().equals("null")) {
+		if (optDrtCfg.getInputShapeFileInitialServiceArea() != null && !optDrtCfg.getInputShapeFileInitialServiceArea()
+				.equals("") && !optDrtCfg.getInputShapeFileInitialServiceArea().equals("null")) {
 			// load initial service area
 			geometriesInitialServiceArea = loadShapeFile(optDrtCfg.getInputShapeFileInitialServiceArea());
 		}
@@ -317,19 +316,19 @@ public class OptDrtServiceAreaStrategyDemand
 				.setCrs(MGC.getCRS(optDrtCfg.getInputShapeFileForServiceAreaAdjustmentCrs()))
 				.addAttribute("optDrtId", String.class)
 				.create();
-			
+
 		for (Integer id : features.keySet()) {
 			SimpleFeature feature = features.get(id);
-			
-			Geometry geometry = (Geometry) feature.getDefaultGeometry();
+
+			Geometry geometry = (Geometry)feature.getDefaultGeometry();
 			SimpleFeature f = pointFeatureFactory.createPolygon(geometry.getCoordinates());
 			f.setAttribute("optDrtId", id.toString());
 			featuresToPrint.add(f);
 		}
-		
-		ShapeFileWriter.writeGeometries(featuresToPrint, fileName);
-		
-	}
 
+		ShapeFileWriter.writeGeometries(featuresToPrint, fileName);
+
+		return features;
+	}
 }
 
