@@ -1,47 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
 <config>
-	<module name="optDrt" >
-		<param name="fareAdjustment" value="0.5" />
-		<!-- Possible values: Disabled, AverageWaitingTimeThreshold -->
-		<param name="fareAdjustmentApproach" value="Disabled" />
-		<param name="fareAdjustmentWaitingTimeThreshold" value="600.0" />
-		<param name="fareTimeBinSize" value="900.0" />
-		
-		<param name="fleetSizeAdjustment" value="1000" />
-		<!-- Possible values: Disabled, ProfitThreshold, AverageWaitingTimeThreshold, WaitingTimeThreshold -->
-		<param name="fleetSizeAdjustmentApproach" value="WaitingTimeThreshold" />
-		<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3" />
-		<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4" />
-		<param name="fleetSizeAdjustmentProfitThreshold" value="0.0" />
-		<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="120.0" />
-		<param name="tripShareThresholdForFleetSizeAdjustment" value="0.95" />
-		<param name="fleetSizeTimeBinSize" value="900.0" />
-		
-		<param name="optDrtMode" value="drt" />
-		<param name="optDrtUpdateEndFractionIteration" value="1.0" />
-		<param name="optDrtUpdateInterval" value="1" />
-		<param name="optDrtWriteInfoInterval" value="1" />
-		
-		<param name="serviceAreaAdjustmentExpand" value="1" />
-		<param name="serviceAreaAdjustmentReduce" value="1" />
-		<!-- Possible values: Disabled, DemandThreshold -->
-		<param name="serviceAreaAdjustmentApproach" value="Disabled" />
-		<param name="serviceAreaAdjustmentDemandThreshold" value="1" />
-		<param name="serviceAreaAdjustmentInputShapeFile" value="null" />
-		<param name="serviceAreaAdjustmentInputShapeFileCRS" value="null" />
-		<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="null" />
-		<param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="null" />
+	<module name="multiModeOptDrt">
+		<parameterset type="optDrt">
+			<param name="fareAdjustment" value="0.5"/>
+			<!-- Possible values: Disabled, AverageWaitingTimeThreshold -->
+			<param name="fareAdjustmentApproach" value="Disabled"/>
+			<param name="fareAdjustmentWaitingTimeThreshold" value="600.0"/>
+			<param name="fareTimeBinSize" value="900.0"/>
+
+			<param name="fleetSizeAdjustment" value="1000"/>
+			<!-- Possible values: Disabled, ProfitThreshold, AverageWaitingTimeThreshold, WaitingTimeThreshold -->
+			<param name="fleetSizeAdjustmentApproach" value="WaitingTimeThreshold"/>
+			<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3"/>
+			<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4"/>
+			<param name="fleetSizeAdjustmentProfitThreshold" value="0.0"/>
+			<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="120.0"/>
+			<param name="tripShareThresholdForFleetSizeAdjustment" value="0.95"/>
+			<param name="fleetSizeTimeBinSize" value="900.0"/>
+
+			<param name="optDrtMode" value="drt"/>
+			<param name="optDrtUpdateEndFractionIteration" value="1.0"/>
+			<param name="optDrtUpdateInterval" value="1"/>
+			<param name="optDrtWriteInfoInterval" value="1"/>
+
+			<param name="serviceAreaAdjustmentExpand" value="1"/>
+			<param name="serviceAreaAdjustmentReduce" value="1"/>
+			<!-- Possible values: Disabled, DemandThreshold -->
+			<param name="serviceAreaAdjustmentApproach" value="Disabled"/>
+			<param name="serviceAreaAdjustmentDemandThreshold" value="1"/>
+			<param name="serviceAreaAdjustmentInputShapeFile" value="null"/>
+			<param name="serviceAreaAdjustmentInputShapeFileCRS" value="null"/>
+			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="null"/>
+			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="null"/>
+		</parameterset>
 	</module>
-	<module name="TimeAllocationMutator" >
-		<param name="mutationRange" value="7200.0" />
+	<module name="TimeAllocationMutator">
+		<param name="mutationRange" value="7200.0"/>
 	</module>
-	<module name="controler" >
-		<param name="lastIteration" value="500" />
-		<param name="overwriteFiles" value="failIfDirectoryExists" />
-		<param name="runId" value="berlin-drt-v5.5-1pct" />
-		<param name="outputDirectory" value="./scenarios/berlin-v5.5-1pct/output-berlin-drt-v5.5-1pct" />
-		<param name="writeEventsInterval" value="50" />
+	<module name="controler">
+		<param name="lastIteration" value="500"/>
+		<param name="overwriteFiles" value="failIfDirectoryExists"/>
+		<param name="runId" value="berlin-drt-v5.5-1pct"/>
+		<param name="outputDirectory" value="./scenarios/berlin-v5.5-1pct/output-berlin-drt-v5.5-1pct"/>
+		<param name="writeEventsInterval" value="50"/>
 		<param name="writePlansInterval" value="50" />
 	</module>
 	<module name="global" >

@@ -339,7 +339,7 @@ public class RunOptDrtOpenBerlinScenarioTest {
 		try {
 			
 			String configFilename = "test/input/berlin-drt-v5.5-1pct.config_optDRT-area.xml";
-			final String[] args = {configFilename,
+			final String[] args = { configFilename,
 					"--config:global.numberOfThreads", "1",
 					"--config:strategy.fractionOfIterationsToDisableInnovation", "0.",
 					"--config:controler.runId", "testAreaStrategy2",
@@ -347,8 +347,8 @@ public class RunOptDrtOpenBerlinScenarioTest {
 					"--config:plans.inputPlansFile", "one-drt-agent-inside-berlin.xml",
 					"--config:transit.useTransit", "false",
 					"--config:transit.usingTransitInMobsim", "false",
-					"--config:optDrt.serviceAreaAdjustmentDemandThreshold", "1",
-					"--config:controler.outputDirectory", utils.getOutputDirectory()};
+					"--config:multiModeOptDrt.optDrt[optDrtMode=drt].serviceAreaAdjustmentDemandThreshold", "1",
+					"--config:controler.outputDirectory", utils.getOutputDirectory() };
 		
 	        Controler controler = new RunOptDrtOpenBerlinScenario().prepareControler(args);
 	        

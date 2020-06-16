@@ -36,74 +36,47 @@ import org.matsim.core.config.groups.StrategyConfigGroup;
 import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.controler.events.IterationEndsEvent;
 import org.matsim.core.controler.events.IterationStartsEvent;
-import org.matsim.core.controler.events.StartupEvent;
 import org.matsim.core.controler.listener.IterationEndsListener;
 import org.matsim.core.controler.listener.IterationStartsListener;
-import org.matsim.core.controler.listener.StartupListener;
 import org.matsim.core.replanning.GenericPlanStrategy;
 import org.matsim.core.replanning.PlanStrategy;
 import org.matsim.core.replanning.ReplanningUtils;
 import org.matsim.core.replanning.StrategyManager;
-import org.matsim.optDRT.OptDrtConfigGroup.ServiceAreaAdjustmentApproach;
-
-import com.google.inject.Inject;
-
 
 /**
- *
  * @author ikaddoura
- *
  */
-
-public class OptDrtControlerListener implements StartupListener, IterationEndsListener, IterationStartsListener {
+public class OptDrtControlerListener implements IterationEndsListener, IterationStartsListener {
 
     private static final Logger log = Logger.getLogger(OptDrtControlerListener.class);
 
-    @Inject
-    private OptDrtConfigGroup optDrtConfigGroup;
+    private final OptDrtConfigGroup optDrtConfigGroup;
 
-    @Inject
-    private OptDrtFareStrategy optDrtFareStrategy;
+    private final OptDrtFareStrategy optDrtFareStrategy;
 
-    @Inject
-    private OptDrtFleetStrategy optDrtFleetStrategy;
+    private final OptDrtFleetStrategy optDrtFleetStrategy;
 
-    @Inject
-    private OptDrtServiceAreaStrategy optDrtServiceAreaStrategy;
+    private final OptDrtServiceAreaStrategy optDrtServiceAreaStrategy;
 
-    @Inject
-    private Scenario scenario;
+    private final Scenario scenario;
 
-    @Inject
-    private Map<StrategyConfigGroup.StrategySettings, PlanStrategy> planStrategies;
+    private final Map<StrategyConfigGroup.StrategySettings, PlanStrategy> planStrategies;
 
-    @Inject
-    private StrategyManager strategyManager;
+    private final StrategyManager strategyManager;
 
     private int nextDisableInnovativeStrategiesIteration = -1;
     private int nextEnableInnovativeStrategiesIteration = -1;
 
-    @Override
-    public void notifyStartup(StartupEvent event) {
-        log.info("optDrt settings: " + optDrtConfigGroup.toString());
-
-        if (!optDrtConfigGroup.getOptDrtMode().equals("drt")) {
-            throw new RuntimeException("Currently, a mode different from 'drt' is not allowed."
-                    + " Only works for a single mode specified in OptDrtConfigGroup. At some point we might think about a modal binding."
-                    + " Aborting... ");
-        }
-
-        if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
-            if (optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment() == null || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("") || optDrtConfigGroup.getInputShapeFileForServiceAreaAdjustment().equals("null")) {
-                throw new RuntimeException("opt drt input shape file for service area adjustment is 'null'. Aborting...");
-            }
-        }
-
-        if (optDrtConfigGroup.getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
-            if (optDrtConfigGroup.getInputShapeFileInitialServiceArea() == null || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("null") || optDrtConfigGroup.getInputShapeFileInitialServiceArea().equals("")) {
-                log.info("opt drt input shape file for initial service area is empty. Starting without any restriction regarding the drt service area...");
-            }
-        }
+    public OptDrtControlerListener(OptDrtConfigGroup optDrtConfigGroup, OptDrtFareStrategy optDrtFareStrategy,
+            OptDrtFleetStrategy optDrtFleetStrategy, OptDrtServiceAreaStrategy optDrtServiceAreaStrategy,
+            Scenario scenario, Map<StrategySettings, PlanStrategy> planStrategies, StrategyManager strategyManager) {
+        this.optDrtConfigGroup = optDrtConfigGroup;
+        this.optDrtFareStrategy = optDrtFareStrategy;
+        this.optDrtFleetStrategy = optDrtFleetStrategy;
+        this.optDrtServiceAreaStrategy = optDrtServiceAreaStrategy;
+        this.scenario = scenario;
+        this.planStrategies = planStrategies;
+        this.strategyManager = strategyManager;
     }
 
     @Override

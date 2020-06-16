@@ -3,7 +3,7 @@
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2019 by the members listed in the COPYING,        *
+ * copyright       : (C) 2020 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -19,15 +19,38 @@
 
 package org.matsim.optDRT;
 
-import org.matsim.core.events.handler.EventHandler;
+import java.util.Collection;
+
+import javax.validation.Valid;
+
+import org.matsim.contrib.dvrp.run.MultiModal;
+import org.matsim.core.config.ConfigGroup;
+import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
- * @author ikaddoura
- */
+* @author ikaddoura
+*/
 
-public interface OptDrtFleetStrategy extends EventHandler {
-	public void updateFleet();
+public final class MultiModeOptDrtConfigGroup extends ReflectiveConfigGroup implements MultiModal<OptDrtConfigGroup>{
+	public static final String GROUP_NAME = "multiModeOptDrt";
 
-	public void writeInfo();
+	public MultiModeOptDrtConfigGroup() {
+		super(GROUP_NAME);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Collection<@Valid OptDrtConfigGroup> getModalElements() {
+		return (Collection<OptDrtConfigGroup>)getParameterSets(OptDrtConfigGroup.GROUP_NAME);
+	}
+	
+	@Override
+	public ConfigGroup createParameterSet(String type) {
+		if (type.equals(OptDrtConfigGroup.GROUP_NAME)) {
+			return new OptDrtConfigGroup();
+		}
+		throw new IllegalArgumentException(type);
+	}
+
 }
 

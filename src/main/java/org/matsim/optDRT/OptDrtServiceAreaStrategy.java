@@ -19,12 +19,15 @@
 
 package org.matsim.optDRT;
 
-/**
-* @author ikaddoura
-*/
+import org.matsim.core.events.handler.EventHandler;
 
-public interface OptDrtServiceAreaStrategy {
+/**
+ * @author ikaddoura
+ */
+
+public interface OptDrtServiceAreaStrategy extends EventHandler {
 	public void updateServiceArea();
+
 	public void writeInfo();
 }
 

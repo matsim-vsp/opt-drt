@@ -19,15 +19,19 @@
 
 package org.matsim.optDRT;
 
+import org.apache.log4j.Logger;
+import org.matsim.contrib.dvrp.run.Modal;
+import org.matsim.core.config.Config;
 import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
- * 
  * @author ikaddoura
  */
 
-public class OptDrtConfigGroup extends ReflectiveConfigGroup {
-	public static final String GROUP_NAME = "optDrt" ;
+public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
+	private static final Logger log = Logger.getLogger(OptDrtConfigGroup.class);
+
+	public static final String GROUP_NAME = "optDrt";
 
 	private static final String OPT_DRT_MODE = "optDrtMode";
 
@@ -124,15 +128,49 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	public enum FleetSizeAdjustmentApproach {
 		Disabled, ProfitThreshold, AverageWaitingTimeThreshold, WaitingTimeThreshold
 	}
-	
+
+	@Override
+	protected void checkConsistency(Config config) {
+		super.checkConsistency(config);
+
+		if (getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
+			if (getInputShapeFileForServiceAreaAdjustment() == null
+					|| getInputShapeFileForServiceAreaAdjustment().equals("")
+					|| getInputShapeFileForServiceAreaAdjustment().equals("null")) {
+				throw new RuntimeException(
+						"opt drt input shape file for service area adjustment is 'null'. Aborting...");
+			}
+		}
+
+		if (getServiceAreaAdjustmentApproach() != ServiceAreaAdjustmentApproach.Disabled) {
+			if (getInputShapeFileInitialServiceArea() == null
+					|| getInputShapeFileInitialServiceArea().equals("null")
+					|| getInputShapeFileInitialServiceArea().equals("")) {
+				log.info(
+						"opt drt input shape file for initial service area is empty. Starting without any restriction regarding the drt service area...");
+			}
+		}
+	}
+
 	@StringGetter(FLUCTUATING_PERCENTAGE)
-	public double getFluctuatingPercentage() { return fluctuatingPercentage; }
+	public double getFluctuatingPercentage() {
+		return fluctuatingPercentage;
+	}
+
 	@StringSetter(FLUCTUATING_PERCENTAGE)
-	public void setFluctuatingPercentage(double fluctuatingPercentage) { this.fluctuatingPercentage = fluctuatingPercentage; }
+	public void setFluctuatingPercentage(double fluctuatingPercentage) {
+		this.fluctuatingPercentage = fluctuatingPercentage;
+	}
+
 	@StringGetter(FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND)
-	public double getCostPerVehiclePerSecondFareAdjustment() {return  costPerVehiclePerSecondFareAdjustment;}
+	public double getCostPerVehiclePerSecondFareAdjustment() {
+		return costPerVehiclePerSecondFareAdjustment;
+	}
+
 	@StringSetter(FARE_ADJUSTMENT_COST_PER_VEHICLE_PER_SECOND)
-	public void setCostPerVehiclePerSecondFareAdjustment(double costPerVehiclePerSecondFareAdjustment){this.costPerVehiclePerSecondFareAdjustment = costPerVehiclePerSecondFareAdjustment;}
+	public void setCostPerVehiclePerSecondFareAdjustment(double costPerVehiclePerSecondFareAdjustment) {
+		this.costPerVehiclePerSecondFareAdjustment = costPerVehiclePerSecondFareAdjustment;
+	}
 
 	@StringGetter( DEMAND_THRESHOLD_FOR_SERVICE_AREA_ADJUSTMENT )
 	public int getDemandThresholdForServiceAreaAdjustment() {
@@ -170,11 +208,6 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter( SERVICE_AREA_ADJUSTMENT_REDUCE )
 	public void setServiceAreaAdjustmentReduce(int serviceAreaAdjustment) {
 		this.serviceAreaAdjustmentReduce = serviceAreaAdjustment;
-	}
-	
-	@StringGetter( OPT_DRT_MODE )
-	public String getOptDrtMode() {
-		return optDrtMode;
 	}
 
 	@StringSetter( OPT_DRT_MODE )
@@ -404,6 +437,11 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter( TRIP_SHARE_FOR_FARE_ADJUSTMENT )
 	public void setTripShareThresholdForFareAdjustment(double tripShareThresholdForFareAdjustment) {
 		this.tripShareThresholdForFareAdjustment = tripShareThresholdForFareAdjustment;
+	}
+	@Override
+	@StringGetter(OPT_DRT_MODE)
+	public String getMode() {
+		return optDrtMode;
 	}
 			
 }

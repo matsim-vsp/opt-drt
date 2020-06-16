@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
@@ -22,14 +21,11 @@ import org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEvent;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.router.MainModeIdentifier;
 import org.matsim.core.router.TripStructureUtils;
-
-import com.google.inject.Inject;
 
 /**
  * @author zmeng
@@ -40,7 +36,7 @@ import com.google.inject.Inject;
  * Note that these fares are scored in excess to anything set in the modeparams in the config file or any other drt fare handler.
  */
 public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler, PersonArrivalEventHandler, OptDrtFareStrategy, DrtRequestSubmittedEventHandler {
-    private static final Logger log = Logger.getLogger(OptDrtFareStrategyWaitingTime.class);
+    private static final Logger log = Logger.getLogger(OptDrtFareStrategyModalSplit.class);
 
     private Map<Integer, Double> timeBin2distanceFarePerMeter = new HashMap<>();
 
@@ -53,26 +49,30 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     private Boolean updateFare;
 
-    private List<String> mainTransportModes = new LinkedList<>();
+    private final List<String> mainTransportModes = new LinkedList<>();
 
     private Set<Id<Person>> personList;
 
     private int currentIteration;
 
-    @Inject
-    OptDrtConfigGroup optDrtConfigGroup;
+    private final OptDrtConfigGroup optDrtConfigGroup;
 
-    @Inject
-    EventsManager events;
+    private final EventsManager events;
 
-    @Inject
-    Scenario scenario;
+    private final Scenario scenario;
 
-    @Inject
-    MainModeIdentifier mainModeIdentifier;
+    private final MainModeIdentifier mainModeIdentifier;
 
-    @Inject
-    DrtFaresConfigGroup drtFaresConfigGroup;
+    private final DrtFareConfigGroup drtFareConfigGroup;
+
+    public OptDrtFareStrategyModalSplit(OptDrtConfigGroup optDrtConfigGroup, EventsManager events, Scenario scenario,
+            MainModeIdentifier mainModeIdentifier, DrtFareConfigGroup drtFareConfigGroup) {
+        this.optDrtConfigGroup = optDrtConfigGroup;
+        this.events = events;
+        this.scenario = scenario;
+        this.mainModeIdentifier = mainModeIdentifier;
+        this.drtFareConfigGroup = drtFareConfigGroup;
+    }
 
     @Override
     public void handleEvent(PersonArrivalEvent event) {
@@ -86,7 +86,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             this.personDepartureInfo.remove(personId2Legmode);
         }
 
-        if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+        if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 
             DrtRequestSubmittedEvent e = this.lastRequestSubmission.get(event.getPersonId());
 
@@ -99,7 +99,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             }
             // update the price, and make sure the new price will not be lower than the minFare in drtFareConfig.
             double fare = e.getUnsharedRideDistance() * timeBinDistanceFare;
-            DrtFareConfigGroup drtFareConfigGroup = drtFaresConfigGroup.getDrtFareConfigGroups().stream().filter(drtFareConfigGroup1 -> drtFareConfigGroup1.getMode().equals("drt")).collect(Collectors.toList()).get(0);
 
             double oldFare = Math.max(e.getUnsharedRideDistance() * drtFareConfigGroup.getDistanceFare_m(), drtFareConfigGroup.getMinFarePerTrip());
             if (oldFare + fare < drtFareConfigGroup.getMinFarePerTrip()) {
@@ -152,7 +151,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void handleEvent(DrtRequestSubmittedEvent event) {
-        if (optDrtConfigGroup.getOptDrtMode().equals(event.getMode())) {
+        if (optDrtConfigGroup.getMode().equals(event.getMode())) {
             this.lastRequestSubmission.put(event.getPersonId(), event);
         }
     }
@@ -185,7 +184,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
             // negative price should not be allowed.However, considering that the updated price is based on the original price.
             // Lower than the price defined in the drt-fare module should be taken into account.
-            DrtFareConfigGroup drtFareConfigGroup = drtFaresConfigGroup.getDrtFareConfigGroups().stream().filter(drtFareConfigGroup1 -> drtFareConfigGroup1.getMode().equals("drt")).collect(Collectors.toList()).get(0);
 
             if (updatedDistanceFare < (0 - drtFareConfigGroup.getDistanceFare_m()))
                 updatedDistanceFare = 0 - drtFareConfigGroup.getDistanceFare_m();
@@ -234,8 +232,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
                     double timeBinStart = timeBin * optDrtConfigGroup.getFareTimeBinSize();
                     double timeBinEnd = timeBin * optDrtConfigGroup.getFareTimeBinSize() + optDrtConfigGroup.getFareTimeBinSize();
 
-                    DrtFareConfigGroup drtFareConfigGroup = drtFaresConfigGroup.getDrtFareConfigGroups().stream().filter(drtFareConfigGroup1 -> drtFareConfigGroup1.getMode().equals("drt")).collect(Collectors.toList()).get(0);
-
                     double fare = 0.;
                     if (this.timeBin2distanceFarePerMeter.get(timeBin) != null)
                         fare = drtFareConfigGroup.getDistanceFare_m() + this.timeBin2distanceFarePerMeter.get(timeBin);
@@ -254,7 +250,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void handleEvent(PersonDepartureEvent event) {
-        if (optDrtConfigGroup.getOptDrtMode().equals(event.getLegMode())) {
+        if (optDrtConfigGroup.getMode().equals(event.getLegMode())) {
             this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
         }
 

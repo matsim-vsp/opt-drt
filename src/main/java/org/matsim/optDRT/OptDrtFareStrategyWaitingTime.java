@@ -47,53 +47,56 @@ import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.optDRT.OptDrtConfigGroup.FareUpdateApproach;
 
-import com.google.inject.Inject;
-
 /**
  * @author ikaddoura, zmeng
- * 
+ *
  * An implementation for different DRT fares for different times of day.
  * The fares will be updated during the simulation depending on service parameters, e.g. the average waiting time.
- * 
+ *
  * Note that these fares are scored in excess to anything set in the modeparams in the config file or any other drt fare handler.
  */
-class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, PersonEntersVehicleEventHandler, PersonArrivalEventHandler, OptDrtFareStrategy, DrtRequestSubmittedEventHandler {
+class OptDrtFareStrategyWaitingTime
+		implements PersonDepartureEventHandler, PersonEntersVehicleEventHandler, PersonArrivalEventHandler,
+		OptDrtFareStrategy, DrtRequestSubmittedEventHandler {
 	private static final Logger log = Logger.getLogger(OptDrtFareStrategyWaitingTime.class);
 
-	private Map<Integer, Double> timeBin2distanceFarePerMeter = new HashMap<>();
-	
-    private Map<Id<Person>, DrtRequestSubmittedEvent> lastRequestSubmission = new HashMap<>();
-    private Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
-    private Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
-    
-    private int currentIteration;
-    private int priceUpdateCounter;
-    	
-	@Inject
-	private OptDrtConfigGroup optDrtConfigGroup ;
-	
-    @Inject
-    private EventsManager events;
-    
-    @Inject
-    private Scenario scenario;
+	private final Map<Integer, Double> timeBin2distanceFarePerMeter = new HashMap<>();
 
-    @Override
-    public void reset(int iteration) {
-    	
-    	lastRequestSubmission.clear();
-    	drtUserDepartureTime.clear();
-    	timeBin2waitingTimes.clear();
-    	
-    	this.currentIteration = iteration;
-    	
-    	// do not reset the fares from one iteration to the next one
-    }
+	private final Map<Id<Person>, DrtRequestSubmittedEvent> lastRequestSubmission = new HashMap<>();
+	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
+	private final Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
+
+	private int currentIteration;
+	private int priceUpdateCounter;
+
+	private final OptDrtConfigGroup optDrtConfigGroup;
+
+	private final EventsManager events;
+
+	private final Scenario scenario;
+
+	public OptDrtFareStrategyWaitingTime(OptDrtConfigGroup optDrtConfigGroup, EventsManager events, Scenario scenario) {
+		this.optDrtConfigGroup = optDrtConfigGroup;
+		this.events = events;
+		this.scenario = scenario;
+	}
+
+	@Override
+	public void reset(int iteration) {
+
+		lastRequestSubmission.clear();
+		drtUserDepartureTime.clear();
+		timeBin2waitingTimes.clear();
+
+		this.currentIteration = iteration;
+
+		// do not reset the fares from one iteration to the next one
+	}
 
     @Override
     public void handleEvent(PersonArrivalEvent event) {
     	
-        if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+        if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
         	
             DrtRequestSubmittedEvent e = this.lastRequestSubmission.get(event.getPersonId());
 
@@ -186,14 +189,14 @@ class OptDrtFareStrategyWaitingTime implements PersonDepartureEventHandler, Pers
 
 	@Override
 	public void handleEvent(DrtRequestSubmittedEvent event) {
-		 if (optDrtConfigGroup.getOptDrtMode().equals(event.getMode())) {
+		 if (optDrtConfigGroup.getMode().equals(event.getMode())) {
 			 this.lastRequestSubmission.put(event.getPersonId(), event);
 	     }
 	}
 
 	@Override
 	public void handleEvent(PersonDepartureEvent event) {
-		if (event.getLegMode().equals(optDrtConfigGroup.getOptDrtMode())) {
+		if (event.getLegMode().equals(optDrtConfigGroup.getMode())) {
 			this.drtUserDepartureTime.put(event.getPersonId(), event.getTime());
 		}
 	}
