@@ -6,7 +6,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
-import org.matsim.run.berlin.RunOptDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
 
 /**

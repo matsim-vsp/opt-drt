@@ -15,7 +15,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.core.controler.Controler;
-import org.matsim.run.berlin.RunOptDrtOpenBerlinScenario;
 import org.matsim.testcases.MatsimTestUtils;
 
 /**

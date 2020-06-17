@@ -294,7 +294,7 @@ public class OptDrtServiceAreaStrategyDemand
 		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 		
-		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig().controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
+		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig().controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + "_" + this.optDrtCfg.getMode() + ".csv";
 		File file = new File(fileName);			
 
 		try {

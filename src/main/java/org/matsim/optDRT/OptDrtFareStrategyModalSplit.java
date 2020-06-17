@@ -218,7 +218,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             if(!dir.exists()){
                 dir.mkdirs();
             }
-            String fileName = path + this.scenario.getConfig().controler().getRunId() + "." + num + ".info_" + this.getClass().getName() + ".csv";
+            String fileName = path + this.scenario.getConfig().controler().getRunId() + "." + num + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
             File file = new File(fileName);
 
             try {

@@ -225,7 +225,7 @@ class OptDrtFleetStrategyAvgWaitingTime
 
 		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.scenario.getConfig()
 				.controler()
-				.getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + ".csv";
+				.getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
 		File file = new File(fileName);
 
 		try {
