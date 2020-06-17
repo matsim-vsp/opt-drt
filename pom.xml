@@ -99,12 +99,6 @@
         	<version>${matsim.version}</version>
         	<scope>compile</scope>
      	 </dependency>
-
-	<dependency>
-	    <groupId>com.github.matsim-vsp</groupId>
-	    <artifactId>matsim-berlin</artifactId>
-		<version>5.5.x-5b3c4d3de8-1</version>
-	</dependency>
 		
         <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
         <dependency>

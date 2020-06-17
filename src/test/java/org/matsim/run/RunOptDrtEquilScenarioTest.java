@@ -38,7 +38,7 @@ public class RunOptDrtEquilScenarioTest {
 	
 	@Test
 	public final void test1() {
-		RunOptDrtEquilScenario.main(null);
+		RunExampleOptDrt.main(null);
 	}
 	
 	@Test

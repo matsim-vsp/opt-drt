@@ -42,7 +42,7 @@ import org.matsim.optDRT.OptDrt;
 * @author ikaddoura
 */
 
-public class RunOptDrtEquilScenario {
+public class RunExampleOptDrt {
 
 	public static void main(String[] args) {
 		
