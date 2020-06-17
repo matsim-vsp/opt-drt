@@ -50,7 +50,9 @@ import org.matsim.contrib.dvrp.passenger.PassengerRequest;
 import org.matsim.contrib.dvrp.passenger.PassengerRequestValidator;
 import org.matsim.core.gbl.MatsimRandom;
 import org.matsim.core.utils.geometry.geotools.MGC;
+import org.matsim.core.utils.gis.PolygonFeatureFactory;
 import org.matsim.core.utils.gis.ShapeFileReader;
+import org.matsim.core.utils.gis.ShapeFileWriter;
 import org.matsim.core.utils.io.UncheckedIOException;
 import org.opengis.feature.simple.SimpleFeature;
 
@@ -74,6 +76,8 @@ public class OptDrtServiceAreaStrategyDemand
 	private final OptDrtConfigGroup optDrtCfg;
 
 	private final Scenario scenario;
+
+	private boolean shpFileWrittenOut = false;
 
 	public OptDrtServiceAreaStrategyDemand(OptDrtConfigGroup optDrtCfg, Scenario scenario) {
 		this.optDrtCfg = optDrtCfg;
@@ -259,6 +263,34 @@ public class OptDrtServiceAreaStrategyDemand
 
 	@Override
 	public void writeInfo() {
+		
+		if (!shpFileWrittenOut) {
+			String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
+			if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
+			
+			String fileName = runOutputDirectory + this.scenario.getConfig().controler().getRunId() + "." + this.getClass().getName() + "_geometries.shp";		
+			
+			Collection<SimpleFeature> featuresToPrint = new ArrayList<>();
+			PolygonFeatureFactory pointFeatureFactory = new PolygonFeatureFactory.Builder()
+					.setName("zones")
+					.setCrs(MGC.getCRS(optDrtCfg.getInputShapeFileForServiceAreaAdjustmentCrs()))
+					.addAttribute("optDrtId", String.class)
+					.create();
+
+			for (Integer id : features.keySet()) {
+				SimpleFeature feature = features.get(id);
+
+				Geometry geometry = (Geometry)feature.getDefaultGeometry();
+				SimpleFeature f = pointFeatureFactory.createPolygon(geometry.getCoordinates());
+				f.setAttribute("optDrtId", id.toString());
+				featuresToPrint.add(f);
+			}
+
+			ShapeFileWriter.writeGeometries(featuresToPrint, fileName);
+			shpFileWrittenOut = true;
+		}
+		
+		
 		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 		
