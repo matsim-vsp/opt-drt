@@ -102,9 +102,9 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
             double oldFare = Math.max(e.getUnsharedRideDistance() * drtFareConfigGroup.getDistanceFare_m(), drtFareConfigGroup.getMinFarePerTrip());
             if (oldFare + fare < drtFareConfigGroup.getMinFarePerTrip()) {
-                events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), ((-drtFareConfigGroup.getMinFarePerTrip())) + oldFare));
+                events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), ((-drtFareConfigGroup.getMinFarePerTrip())) + oldFare, "opt-drt-fare-surcharge", this.optDrtConfigGroup.getMode() + "-operator"));
             } else {
-                events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare));
+                events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare, "opt-drt-fare-surcharge", this.optDrtConfigGroup.getMode() + "-operator"));
             }
 
             this.drtUserDepartureTime.remove(event.getPersonId());
@@ -119,7 +119,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void reset(int iteration) {
-        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime());
+        int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
         for (int timeBin = 0; timeBin <= timeBinSize; timeBin++) {
             this.timeBin2DrtModalStats.put(timeBin, 0.);
             this.timeBin2totalTrips.put(timeBin, 0.);
@@ -167,7 +167,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             }
             log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2DrtModalStats.get(i));
         }
-        for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin++) {
+        for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin++) {
             double drtModeStats = timeBin2DrtModalStats.get(timeBin);
 
             double oldDistanceFare = 0.;

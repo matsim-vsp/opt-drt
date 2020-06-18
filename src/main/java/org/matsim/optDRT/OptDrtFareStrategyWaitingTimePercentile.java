@@ -107,7 +107,7 @@ class OptDrtFareStrategyWaitingTimePercentile
 				timeBinDistanceFare = this.timeBin2distanceFarePerMeter.get(timeBin);
 			}
 			double fare = e.getUnsharedRideDistance() * timeBinDistanceFare;
-            events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare));
+            events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare, "opt-drt-fare-surcharge", this.optDrtConfigGroup.getMode() + "-operator"));
         
 			this.drtUserDepartureTime.remove(event.getPersonId());
         }
@@ -124,7 +124,7 @@ class OptDrtFareStrategyWaitingTimePercentile
 		
 		priceUpdateCounter++;
 						
-		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime()); timeBin ++) {
+		for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin ++) {
 			
 			boolean increaseFare = false;
 			
