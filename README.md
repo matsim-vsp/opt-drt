@@ -25,4 +25,3 @@ If you want to play around with the module, have a look into the run example and
  <version>v2.3</version>
 </dependency>
 ```
- 
