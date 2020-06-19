@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/matsim-vsp/opt-drt.svg?branch=master)](https://travis-ci.org/matsim-vsp/opt-drt)
+
 # opt-drt project
 
 The idea of this module is to have DRT operators which dynamically adjust their service based on predefined decision criteria (e.g. waiting time percentiles, number of DRT users, profit). There are several DRT service adjustment strategies:
