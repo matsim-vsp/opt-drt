@@ -21,28 +21,11 @@
 			<param name="optDrtMode" value="drt" />
 			<param name="optDrtUpdateEndFractionIteration" value="1.0" />
 			<param name="optDrtWriteInfoInterval" value="1" />
-			
-			<param name="fareAdjustment" value="0.5" />		
-			<param name="fareAdjustmentApproach" value="Disabled" />
-			<param name="fareAdjustmentWaitingTimeThreshold" value="600.0" />
-			<param name="fareTimeBinSize" value="900.0" />
 		
 			<param name="fleetSizeAdjustment" value="100" />
 			<param name="fleetSizeAdjustmentApproach" value="WaitingTimeThreshold" />
-			<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3" />
-			<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4" />
-			<param name="fleetSizeAdjustmentProfitThreshold" value="0.0" />
 			<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="999999.0" />
-			<param name="fleetSizeTimeBinSize" value="900.0" />
 			
-			<param name="serviceAreaAdjustmentExpand" value="1" />
-			<param name="serviceAreaAdjustmentReduce" value="1" />
-			<param name="serviceAreaAdjustmentApproach" value="Disabled" />
-			<param name="serviceAreaAdjustmentDemandThreshold" value="1" />
-			<param name="serviceAreaAdjustmentInputShapeFile" value="null" />
-			<param name="serviceAreaAdjustmentInputShapeFileCRS" value="null" />
-			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="null" />
-			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="null" />
 		</parameterset>
 		<parameterset type="optDrt">
 		
@@ -50,27 +33,10 @@
 			<param name="optDrtUpdateEndFractionIteration" value="1.0" />
 			<param name="optDrtWriteInfoInterval" value="1" />
 			
-			<param name="fareAdjustment" value="0.5" />		
-			<param name="fareAdjustmentApproach" value="Disabled" />
-			<param name="fareAdjustmentWaitingTimeThreshold" value="600.0" />
-			<param name="fareTimeBinSize" value="900.0" />
-		
 			<param name="fleetSizeAdjustment" value="5" />
 			<param name="fleetSizeAdjustmentApproach" value="WaitingTimeThreshold" />
-			<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3" />
-			<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4" />
-			<param name="fleetSizeAdjustmentProfitThreshold" value="0.0" />
 			<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="60" />
-			<param name="fleetSizeTimeBinSize" value="900.0" />
 			
-			<param name="serviceAreaAdjustmentExpand" value="1" />
-			<param name="serviceAreaAdjustmentReduce" value="1" />
-			<param name="serviceAreaAdjustmentApproach" value="Disabled" />
-			<param name="serviceAreaAdjustmentDemandThreshold" value="1" />
-			<param name="serviceAreaAdjustmentInputShapeFile" value="null" />
-			<param name="serviceAreaAdjustmentInputShapeFileCRS" value="null" />
-			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="null" />
-			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceAreaCRS" value="null" />
 		</parameterset>	
 	</module>
 	<module name="multiModeDrt">
@@ -188,7 +154,7 @@
 		<param name="inputPlansFile" value="plans-drt.xml" />
 	</module>
 	<module name="qsim" >
-		<param name="endTime" value="00:00:00" />
+		<param name="endTime" value="36:00:00" />
 		<param name="simStarttimeInterpretation" value="onlyUseStarttime" />
 		<param name="startTime" value="00:00:00" />
 	</module>

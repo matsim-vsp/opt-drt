@@ -11,10 +11,6 @@
 		<param name="numberOfThreads" value="1" />
 		<param name="randomSeed" value="4711" />
 	</module>
-	<module name="subtourModeChoice" >
-		<param name="chainBasedModes" value="bicycle" />
-		<param name="modes" value="car,drt,drt1" />
-	</module>
 	<module name="multiModeOptDrt" >
 		<param name="optDrtUpdateInterval" value="5" />
 		<parameterset type="optDrt">
@@ -22,24 +18,10 @@
 			<param name="optDrtUpdateEndFractionIteration" value="1.0" />
 			<param name="optDrtWriteInfoInterval" value="1" />
 			
-			<param name="fareAdjustment" value="0.5" />		
-			<param name="fareAdjustmentApproach" value="Disabled" />
-			<param name="fareAdjustmentWaitingTimeThreshold" value="60.0" />
-			<param name="fareUpdateApproach" value="BangBangWithMSA" />
-			<param name="fareTimeBinSize" value="900.0" />
-		
-			<param name="fleetSizeAdjustment" value="100" />
-			<param name="fleetSizeAdjustmentApproach" value="Disabled" />
-			<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3" />
-			<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4" />
-			<param name="fleetSizeAdjustmentProfitThreshold" value="0.0" />
-			<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="999999.0" />
-			<param name="fleetSizeTimeBinSize" value="900.0" />
-			
-			<param name="serviceAreaAdjustmentExpand" value="10" />
-			<param name="serviceAreaAdjustmentReduce" value="1000" />
+			<param name="serviceAreaAdjustmentExpand" value="0" />
+			<param name="serviceAreaAdjustmentReduce" value="10000" />
 			<param name="serviceAreaAdjustmentApproach" value="DemandThreshold" />
-			<param name="serviceAreaAdjustmentDemandThreshold" value="100" />
+			<param name="serviceAreaAdjustmentDemandThreshold" value="1" />
 			<param name="serviceAreaAdjustmentInputShapeFile" value="test/input/equil/hexagon-grid/hexagon-grid.shp" />
 			<param name="serviceAreaAdjustmentInputShapeFileCRS" value="EPSG:31468" />
 			<param name="serviceAreaAdjustmentInputShapeFileInitialServiceArea" value="test/input/equil/equil-zone/equi-zone.shp" />
@@ -51,22 +33,8 @@
 			<param name="optDrtUpdateEndFractionIteration" value="1.0" />
 			<param name="optDrtWriteInfoInterval" value="1" />
 			
-			<param name="fareAdjustment" value="0.5" />		
-			<param name="fareAdjustmentApproach" value="Disabled" />
-			<param name="fareAdjustmentWaitingTimeThreshold" value="60.0" />
-			<param name="fareUpdateApproach" value="BangBangWithMSA" />
-			<param name="fareTimeBinSize" value="900.0" />
-		
-			<param name="fleetSizeAdjustment" value="5" />
-			<param name="fleetSizeAdjustmentApproach" value="Disabled" />
-			<param name="fleetSizeAdjustmentCostPerVehPerDay" value="5.3" />
-			<param name="fleetSizeAdjustmentCostPerVehPerMeter" value="3.5E-4" />
-			<param name="fleetSizeAdjustmentProfitThreshold" value="0.0" />
-			<param name="fleetSizeAdjustmentWaitingTimeThreshold" value="60" />
-			<param name="fleetSizeTimeBinSize" value="900.0" />
-			
-			<param name="serviceAreaAdjustmentExpand" value="10" />
-			<param name="serviceAreaAdjustmentReduce" value="1000" />
+			<param name="serviceAreaAdjustmentExpand" value="0" />
+			<param name="serviceAreaAdjustmentReduce" value="10000" />
 			<param name="serviceAreaAdjustmentApproach" value="DemandThreshold" />
 			<param name="serviceAreaAdjustmentDemandThreshold" value="100" />
 			<param name="serviceAreaAdjustmentInputShapeFile" value="test/input/equil/hexagon-grid/hexagon-grid.shp" />
@@ -202,10 +170,6 @@
 		</parameterset>
 		<parameterset type="strategysettings" >
 			<param name="strategyName" value="ReRoute" />
-			<param name="weight" value="0.44" />
-		</parameterset>
-		<parameterset type="strategysettings" >
-			<param name="strategyName" value="SubtourModeChoice" />
 			<param name="weight" value="0.44" />
 		</parameterset>
 	</module>

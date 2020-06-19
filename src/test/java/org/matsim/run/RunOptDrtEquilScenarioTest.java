@@ -1,5 +1,13 @@
 package org.matsim.run;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
@@ -42,7 +50,7 @@ public class RunOptDrtEquilScenarioTest {
 	}
 	
 	@Test
-	public final void testFleetStrategy() {
+	public final void testFleetStrategy() throws FileNotFoundException, IOException {
 		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-fleetStrategy.xml", new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new DrtFaresConfigGroup(), new MultiModeOptDrtConfigGroup());
 		config.controler().setRunId("testFleetStrategy");
 		config.controler().setOutputDirectory(utils.getOutputDirectory());
@@ -66,11 +74,36 @@ public class RunOptDrtEquilScenarioTest {
 		controler.run();
 		
 		Assert.assertEquals("Wrong score.", -74.31969437897558, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(0), MatsimTestUtils.EPSILON);
-		Assert.assertEquals("Wrong score.", -11.992839803803513, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(10), MatsimTestUtils.EPSILON);
+
+		{
+			List<List<String>> records = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new FileReader(controler.getConfig().controler().getOutputDirectory() + "testFleetStrategy.drt_vehicle_stats_drt1.csv"))) {
+			    String line;
+			    while ((line = br.readLine()) != null) {
+			        String[] values = line.split(";");
+			        records.add(Arrays.asList(values));
+			    }
+			}
+			Assert.assertEquals("Wrong number of drt1 vehicles in first iteration:", 1., Double.valueOf(records.get(1).get(2)), MatsimTestUtils.EPSILON);		
+			Assert.assertEquals("Wrong number of drt1 vehicles in last iteration:", 11., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+		}
+		
+		{
+			List<List<String>> records = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new FileReader(controler.getConfig().controler().getOutputDirectory() + "testFleetStrategy.drt_vehicle_stats_drt.csv"))) {
+			    String line;
+			    while ((line = br.readLine()) != null) {
+			        String[] values = line.split(";");
+			        records.add(Arrays.asList(values));
+			    }
+			}
+			Assert.assertEquals("Wrong number of drt vehicles in first iteration:", 1., Double.valueOf(records.get(1).get(2)), MatsimTestUtils.EPSILON);		
+			Assert.assertEquals("Wrong number of drt vehicles in last iteration:", 1., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+		}
 	}	
 	
 	@Test
-	public final void testFareStrategy() {
+	public final void testFareStrategy() throws FileNotFoundException, IOException {
 		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-fareStrategy.xml", new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new DrtFaresConfigGroup(), new MultiModeOptDrtConfigGroup());
 		config.controler().setRunId("testFareStrategy");
 		config.controler().setOutputDirectory(utils.getOutputDirectory());
@@ -94,11 +127,34 @@ public class RunOptDrtEquilScenarioTest {
 		controler.run();
 		
 		Assert.assertEquals("Wrong score.", -74.31969437897558, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(0), MatsimTestUtils.EPSILON);
-		Assert.assertEquals("Wrong score.", -27.603279344630025, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(10), MatsimTestUtils.EPSILON);
+		
+		{
+			List<List<String>> records = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new FileReader(controler.getConfig().controler().getOutputDirectory() + "ITERS/it.10/testFareStrategy.10.info_org.matsim.optDRT.OptDrtFareStrategyWaitingTimePercentile_drt.csv"))) {
+			    String line;
+			    while ((line = br.readLine()) != null) {
+			        String[] values = line.split(";");
+			        records.add(Arrays.asList(values));
+			    }
+			}
+			Assert.assertEquals("Wrong fare surcharge in time bin 4 for drt in final iteration:", 0., Double.valueOf(records.get(5).get(5)), MatsimTestUtils.EPSILON);		
+		}
+		
+		{
+			List<List<String>> records = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new FileReader(controler.getConfig().controler().getOutputDirectory() + "ITERS/it.10/testFareStrategy.10.info_org.matsim.optDRT.OptDrtFareStrategyWaitingTimePercentile_drt1.csv"))) {
+			    String line;
+			    while ((line = br.readLine()) != null) {
+			        String[] values = line.split(";");
+			        records.add(Arrays.asList(values));
+			    }
+			}
+			Assert.assertEquals("Wrong fare surcharge in time bin 4 for drt1 in final iteration:", 0.75, Double.valueOf(records.get(5).get(5)), MatsimTestUtils.EPSILON);		
+		}
 	}
 	
 	@Test
-	public final void testAreaStrategy() {
+	public final void testAreaStrategy() throws FileNotFoundException, IOException {
 		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-areaStrategy.xml", new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new DrtFaresConfigGroup(), new MultiModeOptDrtConfigGroup());
 		config.controler().setRunId("testAreaStrategy");
 		config.controler().setOutputDirectory(utils.getOutputDirectory());
@@ -122,6 +178,30 @@ public class RunOptDrtEquilScenarioTest {
 		controler.run();
 		
 		Assert.assertEquals("Wrong score.", -74.31969437897558, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(0), MatsimTestUtils.EPSILON);
-		Assert.assertEquals("Wrong score.", -187.04109365039147, controler.getScoreStats().getScoreHistory().get(ScoreItem.executed).get(10), MatsimTestUtils.EPSILON);
+
+		{
+			List<List<String>> records = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new FileReader(controler.getConfig().controler().getOutputDirectory() + "testAreaStrategy.drt_customer_stats_drt.csv"))) {
+			    String line;
+			    while ((line = br.readLine()) != null) {
+			        String[] values = line.split(";");
+			        records.add(Arrays.asList(values));
+			    }
+			}
+			Assert.assertEquals("Wrong number of drt vehicles in last iteration:", 1., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+		}
+		
+		{
+			List<List<String>> records = new ArrayList<>();
+			try (BufferedReader br = new BufferedReader(new FileReader(controler.getConfig().controler().getOutputDirectory() + "testAreaStrategy.drt_customer_stats_drt1.csv"))) {
+			    String line;
+			    while ((line = br.readLine()) != null) {
+			        String[] values = line.split(";");
+			        records.add(Arrays.asList(values));
+			    }
+			}
+			Assert.assertEquals("Wrong number of drt1 vehicles in last iteration:", 0., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+		}
+		
 	}
 }
