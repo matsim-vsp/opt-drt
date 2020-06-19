@@ -80,6 +80,11 @@ class OptDrtFareStrategyWaitingTimePercentile
 		this.optDrtConfigGroup = optDrtConfigGroup;
 		this.events = events;
 		this.scenario = scenario;
+		
+		if (this.scenario.getConfig().qsim().getEndTime().seconds() == 0. ||
+				this.scenario.getConfig().qsim().getEndTime().isUndefined()) {
+			throw new RuntimeException("An end time is required to split the day into time bins. Aborting...");
+		}
 	}
 
 	@Override

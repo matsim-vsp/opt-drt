@@ -76,7 +76,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	private int writeInfoInterval = 1;
 
 	// fare
-	private FareAdjustmentApproach fareAdjustmentApproach = FareAdjustmentApproach.AverageWaitingTimeThreshold;
+	private FareAdjustmentApproach fareAdjustmentApproach = FareAdjustmentApproach.Disabled;
 	private FareUpdateApproach fareUpdateApproach = FareUpdateApproach.BangBang;
 	private double fareAdjustment = 0.5;
 	private double fareTimeBinSize = 900.;
@@ -88,7 +88,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	private double fluctuatingPercentage = 0.05;
 
 	// fleet size
-	private FleetSizeAdjustmentApproach fleetSizeAdjustmentApproach = FleetSizeAdjustmentApproach.AverageWaitingTimeThreshold;
+	private FleetSizeAdjustmentApproach fleetSizeAdjustmentApproach = FleetSizeAdjustmentApproach.Disabled;
 	private int fleetSizeAdjustment = 1;
 	private double fleetSizeAdjustmentPercentage = 0.;
 	// profit approach
