@@ -49,6 +49,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	private static final String FLUCTUATING_PERCENTAGE = "fluctuatingPercentage";
 
 	private static final String FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustment";
+	private static final String FLEET_UPDATE_APPROACH = "fleetUpdateApproach";
 	private static final String FLEETSIZE_ADJUSTMENT_PERCENTAGE = "fleetSizeAdjustmentPercentage";
 	private static final String FLEETSIZE_ADJUSTMENT_APPROACH = "fleetSizeAdjustmentApproach";
 	private static final String PROFIT_THRESHOLD_FOR_FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustmentProfitThreshold";
@@ -89,6 +90,7 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 
 	// fleet size
 	private FleetSizeAdjustmentApproach fleetSizeAdjustmentApproach = FleetSizeAdjustmentApproach.Disabled;
+	private FleetUpdateApproach fleetUpdateApproach = FleetUpdateApproach.BangBang;
 	private int fleetSizeAdjustment = 1;
 	private double fleetSizeAdjustmentPercentage = 0.;
 	// profit approach
@@ -125,6 +127,10 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 
 	public enum FleetSizeAdjustmentApproach {
 		Disabled, ProfitThreshold, AverageWaitingTimeThreshold, WaitingTimeThreshold
+	}
+	
+	public enum FleetUpdateApproach {
+		BangBang, Proportional
 	}
 
 	@Override
@@ -430,6 +436,15 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	@StringGetter(OPT_DRT_MODE)
 	public String getMode() {
 		return optDrtMode;
+	}
+	
+	@StringGetter( FLEET_UPDATE_APPROACH )
+	public FleetUpdateApproach getFleetUpdateApproach() {
+		return fleetUpdateApproach;
+	}
+	@StringSetter( FLEET_UPDATE_APPROACH )
+	public void setFleetUpdateApproach(FleetUpdateApproach fleetUpdateApproach) {
+		this.fleetUpdateApproach = fleetUpdateApproach;
 	}
 			
 }
