@@ -43,6 +43,7 @@ import org.matsim.contrib.dvrp.fleet.FleetSpecification;
 import org.matsim.contrib.dvrp.fleet.ImmutableDvrpVehicleSpecification;
 import org.matsim.core.config.Config;
 import org.matsim.core.gbl.MatsimRandom;
+import org.matsim.optDRT.OptDrtConfigGroup.FleetUpdateApproach;
 
 /**
 * @author ikaddoura
@@ -82,16 +83,58 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	}
 
 	@Override
-	public void updateFleet() {
+	public void updateFleet() {	
 		
-		if (checkIfFleetNeedsToBeIncreased()) {
-			increaseFleet();
+		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();		
+		log.info("Current fleet size: " + vehiclesBefore);
+		
+		double shareOfTripsAboveWaitingTimeThreshold = computeShareOfTripsAboveWaitingTimeThreshold();
+		
+		log.info("Share of trips above waiting time threshold: " + shareOfTripsAboveWaitingTimeThreshold); // e.g. 0.2 if fleet is too small
+		log.info("Allowed share of trips above waiting time threshold: " + (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment())); // e.g. 0.1 (for a 90% percentile)
+		
+		if (shareOfTripsAboveWaitingTimeThreshold > (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) ) {
+			
+			int vehiclesToAdd = 0;
+			if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.BangBang) {				
+				int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+				int vehiclesToAddFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
+				vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
+			} else if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.Proportional) {
+				int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+				double tripShareDifference = shareOfTripsAboveWaitingTimeThreshold - (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment());
+				int vehiclesToAddFromRelativeNumber = (int) (tripShareDifference * vehiclesBefore);
+				vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
+			} else {
+				throw new RuntimeException("Unknown fleet update approach. Aborting...");
+			}
+				
+			increaseFleet(vehiclesToAdd);
+			
 		} else {
-			decreaseFleet();
+				
+			int vehiclesToRemove = 0;
+			
+			if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.BangBang) {				
+				int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+				int vehiclesToRemoveFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
+				vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
+				
+			} else if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.Proportional) {
+				int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+				double tripShareDifference = (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) - shareOfTripsAboveWaitingTimeThreshold;
+				int vehiclesToRemoveFromRelativeNumber = (int) (tripShareDifference * vehiclesBefore);
+				vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
+				
+			} else {
+				throw new RuntimeException("Unknown fleet update approach. Aborting...");
+			}
+			
+			decreaseFleet(vehiclesToRemove);
 		}
 	}
 
-	private boolean checkIfFleetNeedsToBeIncreased() {
+	private double computeShareOfTripsAboveWaitingTimeThreshold() {
 		double waitingTimeThreshold = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
 		int cntAboveThreshold = 0;
 		int cntBelowOrEqualsThreshold = 0;
@@ -112,20 +155,10 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 			shareOfTripsAboveWaitingTimeThreshold = 0.;
 		}
 		
-		if (shareOfTripsAboveWaitingTimeThreshold > (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) ) {
-			return true;
-		} else {
-			return false;
-		}
+		return shareOfTripsAboveWaitingTimeThreshold;
 	}
 
-	private void decreaseFleet() {
-		
-		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();
-		
-		int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
-		int vehiclesToRemoveFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
-		int vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
+	private void decreaseFleet(int vehiclesToRemove) {
 		
 		log.info("Removing " + vehiclesToRemove + " vehicles...");
 
@@ -152,16 +185,10 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		
 		int vehiclesAfter = fleetSpecification.getVehicleSpecifications().size();
 
-		log.info("Dvrp vehicle fleet was decreased from " + vehiclesBefore + " to " + vehiclesAfter);
+		log.info("Dvrp vehicle fleet was decreased to " + vehiclesAfter);
 	}
 
-	private void increaseFleet() {
-		
-		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();		
-		
-		int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
-		int vehiclesToAddFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
-		int vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
+	private void increaseFleet(int vehiclesToAdd) {
 		
 		log.info("Adding " + vehiclesToAdd + " vehicles...");
 		
@@ -191,7 +218,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		
 		int vehiclesAfter = fleetSpecification.getVehicleSpecifications().size();
 		
-		log.info("Dvrp vehicle fleet was increased from " + vehiclesBefore + " to " + vehiclesAfter);
+		log.info("Dvrp vehicle fleet was increased to " + vehiclesAfter);
 
 	}
 	
