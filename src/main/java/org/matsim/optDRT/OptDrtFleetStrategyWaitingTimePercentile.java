@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;
@@ -88,12 +89,13 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();		
 		log.info("Current fleet size: " + vehiclesBefore);
 		
-		double shareOfTripsAboveWaitingTimeThreshold = computeShareOfTripsAboveWaitingTimeThreshold();
+		double currentWaitingTimePercentile = computeWaitingTimePercentile();
+		double targetWaitingTimePercentile = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
+
+		log.info("currentWaitingTimePercentile: " + currentWaitingTimePercentile);
+		log.info("targetWaitingTimePercentile: " + targetWaitingTimePercentile);
 		
-		log.info("Share of trips above waiting time threshold: " + shareOfTripsAboveWaitingTimeThreshold); // e.g. 0.2 if fleet is too small
-		log.info("Allowed share of trips above waiting time threshold: " + (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment())); // e.g. 0.1 (for a 90% percentile)
-		
-		if (shareOfTripsAboveWaitingTimeThreshold > (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) ) {
+		if (currentWaitingTimePercentile > targetWaitingTimePercentile) {
 			
 			int vehiclesToAdd = 0;
 			if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.BangBang) {				
@@ -102,8 +104,8 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 				vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
 			} else if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.Proportional) {
 				int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
-				double tripShareDifference = shareOfTripsAboveWaitingTimeThreshold - (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment());
-				int vehiclesToAddFromRelativeNumber = (int) (tripShareDifference * vehiclesBefore);
+				double relativePercentileDifference = (currentWaitingTimePercentile - targetWaitingTimePercentile) / targetWaitingTimePercentile ;				
+				int vehiclesToAddFromRelativeNumber = (int) (relativePercentileDifference * optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore);
 				vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
 			} else {
 				throw new RuntimeException("Unknown fleet update approach. Aborting...");
@@ -122,8 +124,8 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 				
 			} else if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.Proportional) {
 				int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
-				double tripShareDifference = (1 - optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment()) - shareOfTripsAboveWaitingTimeThreshold;
-				int vehiclesToRemoveFromRelativeNumber = (int) (tripShareDifference * vehiclesBefore);
+				double relativePercentileDifference = -1. * (currentWaitingTimePercentile - targetWaitingTimePercentile) / targetWaitingTimePercentile ;				
+				int vehiclesToRemoveFromRelativeNumber = (int) (relativePercentileDifference * optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore);
 				vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
 				
 			} else {
@@ -134,28 +136,15 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		}
 	}
 
-	private double computeShareOfTripsAboveWaitingTimeThreshold() {
-		double waitingTimeThreshold = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
-		int cntAboveThreshold = 0;
-		int cntBelowOrEqualsThreshold = 0;
-		
+	private double computeWaitingTimePercentile() {
+		double percentage = optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment(); // e.g. 0.9 for a 90% percentile
+		DescriptiveStatistics waitStats = new DescriptiveStatistics();
+
 		for (Double waitingTime : this.waitingTimes) {
-			if (waitingTime > waitingTimeThreshold) {
-				cntAboveThreshold++;
-			} else {
-				cntBelowOrEqualsThreshold++;
-			}
+			waitStats.addValue(waitingTime);
 		}
-		
-		double shareOfTripsAboveWaitingTimeThreshold = 0.;
-		if ((cntAboveThreshold + cntBelowOrEqualsThreshold) > 0) {
-			shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
-		} else {
-			log.warn("No drt trips in iteration " + this.currentIteration);
-			shareOfTripsAboveWaitingTimeThreshold = 0.;
-		}
-		
-		return shareOfTripsAboveWaitingTimeThreshold;
+		double percentile = waitStats.getPercentile(percentage);	
+		return percentile;
 	}
 
 	private void decreaseFleet(int vehiclesToRemove) {
