@@ -65,12 +65,15 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 
 	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
 	private final List<Double> waitingTimes = new ArrayList<>();
+	
+	private List<String> iterationStatistics = new ArrayList<>();
 
 	public OptDrtFleetStrategyWaitingTimePercentile(FleetSpecification fleetSpecification,
 			OptDrtConfigGroup optDrtConfigGroup, Config config) {
 		this.fleetSpecification = fleetSpecification;
 		this.optDrtConfigGroup = optDrtConfigGroup;
 		this.config = config;
+		iterationStatistics.add("RunId;Iteration;fleetSize;waitingTime-" + optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment() + "-percentile;targetWaitingTime-" + optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment() + "-percentile;numberOfTripsWithWaitingTimeAboveThreshold;numberOfTripsWithWaitingTimeBelowOrEqualsThreshold");
 	}
 
 	@Override
@@ -94,6 +97,20 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 
 		log.info("currentWaitingTimePercentile: " + currentWaitingTimePercentile);
 		log.info("targetWaitingTimePercentile: " + targetWaitingTimePercentile);
+		
+		int cntAboveThreshold = 0;
+		int cntBelowOrEqualsThreshold = 0;
+		
+		for (Double waitingTime : this.waitingTimes) {
+			if (waitingTime > targetWaitingTimePercentile) {
+				cntAboveThreshold++;
+			} else {
+				cntBelowOrEqualsThreshold++;
+			}
+		}
+		
+		String line = this.config.controler().getRunId() + ";" + this.currentIteration + ";" + vehiclesBefore + ";" + currentWaitingTimePercentile + ";" + targetWaitingTimePercentile + ";" + cntAboveThreshold + ";" + cntBelowOrEqualsThreshold;
+		iterationStatistics.add(line);
 		
 		if (currentWaitingTimePercentile > targetWaitingTimePercentile) {
 			
@@ -252,43 +269,64 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		String runOutputDirectory = this.config.controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 		
-		String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.config.controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
-		File file = new File(fileName);			
+		{
+			String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.config.controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
+			File file = new File(fileName);			
 
-		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-			
-			double waitingTimeThreshold = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
-			int cntAboveThreshold = 0;
-			int cntBelowOrEqualsThreshold = 0;
-			
-			for (Double waitingTime : this.waitingTimes) {
-				if (waitingTime > waitingTimeThreshold) {
-					cntAboveThreshold++;
-				} else {
-					cntBelowOrEqualsThreshold++;
+			try {
+				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				
+				double waitingTimeThreshold = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
+				int cntAboveThreshold = 0;
+				int cntBelowOrEqualsThreshold = 0;
+				
+				for (Double waitingTime : this.waitingTimes) {
+					if (waitingTime > waitingTimeThreshold) {
+						cntAboveThreshold++;
+					} else {
+						cntBelowOrEqualsThreshold++;
+					}
 				}
-			}
-			
-			double shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
-			bw.write("share of trips above waiting time threshold;" + shareOfTripsAboveWaitingTimeThreshold);
-			bw.newLine();
-			bw.write("trips above waiting time threshold;" + cntAboveThreshold);
-			bw.newLine();
-			bw.write("trips below or equals waiting time threshold;" + cntBelowOrEqualsThreshold);
-			bw.newLine();
-			bw.write("------------------------------------------------");
-			bw.newLine();
-			
-			for (Double waitingTime : this.waitingTimes) {	
-				bw.write(String.valueOf(waitingTime));
+				
+				double shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
+				bw.write("share of trips above waiting time threshold;" + shareOfTripsAboveWaitingTimeThreshold);
 				bw.newLine();
+				bw.write("trips above waiting time threshold;" + cntAboveThreshold);
+				bw.newLine();
+				bw.write("trips below or equals waiting time threshold;" + cntBelowOrEqualsThreshold);
+				bw.newLine();
+				bw.write("------------------------------------------------");
+				bw.newLine();
+				
+				for (Double waitingTime : this.waitingTimes) {	
+					bw.write(String.valueOf(waitingTime));
+					bw.newLine();
+				}
+				log.info("Output written to " + fileName);
+				bw.close();
+				
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			log.info("Output written to " + fileName);
-			bw.close();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		
+		{
+			String fileName = runOutputDirectory + this.config.controler().getRunId() + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
+			File file = new File(fileName);			
+
+			try {
+				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				
+				for (String line : this.iterationStatistics) {
+					bw.write(line);
+					bw.newLine();
+				}
+				log.info("Output written to " + fileName);
+				bw.close();
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}
