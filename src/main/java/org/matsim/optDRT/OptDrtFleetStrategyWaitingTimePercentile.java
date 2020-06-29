@@ -160,7 +160,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		for (Double waitingTime : this.waitingTimes) {
 			waitStats.addValue(waitingTime);
 		}
-		double percentile = waitStats.getPercentile(percentage);	
+		double percentile = waitStats.getPercentile(percentage * 100);	
 		return percentile;
 	}
 
