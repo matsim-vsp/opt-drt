@@ -112,44 +112,48 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		String line = this.config.controler().getRunId() + ";" + this.currentIteration + ";" + vehiclesBefore + ";" + currentWaitingTimePercentile + ";" + targetWaitingTimePercentile + ";" + cntAboveThreshold + ";" + cntBelowOrEqualsThreshold;
 		iterationStatistics.add(line);
 		
-		if (currentWaitingTimePercentile > targetWaitingTimePercentile) {
-			
-			int vehiclesToAdd = 0;
-			if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.BangBang) {				
-				int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
-				int vehiclesToAddFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
-				vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
-			} else if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.Proportional) {
-				int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
-				double relativePercentileDifference = (currentWaitingTimePercentile - targetWaitingTimePercentile) / targetWaitingTimePercentile ;				
-				int vehiclesToAddFromRelativeNumber = (int) (relativePercentileDifference * optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore);
-				vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
-			} else {
-				throw new RuntimeException("Unknown fleet update approach. Aborting...");
-			}
-				
-			increaseFleet(vehiclesToAdd);
-			
+		if (Double.isNaN(currentWaitingTimePercentile)) {
+			log.info("current waiting time percentile is NaN. Fleet size will not be adjusted.");
 		} else {
+			if (currentWaitingTimePercentile > targetWaitingTimePercentile) {
 				
-			int vehiclesToRemove = 0;
-			
-			if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.BangBang) {				
-				int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
-				int vehiclesToRemoveFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
-				vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
-				
-			} else if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.Proportional) {
-				int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
-				double relativePercentileDifference = -1. * (currentWaitingTimePercentile - targetWaitingTimePercentile) / targetWaitingTimePercentile ;				
-				int vehiclesToRemoveFromRelativeNumber = (int) (relativePercentileDifference * optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore);
-				vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
+				int vehiclesToAdd = 0;
+				if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.BangBang) {				
+					int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+					int vehiclesToAddFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
+					vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
+				} else if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.Proportional) {
+					int vehiclesToAddFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+					double relativePercentileDifference = (currentWaitingTimePercentile - targetWaitingTimePercentile) / targetWaitingTimePercentile ;				
+					int vehiclesToAddFromRelativeNumber = (int) (relativePercentileDifference * optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore);
+					vehiclesToAdd = Math.max(vehiclesToAddFromAbsoluteNumber, vehiclesToAddFromRelativeNumber);
+				} else {
+					throw new RuntimeException("Unknown fleet update approach. Aborting...");
+				}
+					
+				increaseFleet(vehiclesToAdd);
 				
 			} else {
-				throw new RuntimeException("Unknown fleet update approach. Aborting...");
+					
+				int vehiclesToRemove = 0;
+				
+				if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.BangBang) {				
+					int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+					int vehiclesToRemoveFromRelativeNumber = (int) (optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore) ;
+					vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
+					
+				} else if (optDrtConfigGroup.getFleetUpdateApproach() == FleetUpdateApproach.Proportional) {
+					int vehiclesToRemoveFromAbsoluteNumber = optDrtConfigGroup.getFleetSizeAdjustment();
+					double relativePercentileDifference = -1. * (currentWaitingTimePercentile - targetWaitingTimePercentile) / targetWaitingTimePercentile ;				
+					int vehiclesToRemoveFromRelativeNumber = (int) (relativePercentileDifference * optDrtConfigGroup.getFleetSizeAdjustmentPercentage() * vehiclesBefore);
+					vehiclesToRemove = Math.max(vehiclesToRemoveFromAbsoluteNumber, vehiclesToRemoveFromRelativeNumber);
+					
+				} else {
+					throw new RuntimeException("Unknown fleet update approach. Aborting...");
+				}
+				
+				decreaseFleet(vehiclesToRemove);
 			}
-			
-			decreaseFleet(vehiclesToRemove);
 		}
 	}
 
