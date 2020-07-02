@@ -35,7 +35,12 @@ public final class MultiModeOptDrtConfigGroup extends ReflectiveConfigGroup impl
 	public static final String GROUP_NAME = "multiModeOptDrt";
 	
 	private static final String UPDATE_INTERVAL = "optDrtUpdateInterval";
+	private static final String DISABLE_INNOVATION_IN_OPTDRT_UPDATE_INTERVAL = "disableInnovationInOptDrtUpdateInterval";
 	private int updateInterval = 1;
+	private DisableInnovationInOptDrtUpdateInterval disableInnovationInOptDrtUpdateInterval =
+			DisableInnovationInOptDrtUpdateInterval.StrategyConfigFractionOfIterationsToDisableInnovation;
+
+	enum DisableInnovationInOptDrtUpdateInterval {Off, StrategyConfigFractionOfIterationsToDisableInnovation, UpdateIterationOnly};
 
 	public MultiModeOptDrtConfigGroup() {
 		super(GROUP_NAME);
@@ -61,8 +66,18 @@ public final class MultiModeOptDrtConfigGroup extends ReflectiveConfigGroup impl
 	}
 	
 	@StringSetter( UPDATE_INTERVAL )
-	public void setUpdateInterval(int uPDATE_INTERVAL) {
-		updateInterval = uPDATE_INTERVAL;
+	public void setUpdateInterval(int updateInterval) {
+		this.updateInterval = updateInterval;
+	}
+
+	@StringGetter( DISABLE_INNOVATION_IN_OPTDRT_UPDATE_INTERVAL )
+	public DisableInnovationInOptDrtUpdateInterval getDisableInnovationInOptDrtUpdateInterval() {
+		return disableInnovationInOptDrtUpdateInterval;
+	}
+
+	@StringSetter( DISABLE_INNOVATION_IN_OPTDRT_UPDATE_INTERVAL )
+	public void setDisableInnovationInOptDrtUpdateInterval(DisableInnovationInOptDrtUpdateInterval disableInnovationInOptDrtUpdateInterval) {
+		this.disableInnovationInOptDrtUpdateInterval = disableInnovationInOptDrtUpdateInterval;
 	}
 
 }
