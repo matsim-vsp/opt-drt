@@ -36,7 +36,6 @@ import org.matsim.core.config.groups.StrategyConfigGroup;
 import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.controler.events.IterationStartsEvent;
 import org.matsim.core.controler.listener.IterationStartsListener;
-import org.matsim.core.gbl.Gbl;
 import org.matsim.core.replanning.GenericPlanStrategy;
 import org.matsim.core.replanning.PlanStrategy;
 import org.matsim.core.replanning.ReplanningUtils;
@@ -84,13 +83,21 @@ public class InnovativeStrategiesEnableDisableControlerListener implements Itera
                         break;
                     case StrategyConfigFractionOfIterationsToDisableInnovation:
                         this.nextDisableInnovativeStrategiesIteration = (int) (this.scenario.getConfig().strategy().getFractionOfIterationsToDisableInnovation() * multiModeOptDrtCfg.getUpdateInterval());
-                        Gbl.assertIf(nextDisableInnovativeStrategiesIteration != 0);
-                        this.nextEnableInnovativeStrategiesIteration = multiModeOptDrtCfg.getUpdateInterval() + 1;
+                        if(nextDisableInnovativeStrategiesIteration > 0) {
+                            this.nextEnableInnovativeStrategiesIteration = multiModeOptDrtCfg.getUpdateInterval() + 1;
+                        } else {
+                            this.nextDisableInnovativeStrategiesIteration = Integer.MAX_VALUE;
+                            this.nextEnableInnovativeStrategiesIteration = Integer.MAX_VALUE;
+                        }
                         break;
                     case UpdateIterationOnly:
                         this.nextDisableInnovativeStrategiesIteration = multiModeOptDrtCfg.getUpdateInterval();
-                        Gbl.assertIf(nextDisableInnovativeStrategiesIteration != 0);
-                        this.nextEnableInnovativeStrategiesIteration = multiModeOptDrtCfg.getUpdateInterval() + 1;
+                        if(nextDisableInnovativeStrategiesIteration > 0) {
+                            this.nextEnableInnovativeStrategiesIteration = multiModeOptDrtCfg.getUpdateInterval() + 1;
+                        } else {
+                            this.nextDisableInnovativeStrategiesIteration = Integer.MAX_VALUE;
+                            this.nextEnableInnovativeStrategiesIteration = Integer.MAX_VALUE;
+                        }
                         break;
                 }
 
