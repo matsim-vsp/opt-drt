@@ -130,11 +130,11 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
         drtUserDepartureTime.clear();
         this.currentIteration = iteration;
 
-        // 收集这个it里所有有效person的id
+        // collect real person Id
         this.personList = this.scenario.getPopulation().getPersons().keySet();
         log.info("-- active persons in " + this.currentIteration + ".it are " + Arrays.toString(personList.toArray()));
 
-        // 收集这个it里所有的mainmode
+        // record main modes in this iteration
         List<TripStructureUtils.Trip> trips = new LinkedList<>();
         for (Person person :
                 this.scenario.getPopulation().getPersons().values()) {
