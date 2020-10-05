@@ -20,8 +20,6 @@
 package org.matsim.run;
 
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareModule;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
 import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
 import org.matsim.contrib.drt.run.DrtConfigs;
@@ -45,22 +43,23 @@ import org.matsim.optDRT.OptDrt;
 public class RunExampleOptDrt {
 
 	public static void main(String[] args) {
-		
-		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-fleetStrategy.xml", new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new DrtFaresConfigGroup(), new MultiModeOptDrtConfigGroup());
-		
+
+		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-fleetStrategy.xml",
+				new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new MultiModeOptDrtConfigGroup());
+
 		// drt module
-		DrtConfigs.adjustMultiModeDrtConfig(MultiModeDrtConfigGroup.get(config), config.planCalcScore(), config.plansCalcRoute());
-		
+		DrtConfigs.adjustMultiModeDrtConfig(MultiModeDrtConfigGroup.get(config), config.planCalcScore(),
+				config.plansCalcRoute());
+
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 		RouteFactories routeFactories = scenario.getPopulation().getFactory().getRouteFactories();
 		routeFactories.setRouteFactory(DrtRoute.class, new DrtRouteFactory());
-		
-		Controler controler = new Controler(scenario);		
+
+		Controler controler = new Controler(scenario);
 		controler.addOverridingModule(new MultiModeDrtModule());
 		controler.addOverridingModule(new DvrpModule());
-		controler.configureQSimComponents(DvrpQSimComponents.activateAllModes(MultiModeDrtConfigGroup.get(controler.getConfig())));				
-		controler.addOverridingModule(new DrtFareModule());
-		
+		controler.configureQSimComponents(DvrpQSimComponents.activateAllModes(MultiModeDrtConfigGroup.get(controler.getConfig())));
+
 		// drt-opt module
 		OptDrt.addAsOverridingModule(controler, ConfigUtils.addOrGetModule(config, MultiModeOptDrtConfigGroup.class));
 				

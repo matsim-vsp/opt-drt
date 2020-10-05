@@ -19,8 +19,9 @@
 
 package org.matsim.optDRT;
 
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
+import org.matsim.contrib.drt.fare.DrtFareParams;
+import org.matsim.contrib.drt.run.DrtConfigGroup;
+import org.matsim.contrib.drt.run.MultiModeDrtConfigGroup;
 import org.matsim.core.controler.AbstractModule;
 
 import com.google.common.collect.ImmutableMap;
@@ -36,17 +37,18 @@ public class MultiModeOptDrtModule extends AbstractModule {
 	private MultiModeOptDrtConfigGroup multiModeOptDrtConfigGroup;
 
 	@Inject
-	private DrtFaresConfigGroup drtFaresConfigGroup;
+	private MultiModeDrtConfigGroup multiModeDrtConfigGroup;
 
 	@Override
 	public void install() {
-		ImmutableMap<String, DrtFareConfigGroup> drtFaresConfigs = drtFaresConfigGroup.getDrtFareConfigGroups()
+		ImmutableMap<String, DrtFareParams> drtFaresConfigs = multiModeDrtConfigGroup.getModalElements()
 				.stream()
-				.collect(ImmutableMap.toImmutableMap(DrtFareConfigGroup::getMode, cfg -> cfg));
+				.collect(ImmutableMap.toImmutableMap(DrtConfigGroup::getMode, cfg -> cfg.getDrtFareParams().get()));
 		for (OptDrtConfigGroup optDrtConfigGroup : multiModeOptDrtConfigGroup.getModalElements()) {
-			install(new OptDrtModule(multiModeOptDrtConfigGroup, optDrtConfigGroup, drtFaresConfigs.get(optDrtConfigGroup.getMode())));
+			install(new OptDrtModule(multiModeOptDrtConfigGroup, optDrtConfigGroup,
+					drtFaresConfigs.get(optDrtConfigGroup.getMode())));
 		}
-		
+
 		bind(InnovativeStrategiesEnableDisableControlerListener.class).asEagerSingleton();
 		addControlerListenerBinding().to(InnovativeStrategiesEnableDisableControlerListener.class);
 	}

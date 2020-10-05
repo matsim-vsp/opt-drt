@@ -1,5 +1,13 @@
 package org.matsim.run;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
@@ -7,8 +15,6 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareModule;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFaresConfigGroup;
 import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
 import org.matsim.contrib.drt.run.DrtConfigs;
@@ -26,14 +32,6 @@ import org.matsim.optDRT.MultiModeOptDrtConfigGroup;
 import org.matsim.optDRT.OptDrt;
 import org.matsim.testcases.MatsimTestUtils;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * 
  * @author ikaddoura
@@ -46,13 +44,15 @@ public class RunOptDrtEquilFleetStrategyTest {
 	
 	@Test
 	public final void testFleetStrategy() throws FileNotFoundException, IOException {
-		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-fleetStrategy.xml", new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new DrtFaresConfigGroup(), new MultiModeOptDrtConfigGroup());
+		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-fleetStrategy.xml",
+				new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new MultiModeOptDrtConfigGroup());
 		config.controler().setRunId("testFleetStrategy");
 		config.controler().setOutputDirectory(utils.getOutputDirectory());
-		
+
 		// drt module
-		DrtConfigs.adjustMultiModeDrtConfig(MultiModeDrtConfigGroup.get(config), config.planCalcScore(), config.plansCalcRoute());
-		
+		DrtConfigs.adjustMultiModeDrtConfig(MultiModeDrtConfigGroup.get(config), config.planCalcScore(),
+				config.plansCalcRoute());
+
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 		RouteFactories routeFactories = scenario.getPopulation().getFactory().getRouteFactories();
 		routeFactories.setRouteFactory(DrtRoute.class, new DrtRouteFactory());
@@ -61,8 +61,7 @@ public class RunOptDrtEquilFleetStrategyTest {
 		controler.addOverridingModule(new MultiModeDrtModule());
 		controler.addOverridingModule(new DvrpModule());
 		controler.configureQSimComponents(DvrpQSimComponents.activateAllModes(MultiModeDrtConfigGroup.get(controler.getConfig())));				
-		controler.addOverridingModule(new DrtFareModule());
-		
+
 		// drt-opt module
 		OptDrt.addAsOverridingModule(controler, ConfigUtils.addOrGetModule(config, MultiModeOptDrtConfigGroup.class));
 		
@@ -99,13 +98,15 @@ public class RunOptDrtEquilFleetStrategyTest {
 	
 	@Test
 	public final void testFleetStrategyProportional() throws FileNotFoundException, IOException {
-		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-fleetStrategyProportional.xml", new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new DrtFaresConfigGroup(), new MultiModeOptDrtConfigGroup());
+		Config config = ConfigUtils.loadConfig("test/input/equil/config-with-drt-fleetStrategyProportional.xml",
+				new MultiModeDrtConfigGroup(), new DvrpConfigGroup(), new MultiModeOptDrtConfigGroup());
 		config.controler().setRunId("testFleetStrategy");
 		config.controler().setOutputDirectory(utils.getOutputDirectory());
-		
+
 		// drt module
-		DrtConfigs.adjustMultiModeDrtConfig(MultiModeDrtConfigGroup.get(config), config.planCalcScore(), config.plansCalcRoute());
-		
+		DrtConfigs.adjustMultiModeDrtConfig(MultiModeDrtConfigGroup.get(config), config.planCalcScore(),
+				config.plansCalcRoute());
+
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 		RouteFactories routeFactories = scenario.getPopulation().getFactory().getRouteFactories();
 		routeFactories.setRouteFactory(DrtRoute.class, new DrtRouteFactory());
@@ -113,9 +114,8 @@ public class RunOptDrtEquilFleetStrategyTest {
 		Controler controler = new Controler(scenario);		
 		controler.addOverridingModule(new MultiModeDrtModule());
 		controler.addOverridingModule(new DvrpModule());
-		controler.configureQSimComponents(DvrpQSimComponents.activateAllModes(MultiModeDrtConfigGroup.get(controler.getConfig())));				
-		controler.addOverridingModule(new DrtFareModule());
-		
+		controler.configureQSimComponents(DvrpQSimComponents.activateAllModes(MultiModeDrtConfigGroup.get(controler.getConfig())));
+
 		// drt-opt module
 		OptDrt.addAsOverridingModule(controler, ConfigUtils.addOrGetModule(config, MultiModeOptDrtConfigGroup.class));
 		

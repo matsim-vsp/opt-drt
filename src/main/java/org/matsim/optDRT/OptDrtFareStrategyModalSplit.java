@@ -20,7 +20,7 @@ import org.matsim.api.core.v01.events.PersonMoneyEvent;
 import org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
 import org.matsim.api.core.v01.population.Person;
-import org.matsim.contrib.av.robotaxi.fares.drt.DrtFareConfigGroup;
+import org.matsim.contrib.drt.fare.DrtFareParams;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEvent;
 import org.matsim.contrib.drt.passenger.events.DrtRequestSubmittedEventHandler;
 import org.matsim.core.api.experimental.events.EventsManager;
@@ -63,10 +63,10 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     private final MainModeIdentifier mainModeIdentifier;
 
-    private final DrtFareConfigGroup drtFareConfigGroup;
+    private final DrtFareParams drtFareConfigGroup;
 
     public OptDrtFareStrategyModalSplit(OptDrtConfigGroup optDrtConfigGroup, EventsManager events, Scenario scenario,
-            MainModeIdentifier mainModeIdentifier, DrtFareConfigGroup drtFareConfigGroup) {
+            MainModeIdentifier mainModeIdentifier, DrtFareParams drtFareConfigGroup) {
         this.optDrtConfigGroup = optDrtConfigGroup;
         this.events = events;
         this.scenario = scenario;
