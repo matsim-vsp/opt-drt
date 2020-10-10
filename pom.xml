@@ -97,12 +97,6 @@
         	<scope>compile</scope>
      	 </dependency>
 
-	<dependency>
-	    <groupId>com.github.matsim-vsp</groupId>
-	    <artifactId>matsim-berlin</artifactId>
-		<version>5.5.x-81f9690f15-1</version>
-	</dependency>
-		
         <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
         <dependency>
     	    <groupId>com.google.guava</groupId>
