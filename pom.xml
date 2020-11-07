@@ -45,7 +45,7 @@
 			<id>ojo-snapshots</id>
 			<url>http://oss.jfrog.org/libs-snapshot</url>
 		</repository>
-			
+
 		<repository>
 			<id>de.topobyte</id>
 			<url>https://mvn.topobyte.de</url>
@@ -55,7 +55,11 @@
 			<id>com.slimjars.trove4j</id>
 			<url>https://mvn.slimjars.com</url>
 		</repository>
-		
+
+		<repository>
+			<id>SBB</id>
+			<url>https://schweizerischebundesbahnen.bintray.com/simba.mvn</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
