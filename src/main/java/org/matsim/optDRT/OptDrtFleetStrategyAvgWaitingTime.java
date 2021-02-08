@@ -93,6 +93,7 @@ class OptDrtFleetStrategyAvgWaitingTime
 		} else {
 			decreaseFleet();
 		}
+		OptDrtUtils.writeModifiedFleet(fleetSpecification, scenario.getConfig(), currentIteration, this.optDrtConfigGroup.getMode());
 	}
 
 	private double computeMaximumOfAvgWaitingTimePerTimeBin() {

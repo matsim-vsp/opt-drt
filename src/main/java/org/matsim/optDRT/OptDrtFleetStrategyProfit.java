@@ -61,6 +61,7 @@ class OptDrtFleetStrategyProfit
 	private double drtFareSum = 0.;
 	private double drtVehDistance_m = 0.;
 	private final Set<Id<DvrpVehicle>> drtVehicleIds = new HashSet<>();
+	private int currentIteration;
 
 	public OptDrtFleetStrategyProfit(FleetSpecification fleetSpecification, OptDrtConfigGroup optDrtConfigGroup,
 			Scenario scenario) {
@@ -75,6 +76,7 @@ class OptDrtFleetStrategyProfit
 		this.drtFareSum = 0.;
 		this.drtVehDistance_m = 0.;
 		this.drtVehicleIds.clear();
+		this.currentIteration = iteration;
 
 		// do not reset vehicle counter
 	}
@@ -87,6 +89,7 @@ class OptDrtFleetStrategyProfit
 		} else {
 			decreaseFleet();
 		}
+		OptDrtUtils.writeModifiedFleet(fleetSpecification, scenario.getConfig(), currentIteration, this.optDrtConfigGroup.getMode());
 	}
 
 	private void decreaseFleet() {

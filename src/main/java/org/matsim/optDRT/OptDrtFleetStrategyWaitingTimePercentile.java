@@ -154,6 +154,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 				
 				decreaseFleet(vehiclesToRemove);
 			}
+			OptDrtUtils.writeModifiedFleet(fleetSpecification, config, currentIteration, this.optDrtConfigGroup.getMode());
 		}
 	}
 
@@ -308,7 +309,6 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 				}
 				log.info("Output written to " + fileName);
 				bw.close();
-				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
