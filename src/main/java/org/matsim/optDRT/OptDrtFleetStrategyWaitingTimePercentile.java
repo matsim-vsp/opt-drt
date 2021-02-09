@@ -59,8 +59,6 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 
 	private final Config config;
 
-//	private int currentIteration;
-
 	private int vehicleCounter = 0;
 
 	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
