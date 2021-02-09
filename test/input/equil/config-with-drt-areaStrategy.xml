@@ -2,7 +2,7 @@
 <!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
 <config>
 	<module name="controler" >
-		<param name="lastIteration" value="10" />
+		<param name="lastIteration" value="11" />
 		<param name="outputDirectory" value="test/output/org/matsim/run/RunOptDrtEquilScenarioTest/test/" />
 		<param name="runId" value="test" />
 		<param name="overwriteFiles" value="deleteDirectoryIfExists" />

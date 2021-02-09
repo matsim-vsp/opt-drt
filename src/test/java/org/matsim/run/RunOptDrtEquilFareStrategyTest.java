@@ -78,7 +78,7 @@ public class RunOptDrtEquilFareStrategyTest {
 			        records.add(Arrays.asList(values));
 			    }
 			}
-			Assert.assertEquals("Wrong fare surcharge in time bin 4 for drt in final iteration:", 0., Double.valueOf(records.get(5).get(5)), MatsimTestUtils.EPSILON);		
+			Assert.assertEquals("Wrong fare surcharge in time bin 4 for drt in final iteration:", 0., Double.valueOf(records.get(6).get(5)), MatsimTestUtils.EPSILON);
 		}
 		
 		{
@@ -90,7 +90,7 @@ public class RunOptDrtEquilFareStrategyTest {
 			        records.add(Arrays.asList(values));
 			    }
 			}
-			Assert.assertEquals("Wrong fare surcharge in time bin 4 for drt1 in final iteration:", 0.75, Double.valueOf(records.get(5).get(5)), MatsimTestUtils.EPSILON);		
+			Assert.assertEquals("Wrong fare surcharge in time bin 4 for drt1 in final iteration:", 0.75, Double.valueOf(records.get(6).get(5)), MatsimTestUtils.EPSILON);
 		}
 	}
 
