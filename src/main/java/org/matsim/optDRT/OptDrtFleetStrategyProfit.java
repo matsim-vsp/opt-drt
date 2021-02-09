@@ -71,7 +71,10 @@ class OptDrtFleetStrategyProfit
 	}
 
 	@Override
-	public void reset(int iteration) {
+	public void reset(int iteration) {}
+
+	@Override
+	public void resetDataForThisIteration(int iteration) {
 		this.departedDrtUsers.clear();
 		this.drtFareSum = 0.;
 		this.drtVehDistance_m = 0.;

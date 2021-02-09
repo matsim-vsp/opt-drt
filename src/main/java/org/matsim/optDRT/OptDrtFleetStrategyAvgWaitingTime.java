@@ -76,7 +76,10 @@ class OptDrtFleetStrategyAvgWaitingTime
 	}
 
 	@Override
-	public void reset(int iteration) {
+	public void reset(int iteration) {}
+
+	@Override
+	public void resetDataForThisIteration(int iteration) {
 		drtUserDepartureTime.clear();
 		timeBin2waitingTimes.clear();
 

@@ -29,8 +29,9 @@ class OptDrtFleetStrategyDisabled implements OptDrtFleetStrategy {
 	public void updateFleet() {}
 
 	@Override
-	public void writeInfo() {}	
-	
+	public void writeInfo() {}
 
+	@Override
+	public void resetDataForThisIteration(int iteration) {}
 }
 

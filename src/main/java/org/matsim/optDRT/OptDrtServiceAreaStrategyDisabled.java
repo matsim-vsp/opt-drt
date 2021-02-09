@@ -31,5 +31,8 @@ public class OptDrtServiceAreaStrategyDisabled implements OptDrtServiceAreaStrat
 	@Override
 	public void writeInfo() {}
 
+	@Override
+	public void resetDataForThisIteration(int iteration) {}
+
 }
 

@@ -77,7 +77,10 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	}
 
 	@Override
-	public void reset(int iteration) {
+	public void reset(int iteration) {}
+
+	@Override
+	public void resetDataForThisIteration(int iteration) {
 		drtUserDepartureTime.clear();
 		waitingTimes.clear();
     	
@@ -165,7 +168,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		for (Double waitingTime : this.waitingTimes) {
 			waitStats.addValue(waitingTime);
 		}
-		double percentile = waitStats.getPercentile(percentage * 100);	
+		double percentile = waitStats.getPercentile(percentage * 100);
 		return percentile;
 	}
 

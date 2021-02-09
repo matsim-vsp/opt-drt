@@ -11,4 +11,7 @@ public class OptDrtFareStrategyDisabled implements OptDrtFareStrategy {
     @Override
     public void writeInfo() {}
 
+    @Override
+    public void resetDataForThisIteration(int iteration) {}
+
 }

@@ -88,7 +88,10 @@ class OptDrtFareStrategyWaitingTimePercentile
 	}
 
 	@Override
-	public void reset(int iteration) {
+	public void reset(int iteration) {}
+
+	@Override
+	public void resetDataForThisIteration(int iteration) {
 
 		lastRequestSubmission.clear();
 		drtUserDepartureTime.clear();

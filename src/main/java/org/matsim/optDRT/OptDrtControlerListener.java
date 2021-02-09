@@ -74,6 +74,7 @@ public class OptDrtControlerListener implements IterationStartsListener, Iterati
 
     @Override
     public void notifyIterationStarts(IterationStartsEvent iterationStartsEvent) {
+        // first run update methods which use data from the previous iteration
         if (multiModeOptDrtCfg.getUpdateInterval() != 0
                 && iterationStartsEvent.getIteration() != this.scenario.getConfig().controler().getLastIteration()
                 && iterationStartsEvent.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration() + 1
@@ -88,5 +89,9 @@ public class OptDrtControlerListener implements IterationStartsListener, Iterati
             log.info("Iteration " + iterationStartsEvent.getIteration() + ". Applying DRT strategies... Done.");
 
         }
+        // then delete data from previous iteration to clean up for this iteration
+        this.optDrtFareStrategy.resetDataForThisIteration(iterationStartsEvent.getIteration());
+        this.optDrtFleetStrategy.resetDataForThisIteration(iterationStartsEvent.getIteration());
+        this.optDrtServiceAreaStrategy.resetDataForThisIteration(iterationStartsEvent.getIteration());
     }
 }

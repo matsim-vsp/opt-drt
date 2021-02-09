@@ -118,7 +118,10 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     }
 
     @Override
-    public void reset(int iteration) {
+    public void reset(int iteration) {}
+
+    @Override
+    public void resetDataForThisIteration(int iteration) {
         int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
         for (int timeBin = 0; timeBin <= timeBinSize; timeBin++) {
             this.timeBin2DrtModalStats.put(timeBin, 0.);

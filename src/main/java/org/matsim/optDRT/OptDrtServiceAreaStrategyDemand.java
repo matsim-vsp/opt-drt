@@ -86,7 +86,10 @@ public class OptDrtServiceAreaStrategyDemand
 	}
 
 	@Override
-	public void reset(int iteration) {
+	public void reset(int iteration) {}
+
+	@Override
+	public void resetDataForThisIteration(int iteration) {
 		currentIteration = iteration;
 
 		// do not clear the entries in the map, only set the demand levels to zero.

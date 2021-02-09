@@ -29,5 +29,12 @@ public interface OptDrtFareStrategy extends EventHandler {
 	public void updateFares();
 
 	public void writeInfo();
+
+	/**
+	 * Separate this from the normal reset() method in ControlerListeners, because we have to ensure that last
+	 * iterations' data is kept until updateFares() was run in the following iteration. But delete data immediately
+	 * afterwards to not mix it up with the current iteration.
+	 */
+	public void resetDataForThisIteration(int iteration);
 }
 
