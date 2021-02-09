@@ -66,7 +66,6 @@ class OptDrtFareStrategyWaitingTimePercentile
 	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
 	private final Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
 
-	private int currentIteration;
 	private int priceUpdateCounter;
 
 	private final OptDrtConfigGroup optDrtConfigGroup;
@@ -91,13 +90,11 @@ class OptDrtFareStrategyWaitingTimePercentile
 	public void reset(int iteration) {}
 
 	@Override
-	public void resetDataForThisIteration(int iteration) {
+	public void resetDataForThisIteration( int currentIteration ) {
 
 		lastRequestSubmission.clear();
 		drtUserDepartureTime.clear();
 		timeBin2waitingTimes.clear();
-
-		this.currentIteration = iteration;
 
 		// do not reset the fares from one iteration to the next one
 	}
@@ -128,7 +125,7 @@ class OptDrtFareStrategyWaitingTimePercentile
 	}
 
 	@Override
-	public void updateFares() {
+	public void updateFares( int currentIteration ) {
 		
 		priceUpdateCounter++;
 						
@@ -153,7 +150,7 @@ class OptDrtFareStrategyWaitingTimePercentile
 				if ((cntAboveThreshold + cntBelowOrEqualsThreshold) > 0) {
 					shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
 				} else {
-					log.warn("No drt trips in iteration " + this.currentIteration);
+					log.warn("No drt trips in previous iteration " + (currentIteration - 1));
 					shareOfTripsAboveWaitingTimeThreshold = 0.;
 				}
 				
@@ -244,7 +241,7 @@ class OptDrtFareStrategyWaitingTimePercentile
 	}
 
 	@Override
-	public void writeInfo() {
+	public void writeInfo( int currentIteration ) {
 		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 		

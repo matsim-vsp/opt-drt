@@ -51,8 +51,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     private Set<Id<Person>> personList;
 
-    private int currentIteration;
-
     private final OptDrtConfigGroup optDrtConfigGroup;
 
     private final EventsManager events;
@@ -119,7 +117,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     public void reset(int iteration) {}
 
     @Override
-    public void resetDataForThisIteration(int iteration) {
+    public void resetDataForThisIteration( int currentIteration ) {
         int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
         for (int timeBin = 0; timeBin <= timeBinSize; timeBin++) {
             this.timeBin2DrtModalStats.put(timeBin, 0.);
@@ -128,11 +126,10 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
         }
         lastRequestSubmission.clear();
         drtUserDepartureTime.clear();
-        this.currentIteration = iteration;
 
         // collect real person Id
         this.personList = this.scenario.getPopulation().getPersons().keySet();
-        log.info("-- active persons in " + this.currentIteration + ".it are " + Arrays.toString(personList.toArray()));
+        log.info("-- active persons in " + currentIteration + ".it are " + Arrays.toString(personList.toArray()));
 
         // record main modes in this iteration
         List<TripStructureUtils.Trip> trips = new LinkedList<>();
@@ -146,7 +143,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             if (!this.mainTransportModes.contains(mode))
                 this.mainTransportModes.add(mode);
         }
-        log.info("-- main mode in " + this.currentIteration + ".it are " + Arrays.toString(this.mainTransportModes.toArray()));
+        log.info("-- main mode in " + currentIteration + ".it are " + Arrays.toString(this.mainTransportModes.toArray()));
     }
 
     @Override
@@ -157,7 +154,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     }
 
     @Override
-    public void updateFares() {
+    public void updateFares( int currentIteration ) {
         for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin++) {
             double drtModeStats = timeBin2DrtModalStats.get(timeBin);
 
@@ -189,7 +186,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     }
 
     @Override
-    public void writeInfo() {
+    public void writeInfo( int currentIteration ) {
             for (int i = 0; i < timeBin2DrtModalStats.size(); i++) {
                 if (timeBin2totalTrips.get(i) == 0) {
                     timeBin2DrtModalStats.put(i, 0.);

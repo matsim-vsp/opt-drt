@@ -66,7 +66,6 @@ class OptDrtFareStrategyWaitingTime
 	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
 	private final Map<Integer, List<Double>> timeBin2waitingTimes = new HashMap<>();
 
-	private int currentIteration;
 	private int priceUpdateCounter;
 
 	private final OptDrtConfigGroup optDrtConfigGroup;
@@ -85,13 +84,11 @@ class OptDrtFareStrategyWaitingTime
 	public void reset(int iteration) {}
 
 	@Override
-	public void resetDataForThisIteration(int iteration) {
+	public void resetDataForThisIteration( int currentIteration ) {
 
 		lastRequestSubmission.clear();
 		drtUserDepartureTime.clear();
 		timeBin2waitingTimes.clear();
-
-		this.currentIteration = iteration;
 
 		// do not reset the fares from one iteration to the next one
 	}
@@ -122,7 +119,7 @@ class OptDrtFareStrategyWaitingTime
 	}
 
 	@Override
-	public void updateFares() {
+	public void updateFares( int currentIteration ) {
 		
 		priceUpdateCounter++;
 
@@ -224,7 +221,7 @@ class OptDrtFareStrategyWaitingTime
 	}
 
 	@Override
-	public void writeInfo() {
+	public void writeInfo( int currentIteration ) {
 		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 		

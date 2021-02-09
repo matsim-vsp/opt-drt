@@ -55,8 +55,6 @@ class OptDrtFleetStrategyAvgWaitingTime
 		PersonArrivalEventHandler {
 	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyAvgWaitingTime.class);
 
-	private int currentIteration;
-
 	private final FleetSpecification fleetSpecification;
 
 	private final OptDrtConfigGroup optDrtConfigGroup;
@@ -79,17 +77,15 @@ class OptDrtFleetStrategyAvgWaitingTime
 	public void reset(int iteration) {}
 
 	@Override
-	public void resetDataForThisIteration(int iteration) {
+	public void resetDataForThisIteration( int currentIteration ) {
 		drtUserDepartureTime.clear();
 		timeBin2waitingTimes.clear();
-
-		this.currentIteration = iteration;
 
 		// do not reset vehicle counter
 	}
 
 	@Override
-	public void updateFleet() {
+	public void updateFleet( int currentIteration ) {
 
 		if (computeMaximumOfAvgWaitingTimePerTimeBin() >= optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment()) {
 			increaseFleet();
@@ -222,7 +218,7 @@ class OptDrtFleetStrategyAvgWaitingTime
 	}
 
 	@Override
-	public void writeInfo() {
+	public void writeInfo( int currentIteration ) {
 		String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/"))
 			runOutputDirectory = runOutputDirectory.concat("/");

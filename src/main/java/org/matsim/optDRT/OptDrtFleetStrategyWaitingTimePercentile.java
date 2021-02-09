@@ -59,7 +59,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 
 	private final Config config;
 
-	private int currentIteration;
+//	private int currentIteration;
 
 	private int vehicleCounter = 0;
 
@@ -80,17 +80,15 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	public void reset(int iteration) {}
 
 	@Override
-	public void resetDataForThisIteration(int iteration) {
+	public void resetDataForThisIteration( int currentIteration ) {
 		drtUserDepartureTime.clear();
 		waitingTimes.clear();
-    	
-    	this.currentIteration = iteration;
     	
     	// do not reset vehicle counter
 	}
 
 	@Override
-	public void updateFleet() {	
+	public void updateFleet( int currentIteration ) {
 		
 		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();		
 		log.info("Current fleet size: " + vehiclesBefore);
@@ -112,7 +110,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 			}
 		}
 		
-		String line = this.config.controler().getRunId() + ";" + this.currentIteration + ";" + vehiclesBefore + ";" + currentWaitingTimePercentile + ";" + targetWaitingTimePercentile + ";" + cntAboveThreshold + ";" + cntBelowOrEqualsThreshold;
+		String line = this.config.controler().getRunId() + ";" + currentIteration + ";" + vehiclesBefore + ";" + currentWaitingTimePercentile + ";" + targetWaitingTimePercentile + ";" + cntAboveThreshold + ";" + cntBelowOrEqualsThreshold;
 		iterationStatistics.add(line);
 		
 		if (Double.isNaN(currentWaitingTimePercentile)) {
@@ -273,7 +271,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	}
 
 	@Override
-	public void writeInfo() {
+	public void writeInfo( int currentIteration ) {
 		String runOutputDirectory = this.config.controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 		

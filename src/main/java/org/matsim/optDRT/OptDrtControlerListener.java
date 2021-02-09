@@ -62,13 +62,13 @@ public class OptDrtControlerListener implements IterationStartsListener, Iterati
     }
 
     @Override
-    public void notifyIterationEnds(IterationEndsEvent event) {
+    public void notifyIterationEnds(IterationEndsEvent iterationEndsEvent) {
         if (optDrtConfigGroup.getWriteInfoInterval() != 0
-                && event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
+                && iterationEndsEvent.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
 
-            this.optDrtFareStrategy.writeInfo();
-            this.optDrtFleetStrategy.writeInfo();
-            this.optDrtServiceAreaStrategy.writeInfo();
+            this.optDrtFareStrategy.writeInfo( iterationEndsEvent.getIteration() );
+            this.optDrtFleetStrategy.writeInfo( iterationEndsEvent.getIteration() );
+            this.optDrtServiceAreaStrategy.writeInfo( iterationEndsEvent.getIteration() );
         }
     }
 
@@ -82,16 +82,16 @@ public class OptDrtControlerListener implements IterationStartsListener, Iterati
 
             log.info("Iteration " + iterationStartsEvent.getIteration() + ". Applying DRT strategies...");
 
-            this.optDrtFareStrategy.updateFares();
-            this.optDrtFleetStrategy.updateFleet();
-            this.optDrtServiceAreaStrategy.updateServiceArea();
+            this.optDrtFareStrategy.updateFares( iterationStartsEvent.getIteration() );
+            this.optDrtFleetStrategy.updateFleet( iterationStartsEvent.getIteration() );
+            this.optDrtServiceAreaStrategy.updateServiceArea( iterationStartsEvent.getIteration() );
 
             log.info("Iteration " + iterationStartsEvent.getIteration() + ". Applying DRT strategies... Done.");
 
         }
         // then delete data from previous iteration to clean up for this iteration
-        this.optDrtFareStrategy.resetDataForThisIteration(iterationStartsEvent.getIteration());
-        this.optDrtFleetStrategy.resetDataForThisIteration(iterationStartsEvent.getIteration());
-        this.optDrtServiceAreaStrategy.resetDataForThisIteration(iterationStartsEvent.getIteration());
+        this.optDrtFareStrategy.resetDataForThisIteration( iterationStartsEvent.getIteration() );
+        this.optDrtFleetStrategy.resetDataForThisIteration( iterationStartsEvent.getIteration() );
+        this.optDrtServiceAreaStrategy.resetDataForThisIteration( iterationStartsEvent.getIteration() );
     }
 }

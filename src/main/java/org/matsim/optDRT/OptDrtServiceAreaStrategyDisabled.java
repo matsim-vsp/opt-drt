@@ -26,13 +26,13 @@ package org.matsim.optDRT;
 public class OptDrtServiceAreaStrategyDisabled implements OptDrtServiceAreaStrategy {
 
 	@Override
-	public void updateServiceArea() {}
+	public void updateServiceArea( int currentIteration ) {}
 
 	@Override
-	public void writeInfo() {}
+	public void writeInfo( int currentIteration ) {}
 
 	@Override
-	public void resetDataForThisIteration(int iteration) {}
+	public void resetDataForThisIteration( int currentIteration ) {}
 
 }
 
