@@ -154,6 +154,13 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 						"opt drt input shape file for initial service area is empty. Starting without any restriction regarding the drt service area...");
 			}
 		}
+
+		if (getFareAdjustmentApproach().equals(FareAdjustmentApproach.ModeSplitThreshold)) {
+			if (writeInfoInterval != 1) {
+				log.error("writeInfoInterval must be 1 for FareAdjustmentApproach.ModeSplitThreshold to guarantee that mode split data is updated");
+				throw new RuntimeException("writeInfoInterval must be 1 for FareAdjustmentApproach.ModeSplitThreshold to guarantee that mode split data is updated");
+			}
+		}
 	}
 
 	@StringGetter(FLUCTUATING_PERCENTAGE)

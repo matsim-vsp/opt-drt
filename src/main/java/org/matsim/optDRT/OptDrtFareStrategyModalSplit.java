@@ -47,8 +47,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     private Map<Integer, Double> timeBin2drtTrips = new HashMap<>();
     private Map<Map<Id<Person>, String>, Double> personDepartureInfo = new HashMap<>();
 
-    private Boolean updateFare;
-
     private final List<String> mainTransportModes = new LinkedList<>();
 
     private Set<Id<Person>> personList;
@@ -128,7 +126,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             this.timeBin2totalTrips.put(timeBin, 0.);
             this.timeBin2drtTrips.put(timeBin, 0.);
         }
-        this.updateFare = false;
         lastRequestSubmission.clear();
         drtUserDepartureTime.clear();
         this.currentIteration = iteration;
@@ -161,15 +158,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void updateFares() {
-        this.updateFare = true;
-        for (int i = 0; i < timeBin2DrtModalStats.size(); i++) {
-            if (timeBin2totalTrips.get(i) == 0) {
-                timeBin2DrtModalStats.put(i, 0.);
-            } else {
-                timeBin2DrtModalStats.put(i, timeBin2drtTrips.get(i) / timeBin2totalTrips.get(i));
-            }
-            log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2DrtModalStats.get(i));
-        }
         for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin++) {
             double drtModeStats = timeBin2DrtModalStats.get(timeBin);
 
@@ -202,7 +190,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
     @Override
     public void writeInfo() {
-        if (!updateFare) {
             for (int i = 0; i < timeBin2DrtModalStats.size(); i++) {
                 if (timeBin2totalTrips.get(i) == 0) {
                     timeBin2DrtModalStats.put(i, 0.);
@@ -211,7 +198,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
                 }
                 log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2DrtModalStats.get(i));
             }
-        } else {
             String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
             if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 
@@ -248,7 +234,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
     }
 
     @Override
