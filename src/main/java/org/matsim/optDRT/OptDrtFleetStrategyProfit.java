@@ -61,7 +61,6 @@ class OptDrtFleetStrategyProfit
 	private double drtFareSum = 0.;
 	private double drtVehDistance_m = 0.;
 	private final Set<Id<DvrpVehicle>> drtVehicleIds = new HashSet<>();
-	private int currentIteration;
 
 	public OptDrtFleetStrategyProfit(FleetSpecification fleetSpecification, OptDrtConfigGroup optDrtConfigGroup,
 			Scenario scenario) {
@@ -71,18 +70,20 @@ class OptDrtFleetStrategyProfit
 	}
 
 	@Override
-	public void reset(int iteration) {
+	public void reset(int iteration) {}
+
+	@Override
+	public void resetDataForThisIteration( int currentIteration ) {
 		this.departedDrtUsers.clear();
 		this.drtFareSum = 0.;
 		this.drtVehDistance_m = 0.;
 		this.drtVehicleIds.clear();
-		this.currentIteration = iteration;
 
 		// do not reset vehicle counter
 	}
 
 	@Override
-	public void updateFleet() {
+	public void updateFleet( int currentIteration ) {
 		
 		if (computeProfit() >= optDrtConfigGroup.getProfitThresholdForFleetSizeAdjustment()) {
 			increaseFleet();
@@ -198,7 +199,7 @@ class OptDrtFleetStrategyProfit
 	}
 
 	@Override
-	public void writeInfo() {
+	public void writeInfo( int currentIteration ) {
 		// TODO Auto-generated method stub
 	}
 

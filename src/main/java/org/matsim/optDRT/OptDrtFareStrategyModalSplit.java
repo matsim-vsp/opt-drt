@@ -47,13 +47,9 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     private Map<Integer, Double> timeBin2drtTrips = new HashMap<>();
     private Map<Map<Id<Person>, String>, Double> personDepartureInfo = new HashMap<>();
 
-    private Boolean updateFare;
-
     private final List<String> mainTransportModes = new LinkedList<>();
 
     private Set<Id<Person>> personList;
-
-    private int currentIteration;
 
     private final OptDrtConfigGroup optDrtConfigGroup;
 
@@ -118,21 +114,22 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     }
 
     @Override
-    public void reset(int iteration) {
+    public void reset(int iteration) {}
+
+    @Override
+    public void resetDataForThisIteration( int currentIteration ) {
         int timeBinSize = getTimeBin(scenario.getConfig().qsim().getEndTime().seconds());
         for (int timeBin = 0; timeBin <= timeBinSize; timeBin++) {
             this.timeBin2DrtModalStats.put(timeBin, 0.);
             this.timeBin2totalTrips.put(timeBin, 0.);
             this.timeBin2drtTrips.put(timeBin, 0.);
         }
-        this.updateFare = false;
         lastRequestSubmission.clear();
         drtUserDepartureTime.clear();
-        this.currentIteration = iteration;
 
         // collect real person Id
         this.personList = this.scenario.getPopulation().getPersons().keySet();
-        log.info("-- active persons in " + this.currentIteration + ".it are " + Arrays.toString(personList.toArray()));
+        log.info("-- active persons in " + currentIteration + ".it are " + Arrays.toString(personList.toArray()));
 
         // record main modes in this iteration
         List<TripStructureUtils.Trip> trips = new LinkedList<>();
@@ -146,7 +143,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             if (!this.mainTransportModes.contains(mode))
                 this.mainTransportModes.add(mode);
         }
-        log.info("-- main mode in " + this.currentIteration + ".it are " + Arrays.toString(this.mainTransportModes.toArray()));
+        log.info("-- main mode in " + currentIteration + ".it are " + Arrays.toString(this.mainTransportModes.toArray()));
     }
 
     @Override
@@ -157,16 +154,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     }
 
     @Override
-    public void updateFares() {
-        this.updateFare = true;
-        for (int i = 0; i < timeBin2DrtModalStats.size(); i++) {
-            if (timeBin2totalTrips.get(i) == 0) {
-                timeBin2DrtModalStats.put(i, 0.);
-            } else {
-                timeBin2DrtModalStats.put(i, timeBin2drtTrips.get(i) / timeBin2totalTrips.get(i));
-            }
-            log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2DrtModalStats.get(i));
-        }
+    public void updateFares( int currentIteration ) {
         for (int timeBin = 0; timeBin <= getTimeBin(scenario.getConfig().qsim().getEndTime().seconds()); timeBin++) {
             double drtModeStats = timeBin2DrtModalStats.get(timeBin);
 
@@ -198,8 +186,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
     }
 
     @Override
-    public void writeInfo() {
-        if (!updateFare) {
+    public void writeInfo( int currentIteration ) {
             for (int i = 0; i < timeBin2DrtModalStats.size(); i++) {
                 if (timeBin2totalTrips.get(i) == 0) {
                     timeBin2DrtModalStats.put(i, 0.);
@@ -208,7 +195,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
                 }
                 log.info("-- mode share of drt at timeBin " + i + " = " + timeBin2DrtModalStats.get(i));
             }
-        } else {
             String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
             if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 
@@ -245,7 +231,6 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
     }
 
     @Override

@@ -27,12 +27,14 @@ package org.matsim.optDRT;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.core.controler.events.IterationEndsEvent;
+import org.matsim.core.controler.events.IterationStartsEvent;
 import org.matsim.core.controler.listener.IterationEndsListener;
+import org.matsim.core.controler.listener.IterationStartsListener;
 
 /**
  * @author ikaddoura
  */
-public class OptDrtControlerListener implements IterationEndsListener {
+public class OptDrtControlerListener implements IterationStartsListener, IterationEndsListener {
 
     private static final Logger log = Logger.getLogger(OptDrtControlerListener.class);
 
@@ -60,29 +62,36 @@ public class OptDrtControlerListener implements IterationEndsListener {
     }
 
     @Override
-    public void notifyIterationEnds(IterationEndsEvent event) {
-        if (multiModeOptDrtCfg.getUpdateInterval() != 0
-                && event.getIteration() != this.scenario.getConfig().controler().getLastIteration()
-                && event.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration()
-                && event.getIteration() % multiModeOptDrtCfg.getUpdateInterval() == 0.) {
-
-            log.info("Iteration " + event.getIteration() + ". Applying DRT strategies...");
-
-            this.optDrtFareStrategy.updateFares();
-            this.optDrtFleetStrategy.updateFleet();
-            this.optDrtServiceAreaStrategy.updateServiceArea();
-
-            log.info("Iteration " + event.getIteration() + ". Applying DRT strategies... Done.");
-
-        }
-
+    public void notifyIterationEnds(IterationEndsEvent iterationEndsEvent) {
         if (optDrtConfigGroup.getWriteInfoInterval() != 0
-                && event.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
+                && iterationEndsEvent.getIteration() % optDrtConfigGroup.getWriteInfoInterval() == 0.) {
 
-            this.optDrtFareStrategy.writeInfo();
-            this.optDrtFleetStrategy.writeInfo();
-            this.optDrtServiceAreaStrategy.writeInfo();
+            this.optDrtFareStrategy.writeInfo( iterationEndsEvent.getIteration() );
+            this.optDrtFleetStrategy.writeInfo( iterationEndsEvent.getIteration() );
+            this.optDrtServiceAreaStrategy.writeInfo( iterationEndsEvent.getIteration() );
         }
     }
 
+    @Override
+    public void notifyIterationStarts(IterationStartsEvent iterationStartsEvent) {
+        // first run update methods which use data from the previous iteration
+        if (multiModeOptDrtCfg.getUpdateInterval() != 0
+                && iterationStartsEvent.getIteration() != this.scenario.getConfig().controler().getLastIteration()
+                && iterationStartsEvent.getIteration() <= optDrtConfigGroup.getUpdateEndFractionIteration() * this.scenario.getConfig().controler().getLastIteration() + 1
+                && ( iterationStartsEvent.getIteration() % multiModeOptDrtCfg.getUpdateInterval() == 1. || multiModeOptDrtCfg.getUpdateInterval() == 1 ) ) {
+
+            log.info("Iteration " + iterationStartsEvent.getIteration() + ". Applying DRT strategies...");
+
+            this.optDrtFareStrategy.updateFares( iterationStartsEvent.getIteration() );
+            this.optDrtFleetStrategy.updateFleet( iterationStartsEvent.getIteration() );
+            this.optDrtServiceAreaStrategy.updateServiceArea( iterationStartsEvent.getIteration() );
+
+            log.info("Iteration " + iterationStartsEvent.getIteration() + ". Applying DRT strategies... Done.");
+
+        }
+        // then delete data from previous iteration to clean up for this iteration
+        this.optDrtFareStrategy.resetDataForThisIteration( iterationStartsEvent.getIteration() );
+        this.optDrtFleetStrategy.resetDataForThisIteration( iterationStartsEvent.getIteration() );
+        this.optDrtServiceAreaStrategy.resetDataForThisIteration( iterationStartsEvent.getIteration() );
+    }
 }

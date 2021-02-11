@@ -59,8 +59,6 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 
 	private final Config config;
 
-	private int currentIteration;
-
 	private int vehicleCounter = 0;
 
 	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
@@ -77,17 +75,18 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	}
 
 	@Override
-	public void reset(int iteration) {
+	public void reset(int iteration) {}
+
+	@Override
+	public void resetDataForThisIteration( int currentIteration ) {
 		drtUserDepartureTime.clear();
 		waitingTimes.clear();
-    	
-    	this.currentIteration = iteration;
     	
     	// do not reset vehicle counter
 	}
 
 	@Override
-	public void updateFleet() {	
+	public void updateFleet( int currentIteration ) {
 		
 		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();		
 		log.info("Current fleet size: " + vehiclesBefore);
@@ -97,20 +96,6 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 
 		log.info("currentWaitingTimePercentile: " + currentWaitingTimePercentile);
 		log.info("targetWaitingTimePercentile: " + targetWaitingTimePercentile);
-		
-		int cntAboveThreshold = 0;
-		int cntBelowOrEqualsThreshold = 0;
-		
-		for (Double waitingTime : this.waitingTimes) {
-			if (waitingTime > targetWaitingTimePercentile) {
-				cntAboveThreshold++;
-			} else {
-				cntBelowOrEqualsThreshold++;
-			}
-		}
-		
-		String line = this.config.controler().getRunId() + ";" + this.currentIteration + ";" + vehiclesBefore + ";" + currentWaitingTimePercentile + ";" + targetWaitingTimePercentile + ";" + cntAboveThreshold + ";" + cntBelowOrEqualsThreshold;
-		iterationStatistics.add(line);
 		
 		if (Double.isNaN(currentWaitingTimePercentile)) {
 			log.info("current waiting time percentile is NaN. Fleet size will not be adjusted.");
@@ -165,7 +150,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		for (Double waitingTime : this.waitingTimes) {
 			waitStats.addValue(waitingTime);
 		}
-		double percentile = waitStats.getPercentile(percentage * 100);	
+		double percentile = waitStats.getPercentile(percentage * 100);
 		return percentile;
 	}
 
@@ -270,28 +255,35 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	}
 
 	@Override
-	public void writeInfo() {
+	public void writeInfo( int currentIteration ) {
 		String runOutputDirectory = this.config.controler().getOutputDirectory();
 		if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
-		
+
+		int vehiclesBefore = fleetSpecification.getVehicleSpecifications().size();
+
+		double currentWaitingTimePercentile = computeWaitingTimePercentile();
+		double targetWaitingTimePercentile = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
+
+		int cntAboveThreshold = 0;
+		int cntBelowOrEqualsThreshold = 0;
+
+		for (Double waitingTime : this.waitingTimes) {
+			if (waitingTime > targetWaitingTimePercentile) {
+				cntAboveThreshold++;
+			} else {
+				cntBelowOrEqualsThreshold++;
+			}
+		}
+
+		String line = this.config.controler().getRunId() + ";" + currentIteration + ";" + vehiclesBefore + ";" + currentWaitingTimePercentile + ";" + targetWaitingTimePercentile + ";" + cntAboveThreshold + ";" + cntBelowOrEqualsThreshold;
+		iterationStatistics.add(line);
+
 		{
 			String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.config.controler().getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
 			File file = new File(fileName);			
 
 			try {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-				
-				double waitingTimeThreshold = optDrtConfigGroup.getWaitingTimeThresholdForFleetSizeAdjustment();
-				int cntAboveThreshold = 0;
-				int cntBelowOrEqualsThreshold = 0;
-				
-				for (Double waitingTime : this.waitingTimes) {
-					if (waitingTime > waitingTimeThreshold) {
-						cntAboveThreshold++;
-					} else {
-						cntBelowOrEqualsThreshold++;
-					}
-				}
 				
 				double shareOfTripsAboveWaitingTimeThreshold = (double) cntAboveThreshold / (double) (cntAboveThreshold + cntBelowOrEqualsThreshold);
 				bw.write("share of trips above waiting time threshold;" + shareOfTripsAboveWaitingTimeThreshold);
@@ -321,8 +313,8 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 			try {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 				
-				for (String line : this.iterationStatistics) {
-					bw.write(line);
+				for (String line1 : this.iterationStatistics) {
+					bw.write(line1);
 					bw.newLine();
 				}
 				log.info("Output written to " + fileName);

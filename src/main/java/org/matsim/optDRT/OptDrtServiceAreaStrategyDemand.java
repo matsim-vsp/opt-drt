@@ -71,7 +71,6 @@ public class OptDrtServiceAreaStrategyDemand
 	private final DefaultPassengerRequestValidator delegate = new DefaultPassengerRequestValidator();
 	private final Map<Integer, SimpleFeature> features;
 	private final Map<Integer, Integer> currentServiceAreaGeometryIds2Demand = new HashMap<>();
-	private int currentIteration;
 
 	private final OptDrtConfigGroup optDrtCfg;
 
@@ -86,9 +85,10 @@ public class OptDrtServiceAreaStrategyDemand
 	}
 
 	@Override
-	public void reset(int iteration) {
-		currentIteration = iteration;
+	public void reset(int iteration) {}
 
+	@Override
+	public void resetDataForThisIteration( int currentIteration ) {
 		// do not clear the entries in the map, only set the demand levels to zero.
 		for (Integer area : currentServiceAreaGeometryIds2Demand.keySet()) {
 			this.currentServiceAreaGeometryIds2Demand.put(area, 0);
@@ -183,7 +183,7 @@ public class OptDrtServiceAreaStrategyDemand
 	}
 
 	@Override
-	public void updateServiceArea() {
+	public void updateServiceArea( int currentIteration ) {
 		
 		// reduce service area
 		List<Integer> geometriesWithDemandBelowThreshold = new ArrayList<>();
@@ -262,7 +262,7 @@ public class OptDrtServiceAreaStrategyDemand
 	}
 
 	@Override
-	public void writeInfo() {
+	public void writeInfo( int currentIteration ) {
 		
 		if (!shpFileWrittenOut) {
 			String runOutputDirectory = this.scenario.getConfig().controler().getOutputDirectory();

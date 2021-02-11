@@ -6,9 +6,12 @@ package org.matsim.optDRT;
 public class OptDrtFareStrategyDisabled implements OptDrtFareStrategy {
 
     @Override
-    public void updateFares() {}
+    public void updateFares( int currentIteration ) {}
 
     @Override
-    public void writeInfo() {}
+    public void writeInfo( int currentIteration ) {}
+
+    @Override
+    public void resetDataForThisIteration( int currentIteration ) {}
 
 }

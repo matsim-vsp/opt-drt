@@ -26,11 +26,12 @@ package org.matsim.optDRT;
 class OptDrtFleetStrategyDisabled implements OptDrtFleetStrategy {
 
 	@Override
-	public void updateFleet() {}
+	public void updateFleet( int currentIteration ) {}
 
 	@Override
-	public void writeInfo() {}	
-	
+	public void writeInfo( int currentIteration ) {}
 
+	@Override
+	public void resetDataForThisIteration( int currentIteration ) {}
 }
 

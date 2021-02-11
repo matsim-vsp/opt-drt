@@ -78,7 +78,7 @@ public class RunOptDrtEquilAreaStrategyTest {
 			        records.add(Arrays.asList(values));
 			    }
 			}
-			Assert.assertEquals("Wrong number of drt vehicles in last iteration:", 1., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+			Assert.assertEquals("Wrong number of drt vehicles in last iteration:", 1., Double.valueOf(records.get(12).get(2)), MatsimTestUtils.EPSILON);
 		}
 		
 		{
@@ -90,7 +90,7 @@ public class RunOptDrtEquilAreaStrategyTest {
 			        records.add(Arrays.asList(values));
 			    }
 			}
-			Assert.assertEquals("Wrong number of drt1 vehicles in last iteration:", 0., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+			Assert.assertEquals("Wrong number of drt1 vehicles in last iteration:", 0., Double.valueOf(records.get(12).get(2)), MatsimTestUtils.EPSILON);
 		}
 		
 	}

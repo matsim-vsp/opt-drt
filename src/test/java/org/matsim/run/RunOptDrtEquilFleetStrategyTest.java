@@ -79,7 +79,7 @@ public class RunOptDrtEquilFleetStrategyTest {
 			    }
 			}
 			Assert.assertEquals("Wrong number of drt1 vehicles in first iteration:", 1., Double.valueOf(records.get(1).get(2)), MatsimTestUtils.EPSILON);		
-			Assert.assertEquals("Wrong number of drt1 vehicles in last iteration:", 11., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+			Assert.assertEquals("Wrong number of drt1 vehicles in last iteration:", 11., Double.valueOf(records.get(12).get(2)), MatsimTestUtils.EPSILON);
 		}
 		
 		{
@@ -92,7 +92,7 @@ public class RunOptDrtEquilFleetStrategyTest {
 			    }
 			}
 			Assert.assertEquals("Wrong number of drt vehicles in first iteration:", 1., Double.valueOf(records.get(1).get(2)), MatsimTestUtils.EPSILON);		
-			Assert.assertEquals("Wrong number of drt vehicles in last iteration:", 1., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+			Assert.assertEquals("Wrong number of drt vehicles in last iteration:", 1., Double.valueOf(records.get(12).get(2)), MatsimTestUtils.EPSILON);
 		}
 	}	
 	
@@ -133,7 +133,7 @@ public class RunOptDrtEquilFleetStrategyTest {
 			    }
 			}
 			Assert.assertEquals("Wrong number of drt1 vehicles in first iteration:", 1., Double.valueOf(records.get(1).get(2)), MatsimTestUtils.EPSILON);		
-			Assert.assertEquals("Wrong number of drt1 vehicles in last iteration:", 3., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+			Assert.assertEquals("Wrong number of drt1 vehicles in last iteration:", 3., Double.valueOf(records.get(12).get(2)), MatsimTestUtils.EPSILON);
 		}
 		
 		{
@@ -146,7 +146,7 @@ public class RunOptDrtEquilFleetStrategyTest {
 			    }
 			}
 			Assert.assertEquals("Wrong number of drt vehicles in first iteration:", 1., Double.valueOf(records.get(1).get(2)), MatsimTestUtils.EPSILON);		
-			Assert.assertEquals("Wrong number of drt vehicles in last iteration:", 1., Double.valueOf(records.get(11).get(2)), MatsimTestUtils.EPSILON);	
+			Assert.assertEquals("Wrong number of drt vehicles in last iteration:", 1., Double.valueOf(records.get(12).get(2)), MatsimTestUtils.EPSILON);
 		}
 	}
 

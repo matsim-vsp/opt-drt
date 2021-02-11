@@ -26,8 +26,15 @@ import org.matsim.core.events.handler.EventHandler;
  */
 
 public interface OptDrtFleetStrategy extends EventHandler {
-	public void updateFleet();
+	public void updateFleet( int currentIteration );
 
-	public void writeInfo();
+	public void writeInfo( int currentIteration );
+
+	/**
+	 * Separate this from the normal reset() method in ControlerListeners, because we have to ensure that last
+	 * iterations' data is kept until updateFares() was run in the following iteration. But delete data immediately
+	 * afterwards to not mix it up with the current iteration.
+	 */
+	public void resetDataForThisIteration( int currentIteration );
 }
 
