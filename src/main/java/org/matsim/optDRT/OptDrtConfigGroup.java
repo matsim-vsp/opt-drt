@@ -19,7 +19,10 @@
 
 package org.matsim.optDRT;
 
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.log4j.Logger;
+import org.matsim.api.core.v01.Id;
+import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.run.Modal;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ReflectiveConfigGroup;
@@ -52,6 +55,8 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	private static final String FLEET_UPDATE_APPROACH = "fleetUpdateApproach";
 	private static final String FLEETSIZE_ADJUSTMENT_PERCENTAGE = "fleetSizeAdjustmentPercentage";
 	private static final String FLEETSIZE_ADJUSTMENT_APPROACH = "fleetSizeAdjustmentApproach";
+	private static final String FLEET_UPDATE_VEHICLE_SELECTION = "fleetUpdateVehicleSelection";
+	private static final String VEHICLE_SELECTION_RANDOMNESS_CONSTANT = "vehicleSelectionRandomnessConstant";
 	private static final String PROFIT_THRESHOLD_FOR_FLEETSIZE_ADJUSTMENT = "fleetSizeAdjustmentProfitThreshold";
 	private static final String COST_PER_VEHICLE_PER_DAY_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentCostPerVehPerDay";
 	private static final String COST_PER_VEHICLE_PER_METER_FOR_FLEET_ADJUSTMENT = "fleetSizeAdjustmentCostPerVehPerMeter";
@@ -93,6 +98,8 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	private FleetUpdateApproach fleetUpdateApproach = FleetUpdateApproach.BangBang;
 	private int fleetSizeAdjustment = 1;
 	private double fleetSizeAdjustmentPercentage = 0.;
+	private FleetUpdateVehicleSelection fleetUpdateVehicleSelection = FleetUpdateVehicleSelection.Random;
+	private double vehicleSelectionRandomnessConstant = 10*3600.;
 	// profit approach
 	private double profitThresholdForFleetSizeAdjustment = 0.;
 	private double costPerVehPerDayForFleetAdjustment = 5.3;
@@ -131,6 +138,10 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	
 	public enum FleetUpdateApproach {
 		BangBang, Proportional
+	}
+
+	public enum FleetUpdateVehicleSelection {
+		Random, WeightedRandomByDrtStayDuration
 	}
 
 	@Override
@@ -452,6 +463,23 @@ public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
 	@StringSetter( FLEET_UPDATE_APPROACH )
 	public void setFleetUpdateApproach(FleetUpdateApproach fleetUpdateApproach) {
 		this.fleetUpdateApproach = fleetUpdateApproach;
+	}
+
+	@StringGetter( FLEET_UPDATE_VEHICLE_SELECTION )
+	public FleetUpdateVehicleSelection getFleetUpdateVehicleSelection() {
+		return fleetUpdateVehicleSelection;
+	}
+	@StringSetter( FLEET_UPDATE_VEHICLE_SELECTION )
+	public void setFleetUpdateVehicleSelection( FleetUpdateVehicleSelection fleetUpdateVehicleSelection ) {
+		this.fleetUpdateVehicleSelection = fleetUpdateVehicleSelection;
+	}
+	@StringGetter( VEHICLE_SELECTION_RANDOMNESS_CONSTANT )
+	public double getVehicleSelectionRandomnessConstant() {
+		return vehicleSelectionRandomnessConstant;
+	}
+	@StringSetter( VEHICLE_SELECTION_RANDOMNESS_CONSTANT )
+	public void setVehicleSelectionRandomnessConstant( double vehicleSelectionRandomnessConstant ) {
+		this.vehicleSelectionRandomnessConstant = vehicleSelectionRandomnessConstant;
 	}
 			
 }

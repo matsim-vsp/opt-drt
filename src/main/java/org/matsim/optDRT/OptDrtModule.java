@@ -78,21 +78,35 @@ public class OptDrtModule extends AbstractDvrpModeModule {
 		addEventHandlerBinding().to(modalKey(OptDrtFareStrategy.class));
 
 		// fleet size strategy
+		if ( optDrtConfigGroup.getFleetUpdateVehicleSelection().equals(OptDrtConfigGroup.FleetUpdateVehicleSelection.Random) ) {
+			bindModal(OptDrtFleetModifier.class).toProvider(modalProvider(
+					getter -> new OptDrtFleetModifierByPureRandom( getter.getModal(FleetSpecification.class))) ).asEagerSingleton();
+		} else if ( optDrtConfigGroup.getFleetUpdateVehicleSelection().equals(OptDrtConfigGroup.FleetUpdateVehicleSelection.WeightedRandomByDrtStayDuration) ) {
+			bindModal(OptDrtFleetModifier.class).toProvider(modalProvider(
+					getter -> new OptDrtFleetModifierByStayTime( getter.getModal(FleetSpecification.class),
+							optDrtConfigGroup, getter.get(Config.class) )) ).asEagerSingleton();
+			addEventHandlerBinding().to(modalKey(OptDrtFleetModifier.class));
+			addControlerListenerBinding().to(modalKey(OptDrtFleetModifier.class));
+		}
+
 		if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == FleetSizeAdjustmentApproach.Disabled) {
 			bindModal(OptDrtFleetStrategy.class).to(OptDrtFleetStrategyDisabled.class);
 		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == ProfitThreshold) {
 			bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(
 					getter -> new OptDrtFleetStrategyProfit(getter.getModal(FleetSpecification.class),
-							optDrtConfigGroup, getter.get(Scenario.class)))).asEagerSingleton();
+							optDrtConfigGroup, getter.get(Scenario.class),
+							getter.getModal(OptDrtFleetModifier.class)))).asEagerSingleton();
 		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach()
 				== FleetSizeAdjustmentApproach.AverageWaitingTimeThreshold) {
 			bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(
 					getter -> new OptDrtFleetStrategyAvgWaitingTime(getter.getModal(FleetSpecification.class),
-							optDrtConfigGroup, getter.get(Scenario.class)))).asEagerSingleton();
+							optDrtConfigGroup, getter.get(Scenario.class),
+							getter.getModal(OptDrtFleetModifier.class)))).asEagerSingleton();
 		} else if (optDrtConfigGroup.getFleetSizeAdjustmentApproach() == WaitingTimeThreshold) {
 			bindModal(OptDrtFleetStrategy.class).toProvider(modalProvider(
 					getter -> new OptDrtFleetStrategyWaitingTimePercentile(getter.getModal(FleetSpecification.class),
-							optDrtConfigGroup, getter.get(Config.class)))).asEagerSingleton();
+							optDrtConfigGroup, getter.get(Config.class),
+							getter.getModal(OptDrtFleetModifier.class)))).asEagerSingleton();
 		} else {
 			throw new RuntimeException("Unknown fleet size adjustment approach. Aborting...");
 		}

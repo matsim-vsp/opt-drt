@@ -38,12 +38,8 @@ import org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler;
 import org.matsim.api.core.v01.population.Person;
-import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
-import org.matsim.contrib.dvrp.fleet.DvrpVehicleSpecification;
 import org.matsim.contrib.dvrp.fleet.FleetSpecification;
-import org.matsim.contrib.dvrp.fleet.ImmutableDvrpVehicleSpecification;
 import org.matsim.core.config.Config;
-import org.matsim.core.gbl.MatsimRandom;
 import org.matsim.optDRT.OptDrtConfigGroup.FleetUpdateApproach;
 
 /**
@@ -59,7 +55,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 
 	private final Config config;
 
-	private int vehicleCounter = 0;
+	private final OptDrtFleetModifier fleetModifier;
 
 	private final Map<Id<Person>, Double> drtUserDepartureTime = new HashMap<>();
 	private final List<Double> waitingTimes = new ArrayList<>();
@@ -67,10 +63,11 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	private List<String> iterationStatistics = new ArrayList<>();
 
 	public OptDrtFleetStrategyWaitingTimePercentile(FleetSpecification fleetSpecification,
-			OptDrtConfigGroup optDrtConfigGroup, Config config) {
+			OptDrtConfigGroup optDrtConfigGroup, Config config, OptDrtFleetModifier fleetModifier) {
 		this.fleetSpecification = fleetSpecification;
 		this.optDrtConfigGroup = optDrtConfigGroup;
 		this.config = config;
+		this.fleetModifier = fleetModifier;
 		iterationStatistics.add("RunId;Iteration;fleetSize;waitingTime-" + optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment() + "-percentile;targetWaitingTime-" + optDrtConfigGroup.getTripShareThresholdForFleetSizeAdjustment() + "-percentile;numberOfTripsWithWaitingTimeAboveThreshold;numberOfTripsWithWaitingTimeBelowOrEqualsThreshold");
 	}
 
@@ -81,8 +78,6 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 	public void resetDataForThisIteration( int currentIteration ) {
 		drtUserDepartureTime.clear();
 		waitingTimes.clear();
-    	
-    	// do not reset vehicle counter
 	}
 
 	@Override
@@ -115,8 +110,8 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 				} else {
 					throw new RuntimeException("Unknown fleet update approach. Aborting...");
 				}
-					
-				increaseFleet(vehiclesToAdd);
+
+				fleetModifier.increaseFleet(vehiclesToAdd);
 				
 			} else {
 					
@@ -137,7 +132,7 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 					throw new RuntimeException("Unknown fleet update approach. Aborting...");
 				}
 				
-				decreaseFleet(vehiclesToRemove);
+				fleetModifier.decreaseFleet(vehiclesToRemove);
 			}
 			OptDrtUtils.writeModifiedFleet(fleetSpecification, config, currentIteration, this.optDrtConfigGroup.getMode());
 		}
@@ -152,84 +147,6 @@ class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, P
 		}
 		double percentile = waitStats.getPercentile(percentage * 100);
 		return percentile;
-	}
-
-	private void decreaseFleet(int vehiclesToRemove) {
-		
-		log.info("Removing " + vehiclesToRemove + " vehicles...");
-
-		List<Id<DvrpVehicle>> dvrpVehiclesBefore = new ArrayList<>();
-		for (DvrpVehicleSpecification specification : fleetSpecification.getVehicleSpecifications().values()) {
-			dvrpVehiclesBefore.add(specification.getId());
-		}
-
-		List<Id<DvrpVehicle>> dvrpVehiclesToRemove = new ArrayList<>();		
-		for (int v = 0; v <= vehiclesToRemove; v++) {
-			if (dvrpVehiclesBefore.size() > 0) {
-				final int randomVehicleNr = (int) (dvrpVehiclesBefore.size() * MatsimRandom.getLocalInstance().nextDouble());
-				dvrpVehiclesToRemove.add(dvrpVehiclesBefore.remove(randomVehicleNr));
-			}
-		}
-		
-		for (Id<DvrpVehicle> id : dvrpVehiclesToRemove) {
-			if (fleetSpecification.getVehicleSpecifications().size() > 1) {
-				// always keep one drt 'mother' vehicle
-				fleetSpecification.removeVehicleSpecification(id);
-				log.info("Removing dvrp vehicle " + id); 
-			}
-		}
-		
-		int vehiclesAfter = fleetSpecification.getVehicleSpecifications().size();
-
-		log.info("Dvrp vehicle fleet was decreased to " + vehiclesAfter);
-	}
-
-	private void increaseFleet(int vehiclesToAdd) {
-		
-		log.info("Adding " + vehiclesToAdd + " vehicles...");
-		
-		for (int i = 0; i < vehiclesToAdd; i++) {
-			
-			// select a random fleet specification to be cloned.
-			DvrpVehicleSpecification dvrpVehicleSpecficationToBeCloned = getRandomVehicleSpecification();
-			
-			if (dvrpVehicleSpecficationToBeCloned == null) {
-				throw new RuntimeException("No dvrp vehicle found to be cloned. Maybe create some default dvrp vehicle which is specified somewhere. Aborting...");
-			}
-			
-			Id<DvrpVehicle> id = Id.create("optDrt_" + vehicleCounter + "_cloneOf_" + dvrpVehicleSpecficationToBeCloned.getId(), DvrpVehicle.class);		
-			DvrpVehicleSpecification newSpecification = ImmutableDvrpVehicleSpecification.newBuilder()
-					.id(id)
-					.serviceBeginTime(dvrpVehicleSpecficationToBeCloned.getServiceBeginTime())
-					.serviceEndTime(dvrpVehicleSpecficationToBeCloned.getServiceEndTime())
-					.startLinkId(dvrpVehicleSpecficationToBeCloned.getStartLinkId())
-					.capacity(dvrpVehicleSpecficationToBeCloned.getCapacity())
-					.build();
-			
-			fleetSpecification.addVehicleSpecification(newSpecification);
-			log.info("Adding dvrp vehicle " + id); 
-			
-			vehicleCounter++;
-		}
-		
-		int vehiclesAfter = fleetSpecification.getVehicleSpecifications().size();
-		
-		log.info("Dvrp vehicle fleet was increased to " + vehiclesAfter);
-
-	}
-	
-	private DvrpVehicleSpecification getRandomVehicleSpecification() {
-		DvrpVehicleSpecification dvrpVehicleSpecficationToBeCloned = null;
-		final int randomVehicleNr = (int) (fleetSpecification.getVehicleSpecifications().size() * MatsimRandom.getLocalInstance().nextDouble());
-
-		int counter = 0;
-		for (DvrpVehicleSpecification specification : fleetSpecification.getVehicleSpecifications().values()) {
-			if (counter == randomVehicleNr) {
-				dvrpVehicleSpecficationToBeCloned = specification;
-			}
-			counter++;
-		}
-		return dvrpVehicleSpecficationToBeCloned;
 	}
 
 	@Override
