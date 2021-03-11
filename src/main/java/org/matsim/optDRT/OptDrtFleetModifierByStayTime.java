@@ -25,7 +25,11 @@ import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
+import org.matsim.contrib.drt.run.DrtConfigGroup;
+import org.matsim.contrib.drt.run.MultiModeDrtConfigGroup;
 import org.matsim.contrib.drt.schedule.DrtTaskBaseType;
+import org.matsim.contrib.drt.speedup.DrtSpeedUp;
+import org.matsim.contrib.drt.speedup.DrtSpeedUpParams;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicle;
 import org.matsim.contrib.dvrp.fleet.DvrpVehicleSpecification;
 import org.matsim.contrib.dvrp.fleet.FleetSpecification;
@@ -35,9 +39,10 @@ import org.matsim.contrib.dvrp.vrpagent.TaskEndedEventHandler;
 import org.matsim.contrib.dvrp.vrpagent.TaskStartedEvent;
 import org.matsim.contrib.dvrp.vrpagent.TaskStartedEventHandler;
 import org.matsim.core.config.Config;
+import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.config.groups.ControlerConfigGroup;
 import org.matsim.core.controler.events.BeforeMobsimEvent;
 import org.matsim.core.controler.listener.BeforeMobsimListener;
-import org.matsim.core.gbl.MatsimRandom;
 
 import java.util.*;
 
@@ -53,15 +58,22 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
 
     private final OptDrtConfigGroup optDrtConfigGroup;
 
+    private final ControlerConfigGroup controlerConfigGroup;
+
     private final RandomGenerator rng;
     private final Map<Id<DvrpVehicle>, Double> drtVehStayLastBeginTime = new HashMap<>();
     private final Map<Id<DvrpVehicle>, Double> drtVehStayTime = new HashMap<>();
     int vehicleCounter = 0;
+    private final Optional<DrtSpeedUpParams> speedUpParams;
 
     public OptDrtFleetModifierByStayTime(FleetSpecification fleetSpecification,
                                          OptDrtConfigGroup optDrtConfigGroup, Config config) {
         this.fleetSpecification = fleetSpecification;
         this.optDrtConfigGroup = optDrtConfigGroup;
+        this.controlerConfigGroup = config.controler();
+        MultiModeDrtConfigGroup multiModeDrtConfigGroup = ConfigUtils.addOrGetModule(config, MultiModeDrtConfigGroup.class);
+        DrtConfigGroup drtConfigGroup = multiModeDrtConfigGroup.getModalElements().stream().filter(modal -> modal.getMode().equals(optDrtConfigGroup.getMode()) ).findAny().orElseThrow();
+        this.speedUpParams = drtConfigGroup.getDrtSpeedUpParams();
 
         /*
          * Always use the same RandomNumberGenerator per instance, set seed to Matsim config specification.
@@ -82,7 +94,7 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
     public void reset(int iteration) {
     }
 
-    public void decreaseFleet(int vehiclesToRemove) {
+    public final void decreaseFleet(int vehiclesToRemove) {
 
 		log.info("Removing " + vehiclesToRemove + " vehicles using FleetUpdateVehicleSelection " +
 				OptDrtConfigGroup.FleetUpdateVehicleSelection.WeightedRandomByDrtStayDuration +
@@ -108,7 +120,7 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
         log.info("Dvrp vehicle fleet was decreased to " + vehiclesAfter);
     }
 
-    public void increaseFleet(int vehiclesToAdd) {
+    public final void increaseFleet(int vehiclesToAdd) {
         if (fleetSpecification.getVehicleSpecifications().keySet().size() < 1) {
             throw new RuntimeException("No dvrp vehicle found to be cloned. Maybe create some default dvrp vehicle which is specified somewhere. Aborting...");
         }
@@ -174,14 +186,14 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
 
     @Override
     public void handleEvent(TaskStartedEvent taskStartedEvent) {
-        if (taskStartedEvent.getTaskType().equals(DrtTaskBaseType.STAY) && taskStartedEvent.getDvrpMode().equals(optDrtConfigGroup.getMode())) {
+        if (DrtTaskBaseType.STAY.isBaseTypeOf(taskStartedEvent.getTaskType()) && fleetSpecification.getVehicleSpecifications().keySet().contains(taskStartedEvent.getDvrpVehicleId())) {
             drtVehStayLastBeginTime.put(taskStartedEvent.getDvrpVehicleId(), taskStartedEvent.getTime());
         }
     }
 
     @Override
     public void handleEvent(TaskEndedEvent taskEndedEvent) {
-        if (taskEndedEvent.getTaskType().equals(DrtTaskBaseType.STAY) && taskEndedEvent.getDvrpMode().equals(optDrtConfigGroup.getMode())) {
+        if (DrtTaskBaseType.STAY.isBaseTypeOf(taskEndedEvent.getTaskType()) && fleetSpecification.getVehicleSpecifications().keySet().contains(taskEndedEvent.getDvrpVehicleId())) {
             double startTime = drtVehStayLastBeginTime.get(taskEndedEvent.getDvrpVehicleId()); // TODO: cater for case not found/null ?
             assert taskEndedEvent.getTime() - startTime >= 0;
             drtVehStayTime.put(taskEndedEvent.getDvrpVehicleId(),
@@ -198,8 +210,14 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
      */
     @Override
     public void notifyBeforeMobsim(BeforeMobsimEvent beforeMobsimEvent) {
-        drtVehStayLastBeginTime.clear();
-        drtVehStayTime.clear();
+        // check if this iteration will be a speed up iteration, so we would rather want to keep the old data
+        if (speedUpParams.isPresent() &&
+                DrtSpeedUp.isTeleportDrtUsers(speedUpParams.orElseThrow(), controlerConfigGroup, beforeMobsimEvent.getIteration())) {
+            return;
+        } else {
+            drtVehStayLastBeginTime.clear();
+            drtVehStayTime.clear();
+        }
     }
 }
 

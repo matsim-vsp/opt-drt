@@ -17,9 +17,11 @@ import org.matsim.analysis.ScoreStatsControlerListener.ScoreItem;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.drt.routing.DrtRoute;
 import org.matsim.contrib.drt.routing.DrtRouteFactory;
+import org.matsim.contrib.drt.run.DrtConfigGroup;
 import org.matsim.contrib.drt.run.DrtConfigs;
 import org.matsim.contrib.drt.run.MultiModeDrtConfigGroup;
 import org.matsim.contrib.drt.run.MultiModeDrtModule;
+import org.matsim.contrib.drt.speedup.DrtSpeedUpParams;
 import org.matsim.contrib.dvrp.run.DvrpConfigGroup;
 import org.matsim.contrib.dvrp.run.DvrpModule;
 import org.matsim.contrib.dvrp.run.DvrpQSimComponents;
@@ -162,6 +164,15 @@ public class RunOptDrtEquilFleetStrategyTest {
 		OptDrtConfigGroup optDrtConfigGroupDrt = multiModeOptDrtConfigGroup.getModalElements().stream().filter(modal -> modal.getMode().equals("drt") ).findAny().orElseThrow();
 		optDrtConfigGroupDrt.setFleetUpdateVehicleSelection(OptDrtConfigGroup.FleetUpdateVehicleSelection.WeightedRandomByDrtStayDuration);
 		optDrtConfigGroupDrt.setVehicleSelectionRandomnessConstant(0.0);
+
+		MultiModeDrtConfigGroup multiModeDrtConfigGroup = ConfigUtils.addOrGetModule(config, MultiModeDrtConfigGroup.class);
+		DrtConfigGroup drtConfigGroupDrt = multiModeDrtConfigGroup.getModalElements().stream().filter(modal -> modal.getMode().equals("drt") ).findAny().orElseThrow();
+		DrtSpeedUpParams speedUpParams = new DrtSpeedUpParams();
+		speedUpParams.setFirstSimulatedDrtIterationToReplaceInitialDrtPerformanceParams(0);
+		speedUpParams.setFractionOfIterationsSwitchOff(0.9);
+		speedUpParams.setFractionOfIterationsSwitchOn(0.0);
+		speedUpParams.setIntervalDetailedIteration(5);
+		drtConfigGroupDrt.addParameterSet(speedUpParams);
 
 		// drt module
 		DrtConfigs.adjustMultiModeDrtConfig(MultiModeDrtConfigGroup.get(config), config.planCalcScore(),
