@@ -33,17 +33,11 @@
 		    <id>jitpack.io</id>
 		    <url>https://jitpack.io</url>
 		</repository>
-		
+
 		<repository>
 			<!-- Repository for MATSim releases (MATSim is not on Maven central) -->
 			<id>matsim</id>
-			<url>https://dl.bintray.com/matsim/matsim</url>
-		</repository>
-		
- 		<repository>
-			<!-- For MATSim snapshots: -->
-			<id>ojo-snapshots</id>
-			<url>http://oss.jfrog.org/libs-snapshot</url>
+			<url>https://repo.matsim.org/repository/matsim</url>
 		</repository>
 
 		<repository>
