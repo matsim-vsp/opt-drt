@@ -42,8 +42,14 @@ import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.ControlerConfigGroup;
 import org.matsim.core.controler.events.BeforeMobsimEvent;
+import org.matsim.core.controler.events.IterationEndsEvent;
 import org.matsim.core.controler.listener.BeforeMobsimListener;
+import org.matsim.core.controler.listener.IterationEndsListener;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -51,7 +57,7 @@ import java.util.*;
  */
 
 class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEndedEventHandler, OptDrtFleetModifier,
-        BeforeMobsimListener {
+        BeforeMobsimListener, IterationEndsListener {
     private static final Logger log = Logger.getLogger(OptDrtFleetModifierByStayTime.class);
 
     private final FleetSpecification fleetSpecification;
@@ -218,6 +224,36 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
             drtVehStayLastBeginTime.clear();
             drtVehStayTime.clear();
         }
+    }
+
+    @Override
+    public void notifyIterationEnds(IterationEndsEvent iterationEndsEvent) {
+        String runOutputDirectory = this.controlerConfigGroup.getOutputDirectory();
+        if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
+
+        int currentIteration = iterationEndsEvent.getIteration();
+        {
+            String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.controlerConfigGroup.getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
+            File file = new File(fileName);
+
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+                bw.write("vehicle id;total stay time [sec]");
+                bw.newLine();
+
+                for (Map.Entry<Id<DvrpVehicle>,Double> vehicleEntry: this.drtVehStayTime.entrySet()) {
+                    bw.write(vehicleEntry.getKey().toString() + ";" + vehicleEntry.getValue());
+                    bw.newLine();
+                }
+                log.info("Output written to " + fileName);
+                bw.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }
 
