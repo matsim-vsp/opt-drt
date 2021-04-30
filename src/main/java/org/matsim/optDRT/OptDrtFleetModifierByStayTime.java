@@ -72,13 +72,16 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
     int vehicleCounter = 0;
     private final Optional<DrtSpeedUpParams> speedUpParams;
 
+    private final Map<Id<DvrpVehicle>, Set<Id<DvrpVehicle>>> childClonesPerParent = new HashMap<>();
+
+
     public OptDrtFleetModifierByStayTime(FleetSpecification fleetSpecification,
                                          OptDrtConfigGroup optDrtConfigGroup, Config config) {
         this.fleetSpecification = fleetSpecification;
         this.optDrtConfigGroup = optDrtConfigGroup;
         this.controlerConfigGroup = config.controler();
         MultiModeDrtConfigGroup multiModeDrtConfigGroup = ConfigUtils.addOrGetModule(config, MultiModeDrtConfigGroup.class);
-        DrtConfigGroup drtConfigGroup = multiModeDrtConfigGroup.getModalElements().stream().filter(modal -> modal.getMode().equals(optDrtConfigGroup.getMode()) ).findAny().orElseThrow();
+        DrtConfigGroup drtConfigGroup = multiModeDrtConfigGroup.getModalElements().stream().filter(modal -> modal.getMode().equals(optDrtConfigGroup.getMode())).findAny().orElseThrow();
         this.speedUpParams = drtConfigGroup.getDrtSpeedUpParams();
 
         /*
@@ -102,15 +105,15 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
 
     public final void decreaseFleet(int vehiclesToRemove) {
 
-		log.info("Removing " + vehiclesToRemove + " vehicles using FleetUpdateVehicleSelection " +
-				OptDrtConfigGroup.FleetUpdateVehicleSelection.WeightedRandomByDrtStayDuration +
-				" with VehicleSelectionRandomnessConstant " + optDrtConfigGroup.getVehicleSelectionRandomnessConstant());
-		EnumeratedDistribution<Id<DvrpVehicle>> weightedVehicles =
-				getWeightedDistributionOfVehiclesForRemoving(optDrtConfigGroup.getVehicleSelectionRandomnessConstant());
+        log.info("Removing " + vehiclesToRemove + " vehicles using FleetUpdateVehicleSelection " +
+                OptDrtConfigGroup.FleetUpdateVehicleSelection.WeightedRandomByDrtStayDuration +
+                " with VehicleSelectionRandomnessConstant " + optDrtConfigGroup.getVehicleSelectionRandomnessConstant());
+        EnumeratedDistribution<Id<DvrpVehicle>> weightedVehicles =
+                getWeightedDistributionOfVehiclesForRemoving(optDrtConfigGroup.getVehicleSelectionRandomnessConstant());
 
         Set<Id<DvrpVehicle>> dvrpVehiclesToRemove = new HashSet<>();
         for (int v = 0; v < Math.min(vehiclesToRemove, fleetSpecification.getVehicleSpecifications().size() - 1); v++) {
-            dvrpVehiclesToRemove.add(selectVehicleByWeightedDrawNotYetInSet( weightedVehicles, dvrpVehiclesToRemove) );
+            dvrpVehiclesToRemove.add(selectVehicleByWeightedDrawNotYetInSet(weightedVehicles, dvrpVehiclesToRemove));
         }
 
         for (Id<DvrpVehicle> id : dvrpVehiclesToRemove) {
@@ -146,9 +149,10 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
     }
 
     private void cloneAndAddDvrpVehicle(DvrpVehicleSpecification dvrpVehicleSpecficationToBeCloned) {
-        Id<DvrpVehicle> id = Id.create("optDrt_" + vehicleCounter + "_cloneOf_" + dvrpVehicleSpecficationToBeCloned.getId(), DvrpVehicle.class);
+        Id<DvrpVehicle> idParent = dvrpVehicleSpecficationToBeCloned.getId();
+        Id<DvrpVehicle> idChild = Id.create("optDrt_" + vehicleCounter + "_cloneOf_" + idParent, DvrpVehicle.class);
         DvrpVehicleSpecification newSpecification = ImmutableDvrpVehicleSpecification.newBuilder()
-                .id(id)
+                .id(idChild)
                 .serviceBeginTime(dvrpVehicleSpecficationToBeCloned.getServiceBeginTime())
                 .serviceEndTime(dvrpVehicleSpecficationToBeCloned.getServiceEndTime())
                 .startLinkId(dvrpVehicleSpecficationToBeCloned.getStartLinkId())
@@ -156,9 +160,14 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
                 .build();
 
         fleetSpecification.addVehicleSpecification(newSpecification);
-        log.info("Adding dvrp vehicle " + id);
+        log.info("Adding dvrp vehicle " + idChild);
 
         vehicleCounter++;
+
+        Set<Id<DvrpVehicle>> childSet = this.childClonesPerParent.getOrDefault(idParent, new HashSet<>());
+        childSet.add(idChild);
+        childClonesPerParent.put(idParent, childSet);
+
     }
 
     private EnumeratedDistribution<Id<DvrpVehicle>> getWeightedDistributionOfVehiclesForCloning(double constantToIncreaseRandomness) {
@@ -183,8 +192,8 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
 
     private Id<DvrpVehicle> selectVehicleByWeightedDrawNotYetInSet(EnumeratedDistribution<Id<DvrpVehicle>> distribution, Set<Id<DvrpVehicle>> vehiclesToDelete) {
         Id<DvrpVehicle> candidate = distribution.sample();
-        if ( vehiclesToDelete.contains( candidate ) ) {
-            return selectVehicleByWeightedDrawNotYetInSet ( distribution, vehiclesToDelete );
+        if (vehiclesToDelete.contains(candidate)) {
+            return selectVehicleByWeightedDrawNotYetInSet(distribution, vehiclesToDelete);
         } else {
             return candidate;
         }
@@ -232,27 +241,51 @@ class OptDrtFleetModifierByStayTime implements TaskStartedEventHandler, TaskEnde
         if (!runOutputDirectory.endsWith("/")) runOutputDirectory = runOutputDirectory.concat("/");
 
         int currentIteration = iterationEndsEvent.getIteration();
-        {
-            String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.controlerConfigGroup.getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
-            File file = new File(fileName);
 
-            try {
-                BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+        String fileName = runOutputDirectory + "ITERS/it." + currentIteration + "/" + this.controlerConfigGroup.getRunId() + "." + currentIteration + ".info_" + this.getClass().getName() + "_" + this.optDrtConfigGroup.getMode() + ".csv";
+        File file = new File(fileName);
 
-                bw.write("vehicle id;total stay time [sec]");
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+            bw.write("vehicle id;total stay time [sec];Number of Direct Children;Number of Indirect Children");
+            bw.newLine();
+
+            for (Id<DvrpVehicle> vehicleId : this.drtVehStayTime.keySet()) {
+                Double stayTime = drtVehStayTime.get(vehicleId);
+                int directChildren = childClonesPerParent.getOrDefault(vehicleId, new HashSet<>()).size();
+                int indirectChildren = countIndirectChildren(vehicleId);
+
+                bw.write(vehicleId.toString() + ";" + stayTime + ";" + directChildren + ";" + indirectChildren);
                 bw.newLine();
-
-                for (Map.Entry<Id<DvrpVehicle>,Double> vehicleEntry: this.drtVehStayTime.entrySet()) {
-                    bw.write(vehicleEntry.getKey().toString() + ";" + vehicleEntry.getValue());
-                    bw.newLine();
-                }
-                log.info("Output written to " + fileName);
-                bw.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+            log.info("Output written to " + fileName);
+            bw.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+    }
+
+    /**
+     * recursive method to count number of child clones for a given vehicle;
+     * this includes not only the direct children, but the entire lineage (children of children of children...)
+     */
+    private int countIndirectChildren(Id<DvrpVehicle> veh) {
+
+        // end of recursion; if vehicle is not parent to another clone, end of tree as been reached
+        if (!childClonesPerParent.containsKey(veh)) {
+            return 0;
+        }
+
+        int sum = 0;
+        Set<Id<DvrpVehicle>> childrenOfVeh = childClonesPerParent.get(veh);
+        for (Id<DvrpVehicle> child : childrenOfVeh) {
+            sum = sum + 1 + countIndirectChildren(child);
+        }
+
+        return sum;
 
     }
 }
