@@ -126,7 +126,7 @@ public class RunOptDrtUShapedNetworkFleetStrategyTest {
     }
 
     /**
-     * With a high waitingTimeThresholdForFleetSizeAdjustment, the FleetStrategy will choose to add vehicles.
+     * With a low waitingTimeThresholdForFleetSizeAdjustment, the FleetStrategy will choose to add vehicles.
      * Since the vehicles on the left side of the network will always have shorter stay times, all clones should
      * be of the left vehicles. Therefore, all clones should have "drt-left" contained in their id.
      */
