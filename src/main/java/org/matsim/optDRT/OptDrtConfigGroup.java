@@ -19,7 +19,8 @@
 
 package org.matsim.optDRT;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.contrib.dvrp.run.Modal;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ReflectiveConfigGroup;
@@ -29,7 +30,7 @@ import org.matsim.core.config.ReflectiveConfigGroup;
  */
 
 public class OptDrtConfigGroup extends ReflectiveConfigGroup implements Modal {
-	private static final Logger log = Logger.getLogger(OptDrtConfigGroup.class);
+	private static final Logger log = LogManager.getLogger(OptDrtConfigGroup.class);
 
 	public static final String GROUP_NAME = "optDrt";
 

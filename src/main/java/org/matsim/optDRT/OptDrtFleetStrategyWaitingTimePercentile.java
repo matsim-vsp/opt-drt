@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;
 import org.matsim.api.core.v01.events.PersonDepartureEvent;
@@ -51,7 +52,7 @@ import org.matsim.optDRT.OptDrtConfigGroup.FleetUpdateApproach;
 */
 
 class OptDrtFleetStrategyWaitingTimePercentile implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler, PersonArrivalEventHandler {
-	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyWaitingTimePercentile.class);
+	private static final Logger log = LogManager.getLogger(OptDrtFleetStrategyWaitingTimePercentile.class);
 
 	private final FleetSpecification fleetSpecification;
 

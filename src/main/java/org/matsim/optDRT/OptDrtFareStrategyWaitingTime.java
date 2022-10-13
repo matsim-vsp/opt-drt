@@ -31,7 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;
@@ -58,7 +59,7 @@ import org.matsim.optDRT.OptDrtConfigGroup.FareUpdateApproach;
 class OptDrtFareStrategyWaitingTime
 		implements PersonDepartureEventHandler, PersonEntersVehicleEventHandler, PersonArrivalEventHandler,
 		OptDrtFareStrategy, DrtRequestSubmittedEventHandler {
-	private static final Logger log = Logger.getLogger(OptDrtFareStrategyWaitingTime.class);
+	private static final Logger log = LogManager.getLogger(OptDrtFareStrategyWaitingTime.class);
 
 	private final Map<Integer, Double> timeBin2distanceFarePerMeter = new HashMap<>();
 

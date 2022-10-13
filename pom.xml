@@ -10,7 +10,7 @@
 	<description>OptDRT Project</description>
 
 	<properties>
-		<matsim.version>14.0</matsim.version>
+		<matsim.version>15.0-PR2233</matsim.version>
 	</properties>
 
 	<repositories>

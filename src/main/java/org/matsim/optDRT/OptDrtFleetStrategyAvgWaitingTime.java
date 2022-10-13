@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;
@@ -53,7 +54,7 @@ import org.matsim.core.gbl.MatsimRandom;
 class OptDrtFleetStrategyAvgWaitingTime
 		implements OptDrtFleetStrategy, PersonEntersVehicleEventHandler, PersonDepartureEventHandler,
 		PersonArrivalEventHandler {
-	private static final Logger log = Logger.getLogger(OptDrtFleetStrategyAvgWaitingTime.class);
+	private static final Logger log = LogManager.getLogger(OptDrtFleetStrategyAvgWaitingTime.class);
 
 	private final FleetSpecification fleetSpecification;
 

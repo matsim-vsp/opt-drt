@@ -33,7 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.simple.SimpleFeatureIterator;
@@ -63,7 +64,7 @@ import org.opengis.feature.simple.SimpleFeature;
 public class OptDrtServiceAreaStrategyDemand
 		implements PassengerRequestValidator, OptDrtServiceAreaStrategy, PersonDepartureEventHandler,
 		PersonArrivalEventHandler {
-	private static final Logger log = Logger.getLogger(OptDrtServiceAreaStrategyDemand.class);
+	private static final Logger log = LogManager.getLogger(OptDrtServiceAreaStrategyDemand.class);
 
 	public static final String FROM_LINK_NOT_IN_SERVICE_AREA_CAUSE = "from_link_not_in_service_area";
 	public static final String TO_LINK_NOT_IN_SERVICE_AREA_CAUSE = "to_link_not_in_service_area";

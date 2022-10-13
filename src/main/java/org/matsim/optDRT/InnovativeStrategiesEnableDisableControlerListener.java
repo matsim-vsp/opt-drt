@@ -28,7 +28,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.Plan;
@@ -48,7 +49,7 @@ import com.google.inject.Inject;
  */
 public class InnovativeStrategiesEnableDisableControlerListener implements IterationStartsListener {
 
-    private static final Logger log = Logger.getLogger(InnovativeStrategiesEnableDisableControlerListener.class);
+    private static final Logger log = LogManager.getLogger(InnovativeStrategiesEnableDisableControlerListener.class);
 
     @Inject
     private MultiModeOptDrtConfigGroup multiModeOptDrtCfg;

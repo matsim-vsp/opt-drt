@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;
@@ -36,7 +37,7 @@ import org.matsim.core.router.TripStructureUtils;
  * Note that these fares are scored in excess to anything set in the modeparams in the config file or any other drt fare handler.
  */
 public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler, PersonArrivalEventHandler, OptDrtFareStrategy, DrtRequestSubmittedEventHandler {
-    private static final Logger log = Logger.getLogger(OptDrtFareStrategyModalSplit.class);
+    private static final Logger log = LogManager.getLogger(OptDrtFareStrategyModalSplit.class);
 
     private Map<Integer, Double> timeBin2distanceFarePerMeter = new HashMap<>();
 
@@ -96,9 +97,9 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             // update the price, and make sure the new price will not be lower than the minFare in drtFareConfig.
             double fare = e.getUnsharedRideDistance() * timeBinDistanceFare;
 
-            double oldFare = Math.max(e.getUnsharedRideDistance() * drtFareConfigGroup.getDistanceFare_m(), drtFareConfigGroup.getMinFarePerTrip());
-            if (oldFare + fare < drtFareConfigGroup.getMinFarePerTrip()) {
-                events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), ((-drtFareConfigGroup.getMinFarePerTrip())) + oldFare, "opt-drt-fare-surcharge", this.optDrtConfigGroup.getMode() + "-operator"));
+            double oldFare = Math.max(e.getUnsharedRideDistance() * drtFareConfigGroup.distanceFare_m, drtFareConfigGroup.minFarePerTrip);
+            if (oldFare + fare < drtFareConfigGroup.minFarePerTrip) {
+                events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), ((-drtFareConfigGroup.minFarePerTrip)) + oldFare, "opt-drt-fare-surcharge", this.optDrtConfigGroup.getMode() + "-operator"));
             } else {
                 events.processEvent(new PersonMoneyEvent(event.getTime(), event.getPersonId(), -fare, "opt-drt-fare-surcharge", this.optDrtConfigGroup.getMode() + "-operator"));
             }
@@ -173,8 +174,8 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
             // negative price should not be allowed.However, considering that the updated price is based on the original price.
             // Lower than the price defined in the drt-fare module should be taken into account.
 
-            if (updatedDistanceFare < (0 - drtFareConfigGroup.getDistanceFare_m()))
-                updatedDistanceFare = 0 - drtFareConfigGroup.getDistanceFare_m();
+            if (updatedDistanceFare < (0 - drtFareConfigGroup.distanceFare_m))
+                updatedDistanceFare = 0 - drtFareConfigGroup.distanceFare_m;
 
             log.info("Fare in time bin " + timeBin + " changed from " + oldDistanceFare + " to " + updatedDistanceFare);
 
@@ -220,7 +221,7 @@ public class OptDrtFareStrategyModalSplit implements PersonDepartureEventHandler
 
                     double fare = 0.;
                     if (this.timeBin2distanceFarePerMeter.get(timeBin) != null)
-                        fare = drtFareConfigGroup.getDistanceFare_m() + this.timeBin2distanceFarePerMeter.get(timeBin);
+                        fare = drtFareConfigGroup.distanceFare_m + this.timeBin2distanceFarePerMeter.get(timeBin);
 
                     bw.write(String.valueOf(timeBin) + ";" + timeBinStart + ";" + timeBinEnd + ";" + this.timeBin2totalTrips.get(timeBin) + ";" + this.timeBin2drtTrips.get(timeBin) + ";" + this.timeBin2DrtModalStats.get(timeBin) + ";" + String.valueOf(fare));
                     bw.newLine();
