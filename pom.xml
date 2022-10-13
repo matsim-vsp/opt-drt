@@ -61,7 +61,7 @@
 			<!-- Include the JUnit testing library.  Not transitive. -->
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -92,7 +92,7 @@
         <dependency>
     	    <groupId>com.google.guava</groupId>
     	    <artifactId>guava</artifactId>
-    	    <version>29.0-jre</version>
+    	    <version>31.1-jre</version>
         </dependency>
     </dependencies>
 
